@@ -1,0 +1,56 @@
+usuarios:
+
+    id (PK)
+    nombre
+    apellidos
+    email (UNIQUE)
+    contraseña
+
+
+familias:
+
+    id (PK)
+    nombre
+
+
+usuarios_familias:
+
+    usuario_id (FK) -> usuarios.id
+    familia_id (FK) -> familias.id
+    id_usuario_familia (PK)
+    es_administrador
+    fecha_union
+
+
+presupuestos:
+
+    id (PK)
+    familia_id (FK) -> familias.id
+    nombre
+    monto_total
+
+
+categorias:
+
+    id (PK)
+    familia_id (FK) -> familias.id
+    nombre
+
+
+transacciones:
+
+    id (PK)
+    presupuesto_id (FK) -> presupuestos.id
+    familia_id (FK) -> familias.id
+    monto
+    tipo (ingreso, gasto)
+    descripcion
+    estado (pendiente, aprobado, rechazado)
+    
+
+usuarios (1) <---> (N) usuarios_familias
+familias (1) <---> (N) usuarios_familias
+familias (1) <---> (N) presupuestos
+familias (1) <---> (N) categorias
+presupuestos (1) <---> (N) transacciones
+familias (1) <---> (N) transacciones

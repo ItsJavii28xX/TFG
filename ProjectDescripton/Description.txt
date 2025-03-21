@@ -1,0 +1,34 @@
+**DESCRIPCION**
+
+Desarrollo de una aplicación para la gestión económica
+
+
+Este proyecto tiene como objetivo el diseño e implementación de una aplicación web orientada a la gestión económica de familias, amigos y grupos de trabajo utilizando tecnologías modernas como Angular para el front-end y Node.js con Express.js para el back-end. La aplicación estará respaldada por una base de datos MySQL que garantizará una gestión eficiente y estructurada de los datos.
+
+La herramienta permitirá a los usuarios gestionar su economía mediante funcionalidades como:
+
+- Registro e inicio de sesión seguro, incluyendo la creación automática de una familia para usuarios nuevos.
+- Gestión de familias, permitiendo a los administradores añadir y eliminar miembros, así como asignar nuevos administradores.
+- Creación y gestión de presupuestos, categorías y transacciones.
+- Implementación de roles diferenciados: administradores con permisos avanzados y miembros con permisos restringidos.
+- Aprobación de transacciones propuestas por miembros no administradores.
+
+
+La aplicación proporcionará un enfoque colaborativo, fomentando la transparencia y el control en las finanzas. El desarrollo se llevará a cabo mediante metodologías ágiles y haciendo uso de buenas prácticas de programación, con énfasis en la escalabilidad, la seguridad de los datos y la experiencia de usuario.
+
+El proyecto concluirá con la publicación de la aplicación en un entorno de producción, validando su funcionalidad y facilidad de uso mediante pruebas con usuarios finales. Este trabajo busca no solo desarrollar un software funcional, sino también aportar una solución práctica a la gestión económica en diferentes entornos.
+
+
+**BASE DE DATOS**
+
+Para la base de datos, usaré MySQL y phpMyAdmin para la gestion de ésta.
+
+ - Modelo E/R:
+
+    Para la creación del diagrama entidad-relación he usado el software de dbdiagram.io, el código usado está ubicado en la carpeta Database
+
+    (Foto del diagrama)
+
+ - Modelo relacional:
+   
+   El modelo relacional se encuentra en la carpeta Database
