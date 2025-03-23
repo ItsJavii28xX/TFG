@@ -1,56 +1,9 @@
-usuarios:
-
-    id (PK)
-    nombre
-    apellidos
-    email (UNIQUE)
-    contraseña
-
-
-familias:
-
-    id (PK)
-    nombre
-
-
-usuarios_familias:
-
-    usuario_id (FK) -> usuarios.id
-    familia_id (FK) -> familias.id
-    id_usuario_familia (PK)
-    es_administrador
-    fecha_union
-
-
-presupuestos:
-
-    id (PK)
-    familia_id (FK) -> familias.id
-    nombre
-    monto_total
-
-
-categorias:
-
-    id (PK)
-    familia_id (FK) -> familias.id
-    nombre
-
-
-transacciones:
-
-    id (PK)
-    presupuesto_id (FK) -> presupuestos.id
-    familia_id (FK) -> familias.id
-    monto
-    tipo (ingreso, gasto)
-    descripcion
-    estado (pendiente, aprobado, rechazado)
-    
-
-usuarios (1) <---> (N) usuarios_familias
-familias (1) <---> (N) usuarios_familias
-familias (1) <---> (N) presupuestos
-familias (1) <---> (N) categorias
-presupuestos (1) <---> (N) transacciones
-familias (1) <---> (N) transacciones
+Usuarios(id_usuario(PK), nombre, apellidos, email[UNIQUE], contraseña, telefono, imagen_perfil, oauth_provider, oauth_id)
+Grupos(id_grupo(PK), nombre, fecha_creacion)
+Usuarios_Grupos(id_usuario_grupo(PK), id_usuario(FK → Usuarios.id_usuario), id_grupo(FK → Grupos.id_grupo), es_administrador, fecha_union)
+Presupuestos(id_presupuesto(PK), id_grupo(FK → Grupos.id_grupo), nombre, cantidad, descripcion, fecha_inicio, fecha_fin)
+Gastos(id_gasto(PK), id_presupuesto(FK → Presupuestos.id_presupuesto), id_usuario(FK → Usuarios.id_usuario), id_grupo(FK → Grupos.id_grupo), nombre, cantidad, descripcion, estado, fecha_creacion)
+Categorias(id_categoria(PK), id_grupo(FK → Grupos.id_grupo), nombre, descripcion)
+Contactos(id_contacto(PK), id_usuario(FK → Usuarios.id_usuario), nombre, email, telefono)
+Alertas_Limites(id_alerta(PK), id_usuario(FK → Usuarios.id_usuario), limite, email_notificacion)
+Historico(id_historico(PK), id_grupo(FK → Grupos.id_grupo), accion, id_usuario(FK → Usuarios.id_usuario), fecha)

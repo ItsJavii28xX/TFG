@@ -1,43 +1,77 @@
-Table usuarios {
-  id int [pk, increment]
+Table Usuarios {
+  id_usuario int [pk, increment]
   nombre varchar
   apellidos varchar
   email varchar [unique]
   contraseña varchar
+  telefono varchar
+  imagen_perfil varchar
+  oauth_provider varchar
+  oauth_id varchar
 }
 
-Table familias {
-  id int [pk, increment]
+Table Grupos {
+  id_grupo int [pk, increment]
   nombre varchar
+  fecha_creacion datetime
 }
 
-Table usuarios_familias {
-  usuario_id int [ref: > usuarios.id]
-  familia_id int [ref: > familias.id]
+Table Usuarios_Grupos {
+  id_usuario_grupo int [pk, increment]
+  id_grupo int [ref: > Grupos.id_grupo]
+  id_usuario int [ref: > Usuarios.id_usuario]
   es_administrador boolean
   fecha_union datetime
-  primary key (usuario_id, familia_id)
 }
 
-Table presupuestos {
-  id int [pk, increment]
-  familia_id int [ref: > familias.id]
+Table Presupuestos {
+  id_presupuesto int [pk, increment]
+  id_grupo int [ref: > Grupos.id_grupo]
   nombre varchar
-  monto_total decimal
-}
-
-Table categorias {
-  id int [pk, increment]
-  familia_id int [ref: > familias.id]
-  nombre varchar
-}
-
-Table transacciones {
-  id int [pk, increment]
-  familia_id int [ref: > familias.id]
-  presupuesto_id int [ref: > presupuestos.id]
-  monto decimal
-  tipo enum('ingreso', 'gasto')
+  cantidad decimal
   descripcion text
-  estado enum('pendiente', 'aprobado', 'rechazado')
+  fecha_inicio datetime
+  fecha_fin datetime
+}
+
+Table Gastos {
+  id_gasto int [pk, increment]
+  id_presupuesto int [ref: > Presupuestos.id_presupuesto]
+  id_usuario int [ref: > Usuarios.id_usuario]
+  id_grupo int [ref: > Grupos.id_grupo]
+  nombre varchar
+  cantidad decimal
+  descripcion text
+  estado varchar
+  fecha_creacion datetime
+}
+
+Table Categorias {
+  id_categoria int [pk, increment]
+  id_grupo int [ref: > Grupos.id_grupo]
+  nombre varchar
+  descripcion text
+}
+
+Table Contactos {
+  id_contacto int [pk, increment]
+  id_usuario int [ref: > Usuarios.id_usuario]
+  nombre varchar
+  email varchar
+  telefono varchar
+}
+
+Table Alertas_Limites {
+  id_alerta int [pk, increment]
+  id_usuario int [ref: > Usuarios.id_usuario]
+  limite decimal
+  email_notificacion varchar
+}
+
+Table Historico {
+  id_historico int [pk, increment]
+  id_grupo int [ref: > Grupos.id_grupo]
+  accion varchar
+  id_usuario int [ref: > Usuarios.id_usuario]
+  fecha datetime
 }
