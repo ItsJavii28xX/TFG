@@ -10,10 +10,15 @@ const Categoria = require('./categoria')(sequelize, DataTypes);
 const Contacto = require('./contacto')(sequelize, DataTypes);
 const AlertaLimite = require('./alertalimite')(sequelize, DataTypes);
 const Historico = require('./historico')(sequelize, DataTypes);
+const Token = require('./token')(sequelize, DataTypes);
+const UsuarioToken = require('./usuariotoken')(sequelize, DataTypes);
 
 // Asociaciones
 Usuario.belongsToMany(Grupo, { through: UsuarioGrupo, foreignKey: 'id_usuario' });
 Grupo.belongsToMany(Usuario, { through: UsuarioGrupo, foreignKey: 'id_grupo' });
+
+Token.belongsToMany(Usuario, { through: UsuarioToken, foreignKey: 'id_token', otherKey: 'id_usuario' });
+Usuario.belongsToMany(Token, { through: UsuarioToken, foreignKey: 'id_usuario', otherKey: 'id_token' });
 
 Grupo.hasMany(Presupuesto, { foreignKey: 'id_grupo' });
 Presupuesto.belongsTo(Grupo, { foreignKey: 'id_grupo' });
@@ -49,5 +54,7 @@ module.exports = {
   Categoria,
   Contacto,
   AlertaLimite,
-  Historico
+  Historico,
+  Token,
+  UsuarioToken
 };

@@ -1,11 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const presupuestoController = require('../controllers/presupuestoController');
+const auth = require('../middleware/auth');
 
-router.get('/grupos/:idGrupo/presupuestos', presupuestoController.obtenerPresupuestosDeGrupo);
-router.post('/grupos/:idGrupo/presupuestos', presupuestoController.crearPresupuesto);
-router.get('/presupuestos/:id', presupuestoController.obtenerPresupuestoPorId);
-router.put('/presupuestos/:id', presupuestoController.actualizarPresupuesto);
-router.delete('/presupuestos/:id', presupuestoController.eliminarPresupuesto);
+router.get('/grupos/:idGrupo/presupuestos', auth, presupuestoController.obtenerPresupuestosDeGrupo);
+router.get('/presupuestos/:id', auth, presupuestoController.obtenerPresupuestoPorId);
+
+router.post('/grupos/:idGrupo/presupuestos', auth, presupuestoController.crearPresupuesto);
+
+router.put('/presupuestos/:id', auth, presupuestoController.actualizarPresupuesto);
+
+router.delete('/presupuestos/:id', auth, presupuestoController.eliminarPresupuesto);
 
 module.exports = router;

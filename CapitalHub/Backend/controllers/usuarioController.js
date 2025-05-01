@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { Usuario } = require('../models');
 
 exports.obtenerUsuarios = async (req, res) => {
@@ -46,5 +47,38 @@ exports.eliminarUsuario = async (req, res) => {
     res.json({ mensaje: 'Usuario eliminado correctamente' });
   } catch (error) {
     res.status(500).json({ error: 'Error al eliminar usuario' });
+  }
+};
+
+exports.login = async (req, res) => {
+  try {
+    const { email, contraseña } = req.body;
+    if (!email || !contraseña) {
+      return res.status(400).json({ error: 'Faltan email o contraseña' });
+    }
+    const user = await Usuario.findByCredentials(email, contraseña);
+    const token = await user.generateAuthToken();
+    res.json({ token });
+  } catch (err) {
+    console.error('Error en login:', err);
+    res.status(400).json({ error: err.message });
+  }
+};
+
+exports.logout = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(400).json({ error: 'Token no proporcionado' });
+    const tokenValue = authHeader.replace('Bearer ', '');
+
+    const tokenRecord = await Token.findOne({ where: { token: tokenValue } });
+    if (!tokenRecord) return res.status(404).json({ error: 'Token no encontrado' });
+
+    await UsuarioToken.destroy({ where: { id_token: tokenRecord.id_token } });
+    await tokenRecord.destroy();
+    res.json({ mensaje: 'Logout exitoso' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al cerrar sesión' });
   }
 };

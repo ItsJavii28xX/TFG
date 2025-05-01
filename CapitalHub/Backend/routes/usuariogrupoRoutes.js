@@ -1,11 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const usuarioGrupoController = require('../controllers/usuarioGrupoController');
+const auth = require('../middleware/auth');
 
-router.get('/usuarios-grupos', usuarioGrupoController.obtenerUsuariosGrupos);
-router.post('/usuarios-grupos', usuarioGrupoController.crearUsuarioGrupo);
-router.get('/usuarios-grupos/:id', usuarioGrupoController.obtenerUsuarioGrupoPorId);
-router.put('/usuarios-grupos/:id', usuarioGrupoController.actualizarUsuarioGrupo);
-router.delete('/usuarios-grupos/:id', usuarioGrupoController.eliminarUsuarioGrupo);
+router.get('/usuarios-grupos', auth,  usuarioGrupoController.obtenerUsuariosGrupos);
+router.get('/usuarios-grupos/:id', auth,  usuarioGrupoController.obtenerUsuarioGrupoPorId);
+
+router.post('/usuarios-grupos', auth,  usuarioGrupoController.crearUsuarioGrupo);
+
+router.put('/usuarios-grupos/:id', auth,  usuarioGrupoController.actualizarUsuarioGrupo);
+
+router.delete('/usuarios-grupos/:id', auth, usuarioGrupoController.eliminarUsuarioGrupo);
 
 module.exports = router;

@@ -1,11 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const gastoController = require('../controllers/gastoController');
+const auth = require('../middleware/auth');
 
-router.get('/grupos/:idGrupo/gastos', gastoController.obtenerGastosDeGrupo);
-router.post('/grupos/:idGrupo/gastos', gastoController.crearGasto);
-router.get('/gastos/:id', gastoController.obtenerGastoPorId);
-router.put('/gastos/:id', gastoController.actualizarGasto);
-router.delete('/gastos/:id', gastoController.eliminarGasto);
+router.get('/grupos/:idGrupo/gastos', auth, gastoController.obtenerGastosDeGrupo);
+router.get('/gastos/:id', auth, gastoController.obtenerGastoPorId);
+
+router.post('/grupos/:idGrupo/gastos', auth, gastoController.crearGasto);
+
+router.put('/gastos/:id', auth, gastoController.actualizarGasto);
+
+router.delete('/gastos/:id', auth, gastoController.eliminarGasto);
 
 module.exports = router;
