@@ -47,7 +47,6 @@ module.exports = (sequelize, DataTypes) => {
       throw new Error('Credenciales inválidas');
     }
 
-    // aquí usamos directamente user.contraseña sin más comprobaciones
     const isMatch = await bcrypt.compare(password, user.contraseña);
     if (!isMatch) {
       throw new Error('Credenciales inválidas');
