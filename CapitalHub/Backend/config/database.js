@@ -1,11 +1,13 @@
+// config/database.js
 const { Sequelize } = require('sequelize');
-const fs = require('fs');
-const path = require('path');
 require('dotenv').config();
 
-// Ruta del certificado 'ca.pem' en el mismo directorio actual ('config')
-const certPath = path.join(__dirname, 'ca.pem');
-const cert = fs.readFileSync(certPath, 'utf-8');
+const caBase64 = process.env.DB_CA;
+if (!caBase64) {
+  throw new Error('La variable de entorno DB_CA (contenido del certificado) no está definida');
+}
+
+const ca = Buffer.from(caBase64, 'base64');
 
 const sequelize = new Sequelize(
   process.env.DB_NAME,
@@ -17,7 +19,7 @@ const sequelize = new Sequelize(
     dialect: 'mysql',
     dialectOptions: {
       ssl: {
-        ca: cert
+        ca
       }
     }
   }
