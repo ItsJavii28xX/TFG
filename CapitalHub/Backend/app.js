@@ -23,7 +23,7 @@ app.use('/api/historico', require('./routes/historicoRoutes'));
 sequelize.authenticate()
   .then(() => {
     console.log('✅ Conexión a MySQL establecida correctamente.');
-    return sequelize.sync({ alter: true });
+    return sequelize.sync();
   })
   .then(() => console.log('✅ Modelos sincronizados correctamente.'))
   .catch(err => console.error('❌ Error al conectar DB:', err));
