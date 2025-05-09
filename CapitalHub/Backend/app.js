@@ -22,10 +22,13 @@ app.use('/api/historico', require('./routes/historicoRoutes'));
 
 sequelize.authenticate()
   .then(() => {
-    console.log('✅ Conexión a MySQL establecida correctamente.');
-    return sequelize.sync();
+    console.log('✅ DB connected');
+    if (process.env.NODE_ENV !== 'production') {
+      return sequelize.sync({ alter: true })
+        .then(() => console.log('✅ Models synced'));
+    }
   })
-  .then(() => console.log('✅ Modelos sincronizados correctamente.'))
-  .catch(err => console.error('❌ Error al conectar DB:', err));
+  .catch(err => console.error('❌ DB error', err));
+
 
 module.exports = serverless(app);
