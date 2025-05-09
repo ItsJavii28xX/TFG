@@ -10,15 +10,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use('/api/usuarios', require('./routes/usuarioRoutes'));
-app.use('/api/grupos', require('./routes/grupoRoutes'));
-app.use('/api/usuariogrupo', require('./routes/usuariogrupoRoutes'));
-app.use('/api/presupuestos', require('./routes/presupuestoRoutes'));
-app.use('/api/gastos', require('./routes/gastoRoutes'));
-app.use('/api/categorias', require('./routes/categoriaRoutes'));
-app.use('/api/alertalimite', require('./routes/alertalimiteRoutes'));
-app.use('/api/contactos', require('./routes/contactoRoutes'));
-app.use('/api/historico', require('./routes/historicoRoutes'));
+app.use('/api', require('./routes/usuarioRoutes'));
+app.use('/api', require('./routes/grupoRoutes'));
+app.use('/api', require('./routes/usuariogrupoRoutes'));
+app.use('/app', require('./routes/presupuestoRoutes'));
+app.use('/api', require('./routes/gastoRoutes'));
+app.use('/api', require('./routes/categoriaRoutes'));
+app.use('/api', require('./routes/alertalimiteRoutes'));
+app.use('/api', require('./routes/contactoRoutes'));
+app.use('/api', require('./routes/historicoRoutes'));
 
 sequelize.authenticate()
   .then(() => {
