@@ -28,4 +28,4 @@ sequelize.authenticate()
   .then(() => console.log('✅ Modelos sincronizados correctamente.'))
   .catch(err => console.error('❌ Error al conectar DB:', err));
 
-module.exports.handler = serverless(app);
+module.exports = serverless(app);
