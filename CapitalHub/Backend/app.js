@@ -10,6 +10,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get('/', (req, res) => {
+  res.json({ ok: true, message: 'CapitalHub Backend up!' });
+});
+
 app.use('/api', require('./routes/usuarioRoutes'));
 app.use('/api', require('./routes/grupoRoutes'));
 app.use('/api', require('./routes/usuariogrupoRoutes'));
