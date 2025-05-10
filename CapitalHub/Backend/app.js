@@ -10,10 +10,36 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Mantén una sola conexión establecida y reutilízala
+let isConnected = false;
+
+async function connectToDatabase() {
+  if (!isConnected) {
+    try {
+      await sequelize.authenticate();
+      console.log('✅ DB connected');
+      isConnected = true;
+    } catch (err) {
+      console.error('❌ DB error:', err);
+      throw err;
+    }
+  }
+}
+
+app.use(async (req, res, next) => {
+  try {
+    await connectToDatabase();
+    next();
+  } catch (err) {
+    res.status(500).json({ ok: false, message: 'DB Connection error' });
+  }
+});
+
 app.get('/', (req, res) => {
   res.json({ ok: true, message: 'CapitalHub Backend up!' });
 });
 
+// Rutas
 app.use('/api', require('./routes/usuarioRoutes'));
 app.use('/api', require('./routes/grupoRoutes'));
 app.use('/api', require('./routes/usuariogrupoRoutes'));
@@ -23,16 +49,5 @@ app.use('/api', require('./routes/categoriaRoutes'));
 app.use('/api', require('./routes/alertalimiteRoutes'));
 app.use('/api', require('./routes/contactoRoutes'));
 app.use('/api', require('./routes/historicoRoutes'));
-
-sequelize.authenticate()
-  .then(() => {
-    console.log('✅ DB connected');
-    if (process.env.NODE_ENV !== 'production') {
-      return sequelize.sync({ alter: true })
-        .then(() => console.log('✅ Models synced'));
-    }
-  })
-  .catch(err => console.error('❌ DB error', err));
-
 
 module.exports = serverless(app);
