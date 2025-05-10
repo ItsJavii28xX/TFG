@@ -10,7 +10,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Mantén una sola conexión establecida y reutilízala
 let isConnected = false;
 
 async function connectToDatabase() {
@@ -36,18 +35,8 @@ app.use(async (req, res, next) => {
 });
 
 app.get('/', (req, res) => {
-  res.json({ ok: true, message: 'CapitalHub Backend up!' });
+  res.json({ ok: true, message: 'Backend activo' });
 });
 
-// Rutas
-app.use('/api', require('./routes/usuarioRoutes'));
-app.use('/api', require('./routes/grupoRoutes'));
-app.use('/api', require('./routes/usuariogrupoRoutes'));
-app.use('/app', require('./routes/presupuestoRoutes'));
-app.use('/api', require('./routes/gastoRoutes'));
-app.use('/api', require('./routes/categoriaRoutes'));
-app.use('/api', require('./routes/alertalimiteRoutes'));
-app.use('/api', require('./routes/contactoRoutes'));
-app.use('/api', require('./routes/historicoRoutes'));
-
+// No incluyas ninguna ruta adicional por ahora
 module.exports = serverless(app);
