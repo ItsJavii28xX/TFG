@@ -1,5 +1,7 @@
 const swaggerJsdoc             = require('swagger-jsdoc');
+const express = require('express')
 const swaggerUi                = require('swagger-ui-express');
+const path = require('path')
 const { Categoria, Historico } = require('./models');
 
 const options = {
@@ -140,12 +142,27 @@ const options = {
     ]
   },
   apis: [
-    './routes/*.js',
-    './controllers/*.js'
+    path.join(__dirname, 'routes', '**', '*.js'),
+    path.join(__dirname, 'controllers', '**', '*.js')
   ]
 };
 
-module.exports = {
-  swaggerUi,
-  specs: swaggerJsdoc(options)
-};
+const swaggerDocs = swaggerJsdoc(options)
+
+const swaggerUiOptions = {
+    explorer: true,
+    customCss:'.swagger-ui .opblock .opblock-summary-path-description-wrapper { align-items: center; display: flex; flex-wrap: wrap; gap: 0 10px; padding: 0 10px; width: 100%; }',
+    customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.0.0/swagger-ui.min.css'
+}
+
+module.exports = (app) => {
+    const swaggerUiDistPath = require('swagger-ui-dist').getAbsoluteFSPath()
+    app.use('/api-docs', express.static(swaggerUiDistPath))
+    
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs, swaggerUiOptions))
+
+    app.get('/swagger.json', (req, res) => {
+        res.setHeader('Content-Type', 'application/json')
+        res.send(swaggerDocs);
+    })
+}

@@ -1,7 +1,7 @@
 const express = require('express');
 const serverless = require('serverless-http');
 const cors = require('cors');
-const { swaggerUi, specs } = require('./swagger');
+const swaggerSetup = require('./swagger');
 require('dotenv').config();
 
 const sequelize = require('./config/database');
@@ -10,6 +10,8 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+swaggerSetup(app);
 
 app.get('/', (req, res) => {
   res.json({ ok: true, message: 'CapitalHub Backend up!' });
@@ -24,12 +26,6 @@ app.use('/api', require('./routes/categoriaRoutes'));
 app.use('/api', require('./routes/alertalimiteRoutes'));
 app.use('/api', require('./routes/contactoRoutes'));
 app.use('/api', require('./routes/historicoRoutes'));
-
-app.use(
-  '/api-docs',
-  swaggerUi.serve,
-  swaggerUi.setup(specs, { explorer: true })
-);
 
 sequelize.authenticate()
   .then(() => {
@@ -49,4 +45,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = serverless(app);
+module.exports = app;
