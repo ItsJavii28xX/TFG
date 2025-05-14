@@ -33,19 +33,19 @@ app.use(
 
 sequelize.authenticate()
   .then(() => {
-    console.log('✅ DB connected');
+    console.log('DB connected');
     if (process.env.NODE_ENV !== 'production') {
       return sequelize.sync({ alter: true })
-        .then(() => console.log('✅ Models synced'));
+        .then(() => console.log('Models synced'));
     }
   })
-  .catch(err => console.error('❌ DB error', err));
+  .catch(err => console.error('DB error', err));
 
 
 if (require.main === module) {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
-    console.log(`🚀 Server listening on http://localhost:${PORT}`);
+    console.log(`Server listening on http://localhost:${PORT}`);
   });
 }
 
