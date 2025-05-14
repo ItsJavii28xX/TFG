@@ -147,7 +147,7 @@ const options = {
   ]
 };
 
-const swaggerDocs = swaggerJSDoc(options)
+const swaggerDocs = swaggerJsdoc(options)
 
 const swaggerUiOptions = {
     explorer: true,
