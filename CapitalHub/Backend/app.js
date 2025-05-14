@@ -11,6 +11,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+swaggerSetup(app);
+
 app.get('/', (req, res) => {
   res.json({ ok: true, message: 'CapitalHub Backend up!' });
 });
