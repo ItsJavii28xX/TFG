@@ -25,12 +25,6 @@ app.use('/api', require('./routes/alertalimiteRoutes'));
 app.use('/api', require('./routes/contactoRoutes'));
 app.use('/api', require('./routes/historicoRoutes'));
 
-app.use(
-  '/api-docs',
-  swaggerUi.serve,
-  swaggerUi.setup(specs, { explorer: true })
-);
-
 sequelize.authenticate()
   .then(() => {
     console.log('✅ DB connected');
