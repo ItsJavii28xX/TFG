@@ -145,7 +145,22 @@ const options = {
   ]
 };
 
-module.exports = {
-  swaggerUi,
-  specs: swaggerJsdoc(options)
-};
+const swaggerDocs = swaggerJSDoc(options)
+
+const swaggerUiOptions = {
+    explorer: true,
+    customCss:'.swagger-ui .opblock .opblock-summary-path-description-wrapper { align-items: center; display: flex; flex-wrap: wrap; gap: 0 10px; padding: 0 10px; width: 100%; }',
+    customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.0.0/swagger-ui.min.css'
+}
+
+module.exports = (app) => {
+    const swaggerUiDistPath = require('swagger-ui-dist').getAbsoluteFSPath()
+    app.use('/api-docs', express.static(swaggerUiDistPath))
+    
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs, swaggerUiOptions))
+
+    app.get('/swagger.json', (req, res) => {
+        res.setHeader('Content-Type', 'application/json')
+        res.send(swaggerDocs);
+    })
+}
