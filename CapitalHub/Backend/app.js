@@ -1,7 +1,7 @@
 const express = require('express');
 const serverless = require('serverless-http');
 const cors = require('cors');
-const { swaggerUi, specs } = require('./swagger');
+const swaggerSetup = require('./swagger');
 require('dotenv').config();
 
 const sequelize = require('./config/database');
