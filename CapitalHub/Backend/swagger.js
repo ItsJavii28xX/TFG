@@ -1,5 +1,7 @@
 const swaggerJsdoc             = require('swagger-jsdoc');
+const express = require('express')
 const swaggerUi                = require('swagger-ui-express');
+const path = require('path')
 const { Categoria, Historico } = require('./models');
 
 const options = {
