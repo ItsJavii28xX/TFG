@@ -25,7 +25,7 @@ export function app(): express.Express {
     index: 'index.html',
   }));
 
-  // All regular routes use the Angular engine
+  // All regular routes use the Angular engine cambio
   server.get('**', (req, res, next) => {
     const { protocol, originalUrl, baseUrl, headers } = req;
 
