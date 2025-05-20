@@ -1,11 +1,8 @@
-// backend/middleware/auth.js
 const jwt = require('jsonwebtoken');
 const { Usuario, Token, UsuarioToken } = require('../models');
 
 module.exports = async function auth(req, res, next) {
-    
   try {
-
     const authHeader = req.header('Authorization');
     if (!authHeader) {
       return res.status(401).json({ error: 'Falta cabecera Authorization' });
@@ -22,6 +19,11 @@ module.exports = async function auth(req, res, next) {
       decoded = jwt.verify(tokenString, process.env.JWT_SECRET);
     } catch (err) {
       if (err.name === 'TokenExpiredError') {
+        const tokenRecord = await Token.findOne({ where: { token: tokenString } });
+        if (tokenRecord) {
+          await UsuarioToken.destroy({ where: { id_token: tokenRecord.id_token } });
+          await tokenRecord.destroy();
+        }
         return res.status(401).json({ error: 'Token expirado' });
       }
       return res.status(401).json({ error: 'Token inválido' });
@@ -34,7 +36,7 @@ module.exports = async function auth(req, res, next) {
 
     const usuarioToken = await UsuarioToken.findOne({
       where: {
-        id_token: token.id_token,
+        id_token:   token.id_token,
         id_usuario: decoded.id_usuario
       }
     });

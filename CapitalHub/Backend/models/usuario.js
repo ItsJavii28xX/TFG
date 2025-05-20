@@ -38,6 +38,7 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   Usuario.findByCredentials = async function(email, password) {
+
     if (typeof email !== 'string' || typeof password !== 'string') {
       throw new Error('Email y contraseña deben ser cadenas de texto');
     }
@@ -45,6 +46,10 @@ module.exports = (sequelize, DataTypes) => {
     const user = await Usuario.findOne({ where: { email } });
     if (!user) {
       throw new Error('Credenciales inválidas');
+    }
+
+    if (user.oauth_provider === 'google') {
+      throw new Error('Este correo está registrado usando Google Sign-In. Usa “Iniciar con Google”.');
     }
 
     const isMatch = await bcrypt.compare(password, user.contraseña);

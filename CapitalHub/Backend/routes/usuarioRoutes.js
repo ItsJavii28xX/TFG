@@ -81,6 +81,43 @@ router.post('/usuarios/login', usuarioController.login);
 
 /**
  * @swagger
+ * /usuarios/login-short:
+ *   post:
+ *     summary: Inicia sesión con token de 12h
+ *     tags: [Usuarios]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - contraseña
+ *             properties:
+ *               email:
+ *                 type: string
+ *               contraseña:
+ *                 type: string
+ *     responses:
+ *       '200':
+ *         description: JWT generado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *       '400':
+ *         description: Credenciales inválidas
+ */
+router.post('/usuarios/login-short', usuarioController.loginShort);
+
+router.post('/usuarios/login-google', usuarioController.loginWithGoogle);
+
+/**
+ * @swagger
  * /usuarios/logout:
  *   post:
  *     summary: Cierra la sesión del usuario eliminando su token
@@ -106,6 +143,10 @@ router.post('/usuarios/login', usuarioController.login);
  *         description: Error al cerrar sesión
  */
 router.post('/usuarios/logout', auth, usuarioController.logout);
+
+router.post('/usuarios/forgot-password', usuarioController.forgotPassword);
+
+router.post('/usuarios/reset-password', usuarioController.resetPassword);
 
 /**
  * @swagger
