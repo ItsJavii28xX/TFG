@@ -8,7 +8,9 @@ const sequelize = require('./config/database');
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:4200', 'https://capitalhub-frontend.vercel.app']
+}));
 app.use(express.json());
 
 swaggerSetup(app);

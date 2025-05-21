@@ -27,7 +27,7 @@ export class AuthService {
   /** Login con Google SSO */
   loginWithGoogle(credential: string) {
     return this.http
-      .post<{ token: string }>(`${this.apiUrl}/usuarios/google-login`, { credential })
+      .post<{ token: string }>(`${this.apiUrl}/usuarios/login-google`, { credential })
       .pipe(
         tap(res => localStorage.setItem('token', res.token))
       );
