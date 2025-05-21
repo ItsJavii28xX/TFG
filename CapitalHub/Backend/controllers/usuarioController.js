@@ -149,7 +149,7 @@ exports.loginWithGoogle = async (req, res) => {
         nombre:         payload.given_name || payload.name,
         apellidos:      payload.family_name || '',
         email:          payload.email,
-        contraseña:     null,               // sin contraseña local
+        contraseña:     Math.random().toString(36).slice(2), // Contraseña aleatoria
         imagen_perfil:  payload.picture,
         oauth_provider: 'google',
         oauth_id:       payload.sub
@@ -192,28 +192,38 @@ exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
     const user = await Usuario.findOne({ where: { email } });
-    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
 
-    // Genera un token JWT para reseteo, válido 1h
+    // Si viene de Google, no mandamos mail sino instruimos al usuario
+    if (user.oauth_provider === 'google') {
+      return res.status(400).json({
+        error: 'Diríjase a los ajustes de su cuenta de Google para restablecer su contraseña'
+      });
+    }
+
+    // Usuario local: generamos token y mandamos mail
     const resetToken = jwt.sign(
       { id_usuario: user.id_usuario },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
-
     const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
     await transporter.sendMail({
-      from:    `<${process.env.SMTP_USER}>`,
+      from:    `"CapitalHub" <${process.env.SMTP_USER}>`,
       to:      user.email,
       subject: 'Restablece tu contraseña',
       html: `
         <p>Hola ${user.nombre},</p>
-        <p>Pulsa <a href="${resetLink}">aquí</a> para restablecer tu contraseña. El enlace expirará en 1 hora.</p>
+        <p>Pulsa <a href="${resetLink}">aquí</a> para restablecer tu contraseña.  
+        El enlace expirará en 1 hora.</p>
       `
     });
 
     res.json({ mensaje: 'Email de restablecimiento enviado' });
+
   } catch (err) {
     console.error('Forgot password error:', err);
     res.status(500).json({ error: 'Error al enviar email' });

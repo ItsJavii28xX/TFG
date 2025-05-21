@@ -1,16 +1,20 @@
-import { Component, OnInit }                     from '@angular/core';
-import { FormBuilder, Validators, ReactiveFormsModule, FormGroup } from '@angular/forms';
-import { Router }                                from '@angular/router';
-import { MatInputModule }                        from '@angular/material/input';
-import { MatButtonModule }                       from '@angular/material/button';
-import { MatCheckboxModule }                     from '@angular/material/checkbox';
-import { MatCardModule }                         from '@angular/material/card';
-import { MatSnackBar, MatSnackBarModule }        from '@angular/material/snack-bar';
-import { CommonModule }                          from '@angular/common';
+import { Component, inject, AfterViewInit, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser }    from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router }               from '@angular/router';
+import { MatInputModule }       from '@angular/material/input';
+import { MatButtonModule }      from '@angular/material/button';
+import { MatCheckboxModule }    from '@angular/material/checkbox';
+import { MatCardModule }        from '@angular/material/card';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { CommonModule }         from '@angular/common';
 
-import { AuthService }                           from '../../services/auth.service';
-import { environment }                           from '../../../environments/environment';
-declare const google: any;
+import { AuthService }          from '../../services/auth.service';
+import { environment }          from '../../../environments/environment';
+
+declare global {
+  interface Window { google?: any; }
+}
 
 @Component({
   selector: 'app-login',
@@ -27,27 +31,54 @@ declare const google: any;
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements AfterViewInit {
+  private fb         = inject(FormBuilder);
+  private auth       = inject(AuthService);
+  private snack      = inject(MatSnackBar);
+  private router     = inject(Router);
+  private platformId = inject(PLATFORM_ID);
 
-  loginForm!: FormGroup;
+  loginForm: FormGroup = this.fb.group({
+    email:      ['', [Validators.required, Validators.email]],
+    password:   ['', [Validators.required]],
+    rememberMe: [false]
+  });
 
-  constructor(
-    private fb:     FormBuilder,
-    private auth:   AuthService,
-    private snack:  MatSnackBar,
-    private router: Router
-  ) {}
+  ngAfterViewInit() {
+    // Solo en el navegador; en SSR/prerender no tocar window
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    this.loadGoogleScript();
+  }
 
-  ngOnInit() {
+  private loadGoogleScript() {
+    // Comprobamos seguro que hay window
+    if (typeof window === 'undefined') {
+      return;
+    }
+    // Si ya está cargado, inicializamos
+    if (window.google?.accounts?.id) {
+      return this.initializeGoogleSignIn();
+    }
+    // Si no, lo inyectamos y esperamos onload
+    const script = document.createElement('script');
+    script.src   = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = () => this.initializeGoogleSignIn();
+    document.head.appendChild(script);
+  }
 
-    this.initializeGoogleSignIn();
-
-    this.loginForm = this.fb.group({
-      email:      ['', [Validators.required, Validators.email]],
-      password:   ['', [Validators.required]],
-      rememberMe: [false]
+  private initializeGoogleSignIn() {
+    window.google.accounts.id.initialize({
+      client_id: environment.googleClient,
+      callback:  (resp: any) => this.handleGoogleCredential(resp)
     });
-
+    window.google.accounts.id.renderButton(
+      document.getElementById('googleSignInButton')!,
+      { theme: 'outline', size: 'large' }
+    );
   }
 
   onSubmit() {
@@ -59,28 +90,15 @@ export class LoginComponent implements OnInit {
     });
   }
 
-initializeGoogleSignIn() {
-  google.accounts.id.initialize({
-    client_id: environment.googleClient,
-    callback: (resp: any) => {
-      console.log('🔥 GSI callback got:', resp);
-      this.handleGoogleCredential(resp);
-    }
-  });
-  google.accounts.id.renderButton(
-    document.getElementById('googleSignInButton'),
-    { theme: 'outline', size: 'large' }
-  );
-}
-
-  handleGoogleCredential(resp: any) {
+  private handleGoogleCredential(resp: any) {
+    console.log('🔥 GSI callback got:', resp);
     this.auth.loginWithGoogle(resp.credential).subscribe({
       next: () => this.router.navigate(['/']),
       error: () => this.snack.open('Google login falló', 'Cerrar', { duration: 3000 })
     });
   }
 
-  forgotPassword() {
+  forgotPassword(): void {
     const email = prompt('Introduce tu email registrado:');
     if (!email) return;
     this.auth.forgotPassword(email).subscribe({
