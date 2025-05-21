@@ -39,7 +39,7 @@ export class LoginComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    
+
     this.initializeGoogleSignIn();
 
     this.loginForm = this.fb.group({
@@ -59,16 +59,19 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  initializeGoogleSignIn() {
-    google.accounts.id.initialize({
-      client_id: environment.googleClient,
-      callback:  (resp: any) => this.handleGoogleCredential(resp)
-    });
-    google.accounts.id.renderButton(
-      document.getElementById('googleSignInButton'),
-      { theme: 'outline', size: 'large' }
-    );
-  }
+initializeGoogleSignIn() {
+  google.accounts.id.initialize({
+    client_id: environment.googleClient,
+    callback: (resp: any) => {
+      console.log('🔥 GSI callback got:', resp);
+      this.handleGoogleCredential(resp);
+    }
+  });
+  google.accounts.id.renderButton(
+    document.getElementById('googleSignInButton'),
+    { theme: 'outline', size: 'large' }
+  );
+}
 
   handleGoogleCredential(resp: any) {
     this.auth.loginWithGoogle(resp.credential).subscribe({

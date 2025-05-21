@@ -12,24 +12,7 @@
   <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin">
   <meta http-equiv="Cross-Origin-Embedder-Policy" content="require-corp">
 
-  <!-- 2) Loosen script-eval restrictions so zone.js & GSI can work -->
-  <meta http-equiv="Content-Security-Policy"
-        content="
-          default-src 'self';
-          script-src 
-            'self' 
-            'unsafe-inline' 
-            'unsafe-eval' 
-            https://accounts.google.com 
-            https://accounts.google.com/gsi/client;
-          connect-src 'self' https://capitalhub-backend.vercel.app;
-          img-src 'self' data:;
-          style-src 'self' 'unsafe-inline';
-          font-src 'self' data:;
-          object-src 'none';
-        ">
-
-  <!-- 3) Then load Google Identity -->
+  <!-- 2) Then load Google Identity -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
 </head>
