@@ -1,0 +1,23 @@
+.login-card {
+  max-width: 360px;
+  margin: 80px auto;
+  padding: 2rem;
+  text-align: center;
+  background: #1e1e1e;
+  color: #fff;
+  border-radius: 8px;
+}
+.full-width {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+.forgot-password {
+  display: block;
+  margin-top: 1rem;
+  cursor: pointer;
+  color: #3f51b5;
+  text-decoration: underline;
+}
+.google-btn {
+  margin: 1rem auto;
+}
