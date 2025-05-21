@@ -8,12 +8,29 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!-- 1) Cross-origin isolation for Google’s postMessage -->
   <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin">
   <meta http-equiv="Cross-Origin-Embedder-Policy" content="require-corp">
-  <script 
-  src="https://accounts.google.com/gsi/client"
-  async defer>
-</script>
+
+  <!-- 2) Loosen script-eval restrictions so zone.js & GSI can work -->
+  <meta http-equiv="Content-Security-Policy"
+        content="
+          default-src 'self';
+          script-src 
+            'self' 
+            'unsafe-inline' 
+            'unsafe-eval' 
+            https://accounts.google.com 
+            https://accounts.google.com/gsi/client;
+          connect-src 'self' https://capitalhub-backend.vercel.app;
+          img-src 'self' data:;
+          style-src 'self' 'unsafe-inline';
+          font-src 'self' data:;
+          object-src 'none';
+        ">
+
+  <!-- 3) Then load Google Identity -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 
 </head>
 <body class="mat-typography">
