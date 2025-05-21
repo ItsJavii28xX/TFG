@@ -109,54 +109,64 @@ exports.loginShort = async (req, res) => {
 };
 
 exports.loginWithGoogle = async (req, res) => {
+  console.log('loginWithGoogle.body:', req.body);
+
   try {
     const { credential } = req.body;
-    const ticket         = await client.verifyIdToken({
-      idToken : credential,
+    if (!credential) {
+      console.log('⚠️ No credential in body');
+      return res.status(400).json({ error: 'No credential provided' });
+    }
+
+    // Verificamos el ID token con Google
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
       audience: process.env.GOOGLE_CLIENT_ID
     });
     const payload = ticket.getPayload();
+    console.log('Google payload:', payload);
+    // payload contains: email, sub (Google user ID), name, picture, etc.
 
-      // 1. ¿Existe ya un usuario Google con este sub?
+    // 1. Buscar usuario por proveedor Google
     let user = await Usuario.findOne({
       where: {
         oauth_provider: 'google',
-        oauth_id      : payload.sub
+        oauth_id:       payload.sub
       }
     });
 
     if (!user) {
-        // 2. ¿Existe un usuario LOCAL con este email?
-      const existingByEmail = await Usuario.findOne({
-        where: { email: payload.email }
-      });
-
-      if (existingByEmail && existingByEmail.oauth_provider !== 'google') {
-          // Ya hay un registro con ese email usando otro método
+      // 2. Si no existe, comprobar si el email ya está registrado por otro método
+      const existing = await Usuario.findOne({ where: { email: payload.email } });
+      if (existing && existing.oauth_provider !== 'google') {
         return res.status(400).json({
-          error: 'Este correo ya está registrado. Por favor, inicia sesión con tu contraseña.'
+          error: 'Este email está registrado con contraseña. Por favor usa el login tradicional.'
         });
       }
 
-        // 3. Creamos nuevo usuario Google
+      // 3. Crear nuevo usuario Google
       user = await Usuario.create({
-        nombre        : payload.given_name,
-        apellidos     : payload.family_name,
-        email         : payload.email,
-        contraseña    : null,
-        imagen_perfil : payload.picture,
+        nombre:         payload.given_name || payload.name,
+        apellidos:      payload.family_name || '',
+        email:          payload.email,
+        contraseña:     null,               // sin contraseña local
+        imagen_perfil:  payload.picture,
         oauth_provider: 'google',
-        oauth_id      : payload.sub
+        oauth_id:       payload.sub
       });
+      console.log('Nuevo usuario Google creado:', user.id_usuario);
     }
 
-      // 4. Generar y devolver token
-    const token = await user.generateAuthToken();
-    res.json({ token });
+    // 4. Generar JWT + guardarlo en Token & UsuarioToken
+    const tokenValue = await user.generateAuthToken();
+    console.log('Token generado para usuario:', user.id_usuario);
+
+    // 5. Devolver token al cliente
+    res.json({ token: tokenValue });
 
   } catch (err) {
     console.error('Google login error:', err);
-    res.status(400).json({ error: 'Google login failed' });
+    res.status(400).json({ error: err.message || 'Google login failed' });
   }
 };
 
