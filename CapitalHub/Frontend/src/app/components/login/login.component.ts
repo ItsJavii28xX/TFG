@@ -1,4 +1,4 @@
-import { Component, inject, AfterViewInit, PLATFORM_ID } from '@angular/core';
+import { Component, inject, NgZone, AfterViewInit, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser }    from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router }               from '@angular/router';
@@ -42,7 +42,7 @@ export class LoginComponent implements AfterViewInit {
 
   private fb         = inject(FormBuilder);
   private auth       = inject(AuthService);
-  private snack      = inject(MatSnackBar);
+  private zone       = inject(NgZone);
   private router     = inject(Router);
   private platformId = inject(PLATFORM_ID);
   private dialog = inject(MatDialog);
@@ -78,14 +78,14 @@ export class LoginComponent implements AfterViewInit {
     script.src   = 'https://accounts.google.com/gsi/client';
     script.async = true;
     script.defer = true;
-    script.onload = () => this.initializeGoogleSignIn();
+    script.onload = () => this.zone.run(() => this.initializeGoogleSignIn());
     document.head.appendChild(script);
   }
 
   private initializeGoogleSignIn() {
     window.google.accounts.id.initialize({
       client_id: environment.googleClient,
-      callback:  (resp: any) => this.handleGoogleCredential(resp)
+      callback:  (resp: any) => this.zone.run(() => this.handleGoogleCredential(resp))
     });
     window.google.accounts.id.renderButton(
       document.getElementById('googleSignInButton')!,
@@ -119,7 +119,7 @@ export class LoginComponent implements AfterViewInit {
 
   private handleGoogleCredential(resp: any) {
     this.auth.loginWithGoogle(resp.credential).subscribe({
-      next: () => this.router.navigate(['/']),
+      next: () => this.zone.run(() => this.router.navigate(['/'])),
       error: (err) => {
         const msg = err.error.error
         const emailCtrl = this.loginForm.get('email');

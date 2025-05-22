@@ -25,6 +25,9 @@ import { CommonModule }    from '@angular/common';
   styleUrls: ['./layout.component.css']
 })
 export class LayoutComponent {
+
+  
+
   collapsed = true;
 
   toggleSidebar() {
