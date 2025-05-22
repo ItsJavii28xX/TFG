@@ -13,6 +13,8 @@ import { AuthService }          from '../../services/auth.service';
 import { environment }          from '../../../environments/environment';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ForgotPasswordDialogComponent } from '../forgot-password-dialog/forgot-password-dialog.component';
+import { MatProgressSpinnerModule }       from '@angular/material/progress-spinner';
+import { finalize } from 'rxjs';
 
 declare global {
   interface Window { google?: any; }
@@ -29,7 +31,8 @@ declare global {
     MatCheckboxModule,
     MatCardModule,
     MatDialogModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatProgressSpinnerModule
 ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
@@ -50,6 +53,8 @@ export class LoginComponent implements AfterViewInit {
     password:   ['', [Validators.required]],
     rememberMe: [false]
   });
+
+  loading = false;
 
   ngAfterViewInit() {
     // Solo en el navegador; en SSR/prerender no tocar window
@@ -90,21 +95,22 @@ export class LoginComponent implements AfterViewInit {
 
   onSubmit() {
     if (this.loginForm.invalid) return;
-    this.serverError = null;
+    
     const { email, password, rememberMe } = this.loginForm.value;
+    this.loading = true;
 
-    this.auth.login(email, password, rememberMe).subscribe({
+    this.auth.login(email, password, rememberMe).pipe(
+      
+      finalize(() => this.loading = false)   // siempre ocultar spinner
+    ).subscribe({
+      
       next: () => this.router.navigate(['/']),
       error: (err) => {
         const msg = err.error?.error || 'Credenciales inválidas';
         const lower = msg.toLowerCase();
-
-        // Si el mensaje menciona "correo" o "email" lo asignamos a email…
         if (lower.includes('correo') || lower.includes('email')) {
           this.loginForm.get('email')?.setErrors({ serverError: msg });
-        }
-        // Si menciona "contraseña" o es genérico lo mandamos a password
-        else {
+        } else {
           this.loginForm.get('password')?.setErrors({ serverError: msg });
         }
       }
