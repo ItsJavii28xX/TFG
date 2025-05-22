@@ -31,7 +31,14 @@ exports.obtenerUsuarios = async (req, res) => {
 
 exports.crearUsuario = async (req, res) => {
   try {
-    const usuario = await Usuario.create(req.body);
+    const usuario = await Usuario.create({
+      nombre:        req.body.nombre,
+      apellidos:     req.body.apellidos,
+      email:         req.body.email,
+      contraseña:    req.body.contraseña,
+      telefono:      req.body.telefono,
+      imagen_perfil: req.body.imagen_perfil,
+    });
     res.status(201).json(usuario);
   } catch (error) {
     res.status(500).json({ error: 'Error al crear usuario' });
@@ -196,7 +203,7 @@ exports.forgotPassword = async (req, res) => {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
-    // Si viene de Google, no mandamos mail sino instruimos al usuario
+    // Si viene de Google, no mandamos mail y mandamos aviso al usuario
     if (user.oauth_provider === 'google') {
       return res.status(400).json({
         error: 'Diríjase a los ajustes de su cuenta de Google para restablecer su contraseña'
@@ -231,23 +238,37 @@ exports.forgotPassword = async (req, res) => {
 };
 
 exports.resetPassword = async (req, res) => {
-  try {
-    const { token, newPassword } = req.body;
-    let payload;
-    try {
-      payload = jwt.verify(token, process.env.JWT_SECRET);
-    } catch (err) {
-      return res.status(400).json({ error: 'Token inválido o expirado' });
-    }
-
-    const user = await Usuario.findByPk(payload.id_usuario);
-    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
-
-    user.contraseña = newPassword;
-    await user.save();
-    res.json({ mensaje: 'Contraseña restablecida correctamente' });
-  } catch (err) {
-    console.error('Reset password error:', err);
-    res.status(500).json({ error: 'Error al restablecer contraseña' });
+  const { token, newPassword } = req.body;
+  if (!token || !newPassword) {
+    return res.status(400).json({ error: 'Token y nueva contraseña obligatorios' });
   }
+
+  let payload;
+  try {
+    payload = jwt.verify(token, process.env.JWT_SECRET);
+  } catch (err) {
+    return res.status(400).json({ error: err.name === 'TokenExpiredError'
+      ? 'El enlace ha expirado'
+      : 'Token inválido' });
+  }
+
+  const user = await Usuario.findByPk(payload.id_usuario);
+  if (!user) {
+    return res.status(404).json({ error: 'Usuario no encontrado' });
+  }
+  if (user.oauth_provider === 'google') {
+    return res.status(400).json({
+      error: 'Esta cuenta usa Google Sign-In. Gestiona tu contraseña desde Google.'
+    });
+  }
+
+  // Actualiza la contraseña (beforeSave la hashea)
+  user.contraseña = newPassword;
+  await user.save();
+
+  // Revocar todos los tokens activos
+  await UsuarioToken.destroy({ where: { id_usuario: user.id_usuario } });
+  await Token.destroy({ where: { id_token: null } }); // o filtrar por usuario
+
+  res.json({ mensaje: 'Contraseña restablecida con éxito' });
 };

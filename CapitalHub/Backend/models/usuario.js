@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
     email:         { type: DataTypes.STRING, unique: true },
     contraseña:     DataTypes.STRING,
     telefono:       DataTypes.STRING,
-    imagen_perfil:  DataTypes.STRING,
+    imagen_perfil:  DataTypes.TEXT,
     oauth_provider: DataTypes.STRING,
     oauth_id:       DataTypes.STRING
   }, {

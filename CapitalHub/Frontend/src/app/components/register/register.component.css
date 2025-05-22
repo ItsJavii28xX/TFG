@@ -1,0 +1,84 @@
+.register-card {
+  max-width: 400px;
+  margin: 80px auto;
+  padding: 2rem;
+  text-align: center;
+  background: #0f0f0f;
+  color: #fff;
+  border-radius: 8px;
+
+  /* Borde “de relevo” idéntico al login */
+  border-bottom: 5px solid #0f0e0e;
+  border-right:  3px solid #0f0e0e;
+
+  /* Sombra suave */
+  box-shadow:
+    2px 2px 0px #000000,
+    0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.image-drop-zone {
+  border: 2px dashed #555;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  color: #aaa;
+  margin-bottom: 1.5rem;
+  cursor: pointer;
+  transition: background 0.3s, border-color 0.3s;
+}
+.image-drop-zone:hover {
+  background: rgba(255,255,255,0.05);
+  border-color: #888;
+}
+
+.image-drop-zone p {
+  margin: 0.5rem 0;
+  color: #ccc;
+}
+
+.image-drop-zone button {
+  color: #3f51b5;
+}
+
+.image-drop-zone .preview {
+  max-width: 100px;
+  max-height: 100px;
+  border-radius: 50%;
+  margin: auto;
+  display: block;
+  box-shadow:
+    1px 1px 0px #000000,
+    0 2px 5px rgba(0,0,0,0.5);
+}
+
+.return-login-btn {
+  font-size: 1.1rem;
+  font-weight: bold;
+  background: linear-gradient(45deg, #ff4081, #f50057);
+  width: 50%;
+  margin-top: 2rem;
+  align-self: center !important;
+}
+.return-login-btn:hover {
+  background: linear-gradient(45deg, #f50057, #ff4081);
+}
+
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #1d1c1c;
+}
+
+
+:root {
+  color: #fff;
+}

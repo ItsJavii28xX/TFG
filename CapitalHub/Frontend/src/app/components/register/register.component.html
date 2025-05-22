@@ -1,0 +1,81 @@
+<mat-card class="register-card">
+  <h2>Registro de Usuario</h2>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <mat-form-field class="full-width" appearance="fill">
+      <mat-label>Nombre</mat-label>
+      <input matInput formControlName="nombre" />
+      <mat-error *ngIf="form.get('nombre')?.hasError('required')">
+        El nombre es obligatorio
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="full-width" appearance="fill">
+      <mat-label>Apellidos</mat-label>
+      <input matInput formControlName="apellidos" />
+      <mat-error *ngIf="form.get('apellidos')?.hasError('required')">
+        Los apellidos son obligatorios
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="full-width" appearance="fill">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email" />
+      <mat-error *ngIf="form.get('email')?.hasError('required')">
+        El email es obligatorio
+      </mat-error>
+      <mat-error *ngIf="form.get('email')?.hasError('email')">
+        Formato inválido
+      </mat-error>
+      <mat-error *ngIf="form.get('email')?.hasError('serverError')">
+        {{ form.get('email')?.getError('serverError') }}
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="full-width" appearance="fill">
+      <mat-label>Contraseña</mat-label>
+      <input matInput type="password" formControlName="contraseña" />
+      <mat-error *ngIf="form.get('contraseña')?.hasError('required')">
+        Contraseña obligatoria
+      </mat-error>
+      <mat-error *ngIf="form.get('contraseña')?.hasError('minlength')">
+        Mínimo 6 caracteres
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="full-width" appearance="fill">
+      <mat-label>Teléfono</mat-label>
+      <input matInput formControlName="telefono" />
+      <mat-error *ngIf="form.get('telefono')?.hasError('required')">
+        Teléfono obligatorio
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Placeholder dropzone -->
+    <div class="image-drop-zone"
+         (drop)="onFileDropped($event)"
+         (dragover)="allowDrop($event)">
+      <ng-container *ngIf="!imagePreview">
+        <p>Arrastra tu foto aquí</p>
+        <button mat-button (click)="$event.preventDefault(); fileInput.click()">o selecciona archivo</button>
+      </ng-container>
+      <img *ngIf="imagePreview" [src]="imagePreview" class="preview"/>
+      <input #fileInput type="file" accept="image/*" hidden (change)="fileBrowseHandler($event)" />
+    </div>
+
+    <button mat-raised-button color="primary" class="full-width" type="submit"
+            [disabled]="form.invalid">
+      Registrar
+    </button>
+  </form>
+
+  <button
+    mat-raised-button
+    color="accent"
+    class="full-width return-login-btn"
+    (click)="goToLogin()">
+    Volver a Login
+  </button>
+</mat-card>
+
+

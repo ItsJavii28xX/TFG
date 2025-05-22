@@ -3,10 +3,20 @@
   margin: 80px auto;
   padding: 2rem;
   text-align: center;
-  background: #1e1e1e;
+  background: #0f0f0f;
   color: #fff;
   border-radius: 8px;
+  
+  /* Borde “de relevo” */
+  border-bottom: 5px solid #0f0e0e;
+  border-right:  3px solid #0f0e0e;
+
+  /* Sombra suave */
+  box-shadow: 
+    2px 2px 0px #000000,  /* el mismo color que el fondo, desplazado */
+    0 4px 10px rgba(0, 0, 0, 0.5); /* sombra difusa */
 }
+
 .full-width {
   width: 100%;
   margin-bottom: 1rem;
@@ -20,4 +30,16 @@
 }
 .google-btn {
   margin: 1rem auto;
+}
+
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #1d1c1c;
+}
+
+:root {
+    color: #fff;
 }

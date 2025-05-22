@@ -11,6 +11,8 @@ import { CommonModule }         from '@angular/common';
 
 import { AuthService }          from '../../services/auth.service';
 import { environment }          from '../../../environments/environment';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ForgotPasswordDialogComponent } from '../forgot-password-dialog/forgot-password-dialog.component';
 
 declare global {
   interface Window { google?: any; }
@@ -26,17 +28,22 @@ declare global {
     MatButtonModule,
     MatCheckboxModule,
     MatCardModule,
+    MatDialogModule,
     MatSnackBarModule
-  ],
+],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
+
 export class LoginComponent implements AfterViewInit {
+
   private fb         = inject(FormBuilder);
   private auth       = inject(AuthService);
   private snack      = inject(MatSnackBar);
   private router     = inject(Router);
   private platformId = inject(PLATFORM_ID);
+  private dialog = inject(MatDialog);
+  serverError: string | null = null;
 
   loginForm: FormGroup = this.fb.group({
     email:      ['', [Validators.required, Validators.email]],
@@ -83,27 +90,46 @@ export class LoginComponent implements AfterViewInit {
 
   onSubmit() {
     if (this.loginForm.invalid) return;
+    this.serverError = null;
     const { email, password, rememberMe } = this.loginForm.value;
+
     this.auth.login(email, password, rememberMe).subscribe({
       next: () => this.router.navigate(['/']),
-      error: () => this.snack.open('Credenciales inválidas', 'Cerrar', { duration: 3000 })
+      error: (err) => {
+        const msg = err.error?.error || 'Credenciales inválidas';
+        const lower = msg.toLowerCase();
+
+        // Si el mensaje menciona "correo" o "email" lo asignamos a email…
+        if (lower.includes('correo') || lower.includes('email')) {
+          this.loginForm.get('email')?.setErrors({ serverError: msg });
+        }
+        // Si menciona "contraseña" o es genérico lo mandamos a password
+        else {
+          this.loginForm.get('password')?.setErrors({ serverError: msg });
+        }
+      }
     });
   }
 
   private handleGoogleCredential(resp: any) {
-    console.log('🔥 GSI callback got:', resp);
     this.auth.loginWithGoogle(resp.credential).subscribe({
       next: () => this.router.navigate(['/']),
-      error: () => this.snack.open('Google login falló', 'Cerrar', { duration: 3000 })
+      error: (err) => {
+        const msg = err.error.error
+        const emailCtrl = this.loginForm.get('email');
+        emailCtrl?.setErrors({ serverError: msg });
+      }
     });
   }
 
   forgotPassword(): void {
-    const email = prompt('Introduce tu email registrado:');
-    if (!email) return;
-    this.auth.forgotPassword(email).subscribe({
-      next: () => this.snack.open('Email de restablecimiento enviado', 'Cerrar', { duration: 3000 }),
-      error: () => this.snack.open('Error enviando email', 'Cerrar', { duration: 3000 })
+    this.dialog.open(ForgotPasswordDialogComponent, {
+      width: '360px'
     });
   }
+
+  goToRegister() {
+    this.router.navigate(['/register']);
+  }
+
 }

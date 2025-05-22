@@ -1,28 +1,51 @@
-<mat-card class="login-card">
-  <h1>Iniciar Sesión</h1>
 
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-    <mat-form-field appearance="fill" class="full-width">
-      <mat-label>Email</mat-label>
-      <input matInput type="email" formControlName="email" />
-    </mat-form-field>
+<div class="todo">
+    <mat-card class="login-card">
+    <h1>Iniciar Sesión</h1>
 
-    <mat-form-field appearance="fill" class="full-width">
-      <mat-label>Contraseña</mat-label>
-      <input matInput type="password" formControlName="password" />
-    </mat-form-field>
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email" />
+            <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
+                El email es obligatorio
+            </mat-error>
+            <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
+                Formato de email inválido
+            </mat-error>
+            <mat-error *ngIf="loginForm.get('email')?.hasError('serverError')">
+                {{ loginForm.get('email')?.getError('serverError') }}
+            </mat-error>
+        </mat-form-field>
 
-    <mat-checkbox formControlName="rememberMe">Recordarme</mat-checkbox>
+        <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Contraseña</mat-label>
+            <input matInput type="password" formControlName="password" />
+            <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+            La contraseña es obligatoria
+            </mat-error>
+            <mat-error *ngIf="loginForm.get('password')?.hasError('serverError')">
+            {{ loginForm.get('password')?.getError('serverError') }}
+            </mat-error>
+        </mat-form-field>
 
-    <button mat-raised-button color="primary" class="full-width" type="submit"
-            [disabled]="loginForm.invalid">
-      Entrar
-    </button>
-  </form>
+        <mat-checkbox formControlName="rememberMe">Recordarme</mat-checkbox>
 
-  <div id="googleSignInButton" class="google-btn"></div>
+        <button mat-raised-button color="primary" class="full-width" type="submit"
+                [disabled]="loginForm.invalid">
+            Entrar
+        </button>
+        <button mat-raised-button color="pink" class="full-width" type="button"
+                (click)="goToRegister()">
+            ¿Nuevo? Registrate
+        </button>
+    </form>
 
-  <a class="forgot-password" (click)="forgotPassword()">
-    ¿Olvidaste tu contraseña?
-  </a>
-</mat-card>
+    <div id="googleSignInButton" class="google-btn"></div>
+
+    <a class="forgot-password" (click)="forgotPassword()">
+        ¿Olvidaste tu contraseña?
+    </a>
+    
+    </mat-card>
+</div>
