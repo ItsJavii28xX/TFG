@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser }              from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { tap }        from 'rxjs/operators';
@@ -8,8 +9,11 @@ import { tap }        from 'rxjs/operators';
 })
 export class AuthService {
   private apiUrl = environment.apiUrl;
+  private isBrowser: boolean;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, @Inject(PLATFORM_ID) private platformId: Object) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+  }
 
   /** Login tradicional: 30d o 12h según rememberMe */
   login(email: string, contraseña: string, rememberMe: boolean) {
@@ -48,4 +52,14 @@ export class AuthService {
       { token, newPassword }
     );
   }
+
+ isLoggedIn(): boolean {
+    if (!this.isBrowser) return false;
+    // Chequea **ambos** lugares
+    return !!(
+      localStorage.getItem('token') ||
+      sessionStorage.getItem('token')
+    );
+  }
+
 }

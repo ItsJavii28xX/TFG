@@ -1,0 +1,20 @@
+<app-header></app-header>
+
+<div class="layout">
+  <div class="sidebar-container">
+
+    <app-sidebar [status]="collapsed ? 'closed' : 'open'"></app-sidebar>
+
+    <button class="toggle-btn" mat-mini-fab (click)="toggleSidebar()">
+      <mat-icon>
+        {{ collapsed ? 'chevron_right' : 'chevron_left' }}
+      </mat-icon>
+    </button>
+  </div>
+
+  <section class="main-content">
+    <router-outlet></router-outlet>
+  </section>
+</div>
+
+<app-footer></app-footer>
