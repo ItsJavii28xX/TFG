@@ -1,6 +1,9 @@
-.content {
-  flex: 1;
-  overflow: auto;
+.groups-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
   padding: 1rem;
+  gap: 1rem;
   background: #1d1c1c;
+  min-height: calc(100vh - 64px - 48px); /* Ajusta según header/footer */
 }

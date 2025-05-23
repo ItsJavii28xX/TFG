@@ -2,10 +2,7 @@ require('dotenv').config();
 const { OAuth2Client } = require('google-auth-library');
 const nodemailer       = require('nodemailer');
 const jwt              = require('jsonwebtoken');
-const { Usuario }      = require('../models');
-const { Token }        = require('../models');
-const { UsuarioToken } = require('../models');
-
+const { Usuario, Token, UsuarioToken, Grupo, UsuarioGrupo } = require('../models');
 
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -84,6 +81,20 @@ exports.login = async (req, res) => {
     }
     const user  = await Usuario.findByCredentials(email, contraseña);
     const token = await user.generateAuthToken();
+    
+    const personalName = `${user.nombre} ${user.apellidos}`.trim();
+    const [personalGrp] = await Grupo.findOrCreate({
+      where: { nombre: personalName }
+    });
+    await UsuarioGrupo.findOrCreate({
+      where: {
+        id_usuario: user.id_usuario,
+        id_grupo:   personalGrp.id_grupo
+      },
+      defaults: {
+        es_administrador: true
+      }
+    });
     res.json({ token });
   } catch (err) {
     console.error('Error en login:', err);
@@ -106,6 +117,20 @@ exports.loginShort = async (req, res) => {
     await UsuarioToken.create({
       id_usuario: user.id_usuario,
       id_token  : tokenRecord.id_token
+    });
+
+    const personalName = `${user.nombre} ${user.apellidos}`.trim();
+    const [personalGrp] = await Grupo.findOrCreate({
+      where: { nombre: personalName }
+    });
+    await UsuarioGrupo.findOrCreate({
+      where: {
+        id_usuario: user.id_usuario,
+        id_grupo:   personalGrp.id_grupo
+      },
+      defaults: {
+        es_administrador: true
+      }
     });
 
     res.json({ token: tokenValue });
@@ -167,6 +192,20 @@ exports.loginWithGoogle = async (req, res) => {
     // 4. Generar JWT + guardarlo en Token & UsuarioToken
     const tokenValue = await user.generateAuthToken();
     console.log('Token generado para usuario:', user.id_usuario);
+
+    const personalName = `${user.nombre} ${user.apellidos}`.trim();
+    const [personalGrp] = await Grupo.findOrCreate({
+      where: { nombre: personalName }
+    });
+    await UsuarioGrupo.findOrCreate({
+      where: {
+        id_usuario: user.id_usuario,
+        id_grupo:   personalGrp.id_grupo
+      },
+      defaults: {
+        es_administrador: true
+      }
+    });
 
     // 5. Devolver token al cliente
     res.json({ token: tokenValue });

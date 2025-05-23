@@ -6,6 +6,7 @@ import { ResetPasswordComponent }  from './components/reset-password/reset-passw
 import { RegisterComponent } from './components/register/register.component';
 import { LayoutComponent }        from './components/layout/layout.component';
 import { AuthGuard }              from './guards/auth.guard';
+import { ContentComponent } from './components/content/content.component';
 
 export const routes: Routes = [
 
@@ -18,9 +19,8 @@ export const routes: Routes = [
     component: LayoutComponent,
     canActivate: [AuthGuard],
     children: [
-
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-
+      { path: '',          redirectTo: 'home', pathMatch: 'full' },
+      { path: 'home',   component: ContentComponent },
     ]
   },
 

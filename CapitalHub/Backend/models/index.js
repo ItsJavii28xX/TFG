@@ -14,8 +14,24 @@ const Token = require('./token')(sequelize, DataTypes);
 const UsuarioToken = require('./usuariotoken')(sequelize, DataTypes);
 
 // Asociaciones
-Usuario.belongsToMany(Grupo, { through: UsuarioGrupo, foreignKey: 'id_usuario' });
-Grupo.belongsToMany(Usuario, { through: UsuarioGrupo, foreignKey: 'id_grupo' });
+Usuario.belongsToMany(Grupo, {
+  through: UsuarioGrupo,
+  foreignKey: 'id_usuario',
+  otherKey: 'id_grupo',
+  as: 'grupos'
+});
+Grupo.belongsToMany(Usuario, {
+  through: UsuarioGrupo,
+  foreignKey: 'id_grupo',
+  otherKey: 'id_usuario',
+  as: 'usuarios'
+});
+
+UsuarioGrupo.belongsTo(Usuario, { foreignKey: 'id_usuario', as: 'usuario' });
+UsuarioGrupo.belongsTo(Grupo,   { foreignKey: 'id_grupo',   as: 'grupo' });
+
+Usuario.hasMany(UsuarioGrupo, { foreignKey: 'id_usuario', as: 'miembros' });
+Grupo.hasMany(UsuarioGrupo,   { foreignKey: 'id_grupo',   as: 'miembros' });
 
 Token.belongsToMany(Usuario, { through: UsuarioToken, foreignKey: 'id_token', otherKey: 'id_usuario' });
 Usuario.belongsToMany(Token, { through: UsuarioToken, foreignKey: 'id_usuario', otherKey: 'id_token' });

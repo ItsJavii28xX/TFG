@@ -1,20 +1,20 @@
 
 <div class="todo">
     <mat-card class="login-card">
-    <h1>Iniciar Sesión</h1>
+        <h1>Iniciar Sesión</h1>
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
         <mat-form-field appearance="fill" class="full-width">
             <mat-label>Email</mat-label>
             <input matInput type="email" formControlName="email" />
             <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
-                El email es obligatorio
+            El email es obligatorio
             </mat-error>
             <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
-                Formato de email inválido
+            Formato de email inválido
             </mat-error>
             <mat-error *ngIf="loginForm.get('email')?.hasError('serverError')">
-                {{ loginForm.get('email')?.getError('serverError') }}
+            {{ loginForm.get('email')?.getError('serverError') }}
             </mat-error>
         </mat-form-field>
 
@@ -32,21 +32,20 @@
         <mat-checkbox formControlName="rememberMe">Recordarme</mat-checkbox>
 
         <button mat-raised-button color="primary" class="full-width" type="submit"
-                [disabled]="loginForm.invalid">
+                [disabled]="loginForm.invalid || loading">
             Entrar
         </button>
-        <button mat-raised-button color="pink" class="full-width" type="button"
-                (click)="goToRegister()">
-            ¿Nuevo? Registrate
+        <button mat-raised-button color="accent" class="full-width" type="button"
+                (click)="goToRegister()" [disabled]="loading">
+            ¿Nuevo? Regístrate
         </button>
-    </form>
+        </form>
 
-    <div id="googleSignInButton" class="google-btn"></div>
+        <div id="googleSignInButton" class="google-btn"></div>
 
-    <a class="forgot-password" (click)="forgotPassword()">
+        <a class="forgot-password" (click)="forgotPassword()" [class.disabled]="loading">
         ¿Olvidaste tu contraseña?
-    </a>
-    
+        </a>
     </mat-card>
 
     <div class="terminal-loader" *ngIf="loading">

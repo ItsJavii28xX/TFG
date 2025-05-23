@@ -18,6 +18,18 @@ exports.crearUsuarioGrupo = async (req, res) => {
   }
 };
 
+exports.obtenerGruposDeUsuario = async (req, res) => {
+  try {
+    const relaciones = await UsuarioGrupo.findAll({
+      where: { id_usuario: req.params.idUsuario },
+      include: [{ model: require('../models').Grupo, as: 'grupo' }]
+    });
+    res.json(relaciones.map(r => r.grupo));
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener grupos del usuario' });
+  }
+};
+
 exports.obtenerUsuarioGrupoPorId = async (req, res) => {
   try {
     const relacion = await UsuarioGrupo.findByPk(req.params.id);

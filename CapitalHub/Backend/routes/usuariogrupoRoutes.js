@@ -30,6 +30,8 @@ const auth = require('../middleware/auth');
  */
 router.get('/usuarios-grupos', auth, usuarioGrupoController.obtenerUsuariosGrupos);
 
+router.get('/usuarios/:idUsuario/grupos', auth, usuarioGrupoController.obtenerGruposDeUsuario);
+
 /**
  * @swagger
  * /usuarios-grupos/{id}:
