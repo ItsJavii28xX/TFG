@@ -1,8 +1,20 @@
 <header class="header">
-  <div class="logo"><h1>Mi App</h1></div>
+  <div class="logo-container">
+    <img src="favicon.ico" alt="CapitalHub logo" class="logo-img" />
+    <h1 class="logo-title">CapitalHub</h1>
+  </div>
   <nav class="nav">
-    <a routerLink="/">Inicio</a>
-    <a routerLink="/dashboard">Dashboard</a>
-    <a routerLink="/perfil">Perfil</a>
+    <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      <mat-icon>home</mat-icon>
+      <span>Inicio</span>
+    </a>
+    <a mat-button routerLink="/contactos" routerLinkActive="active">
+      <mat-icon>contacts</mat-icon>
+      <span>Contactos</span>
+    </a>
+    <a mat-button routerLink="/perfil" routerLinkActive="active">
+      <mat-icon>person</mat-icon>
+      <span>Perfil</span>
+    </a>
   </nav>
 </header>

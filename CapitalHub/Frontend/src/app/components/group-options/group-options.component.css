@@ -1,0 +1,21 @@
+/* group-options.component.css */
+.options-panel {
+  position: fixed;
+  bottom: 96px;    /* un poco por encima del FAB (que está en bottom:1.5rem≈24px + tamaño del FAB) */
+  right: 24px;     /* mismo offset que el FAB */
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(20px);
+  transition: transform 200ms ease, opacity 200ms ease;
+  z-index: 1001;
+}
+
+.options-panel.open {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0);
+}

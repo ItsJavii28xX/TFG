@@ -170,6 +170,8 @@ router.post('/usuarios/reset-password', usuarioController.resetPassword);
  */
 router.get('/usuarios', auth, usuarioController.obtenerUsuarios);
 
+router.get('/usuarios/email/:email', auth, usuarioController.obtenerUsuarioPorEmail);
+
 /**
  * @swagger
  * /usuarios/{id}:

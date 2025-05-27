@@ -1,0 +1,15 @@
+<!-- group-options.component.html -->
+<div class="options-panel" [class.open]="open">
+  <button mat-mini-fab color="primary" (click)="add.emit()">
+    Añadir
+    <mat-icon>add</mat-icon>
+  </button>
+  <button mat-mini-fab color="warn" (click)="delete.emit()">
+    Borrar
+    <mat-icon>delete</mat-icon>
+  </button>
+  <button mat-mini-fab color="accent" (click)="update.emit()">
+    Actualizar
+    <mat-icon>edit</mat-icon>
+  </button>
+</div>

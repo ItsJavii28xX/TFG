@@ -1,4 +1,3 @@
-// src/app/services/auth.service.ts
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser }              from '@angular/common';
 import { HttpClient }                      from '@angular/common/http';
@@ -22,12 +21,14 @@ export class AuthService {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
 
-  /** Extrae el id_usuario del JWT almacenado. */
-  private getUserIdFromToken(token: string): number | null {
+  getUserId(): number | null {
+    const token =
+      localStorage.getItem('token') ||
+      sessionStorage.getItem('token');
+    if (!token) return null;
     try {
-      const payload = token.split('.')[1];
-      const decoded = JSON.parse(atob(payload));
-      return decoded.id_usuario ?? null;
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.id_usuario ?? null;
     } catch {
       return null;
     }

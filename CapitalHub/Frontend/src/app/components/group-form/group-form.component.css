@@ -1,0 +1,116 @@
+:host {
+  /* Asegura que el mat-card use todo el ancho de su wrapper */
+  display: block;
+}
+
+/* Estilo principal de la tarjeta */
+.form-card {
+  background-color: #272526;
+  color: #ffffff;
+  max-width: 400px;
+  width: 90%;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+/* Título */
+.form-card > h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* Campos de formulario a todo ancho */
+mat-form-field.full {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+/* Botones “Añadir” horizontales */
+.buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Lista de chips de miembros seleccionados */
+.selected-members {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+.selected-members mat-chip {
+  background-color: #353334;
+  color: #ffffff;
+  border-radius: 8px;
+}
+.selected-members mat-chip img {
+  border-radius: 50%;
+  margin-right: 0.3rem;
+}
+
+/* Vista previa de presupuesto */
+.selected-budget {
+  margin: 1rem 0;
+}
+.selected-budget mat-progress-bar {
+  height: 8px;
+  border-radius: 4px;
+  background-color: #3a3839;
+}
+.selected-budget small {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+  color: #bbbbbb;
+}
+
+/* Contenedor de acciones (Crear/Cancelar) */
+.form-card .mat-button, 
+.form-card .mat-raised-button {
+  min-width: 80px;
+}
+.form-card button[type="submit"],
+.form-card button[type="button"] {
+  margin-right: 0.5rem;
+}
+.form-card button[type="button"] {
+  color: #bbbbbb;
+}
+
+/* Hover / Focus states */
+.form-card button.mat-raised-button:hover {
+  background-color: #414042;
+}
+.form-card button.mat-stroked-button:hover {
+  background-color: rgba(255,255,255,0.05);
+}
+
+mat-card.form-card {
+  width: 400px;
+  max-width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+/* Un poco de espacio inferior al contenido interno */
+.form-card .buttons,
+.form-card .selected-members,
+.form-card .selected-budget,
+.form-card .actions-footer {
+  margin-top: 1rem;
+}
+
+/* Footer de botones algo separado */
+.actions-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}

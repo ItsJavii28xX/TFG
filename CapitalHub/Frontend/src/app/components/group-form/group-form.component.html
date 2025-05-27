@@ -1,0 +1,54 @@
+<mat-card class="form-card">
+  <h2>Crear Grupo</h2>
+  <form [formGroup]="f" (ngSubmit)="onSubmit()">
+    <mat-form-field class="full">
+      <mat-label>Nombre del grupo</mat-label>
+      <input matInput formControlName="nombre">
+    </mat-form-field>
+
+    <div class="buttons">
+      <button mat-stroked-button type="button" (click)="openMembers()">
+        Añadir miembros
+      </button>
+      <button mat-stroked-button type="button" (click)="openBudget()">
+        ¿Añadir presupuesto?
+      </button>
+    </div>
+
+    <!-- ------------- MEMBER SELECTOR ------------- -->
+    <app-members-select
+      *ngIf="addingMembers"
+      (done)="onMembersDone($event)"
+      (cancel)="addingMembers = false">
+    </app-members-select>
+
+    <!-- ------------- BUDGET FORM ------------- -->
+    <app-budget-form
+      *ngIf="addingBudget"
+      (done)="onBudgetDone($event)"
+      (cancel)="addingBudget = false">
+    </app-budget-form>
+
+    <!-- ------------- Chips de miembros seleccionados ------------- -->
+    <mat-chip-set *ngIf="selectedMembers.length" class="selected-members">
+      <mat-chip *ngFor="let u of selectedMembers" selectable="false">
+        <img [src]="u.imagen_perfil" width="24" height="24" /> {{u.nombre}}
+      </mat-chip>
+    </mat-chip-set>
+
+    <!-- ------------- Vista de presupuesto elegido ------------- -->
+    <div class="selected-budget" *ngIf="budgetData">
+      <mat-progress-bar mode="determinate" [value]="0"></mat-progress-bar>
+      <small>
+        {{budgetData.fechaInicio | date}} – {{budgetData.fechaFin | date}}
+      </small>
+    </div>
+
+    <div class="actions-footer">
+      <button mat-raised-button color="primary" type="submit" [disabled]="f.invalid">
+        Crear
+      </button>
+      <button mat-button type="button" (click)="onCancel()">Cancelar</button>
+    </div>
+  </form>
+</mat-card>

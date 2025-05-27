@@ -3,15 +3,42 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 1rem;
-  height: 60px;
-  background: #0f0f0f;
-  border-bottom: 3px solid #0e0e0e;
+  height: 64px;
+  background-color: #0f0f0f;
+  color: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
-.logo h1 {
-  margin: 0; font-size: 1.4rem; color: #fff; cursor: pointer;
+
+.logo-container {
+  display: flex;
+  align-items: center;
 }
+
+.logo-img {
+  width: 40px;
+  height: 40px;
+  margin-right: 0.5rem;
+}
+
+.logo-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
 .nav a {
-  color: #ccc; margin-left: 1rem; text-decoration: none;
-  transition: color .2s;
+  align-items: center;
+  margin-left: 1rem;
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  transition: color 0.2s;
 }
-.nav a:hover { color: #fff; }
+
+.nav a mat-icon {
+  margin-right: 0.25rem;
+}
+
+.nav a.active,
+.nav a:hover {
+  color: #2a532a;
+}

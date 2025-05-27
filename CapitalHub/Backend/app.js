@@ -22,7 +22,7 @@ app.get('/', (req, res) => {
 app.use('/api', require('./routes/usuarioRoutes'));
 app.use('/api', require('./routes/grupoRoutes'));
 app.use('/api', require('./routes/usuariogrupoRoutes'));
-app.use('/app', require('./routes/presupuestoRoutes'));
+app.use('/api', require('./routes/presupuestoRoutes'));
 app.use('/api', require('./routes/gastoRoutes'));
 app.use('/api', require('./routes/categoriaRoutes'));
 app.use('/api', require('./routes/alertalimiteRoutes'));

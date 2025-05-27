@@ -51,6 +51,21 @@ exports.obtenerUsuarioPorId = async (req, res) => {
   }
 };
 
+exports.obtenerUsuarioPorEmail = async (req, res) => {
+  try {
+    // decodeURIComponent convertirá "%40" en "@"
+    const email = decodeURIComponent(req.params.email);
+    const user  = await Usuario.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+    res.json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al buscar usuario por email' });
+  }
+};
+
 exports.actualizarUsuario = async (req, res) => {
   try {
     const usuario = await Usuario.findByPk(req.params.id);

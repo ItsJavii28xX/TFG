@@ -6,7 +6,7 @@ import { MatInputModule }       from '@angular/material/input';
 import { MatButtonModule }      from '@angular/material/button';
 import { MatCheckboxModule }    from '@angular/material/checkbox';
 import { MatCardModule }        from '@angular/material/card';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule }     from '@angular/material/dialog';
 import { MatProgressSpinnerModule }       from '@angular/material/progress-spinner';
 import { CommonModule }         from '@angular/common';

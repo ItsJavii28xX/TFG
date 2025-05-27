@@ -1,10 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  Validators,
-  ReactiveFormsModule
-} from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule }         from '@angular/router';
 import { MatFormFieldModule }           from '@angular/material/form-field';
 import { MatInputModule }               from '@angular/material/input';
