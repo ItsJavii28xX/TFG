@@ -1,5 +1,6 @@
 <div class="groups-container">
   <div *ngFor="let g of groups" class="group-item">
+    <!-- checkbox de deleteMode -->
     <mat-checkbox
       *ngIf="deleteMode"
       class="delete-checkbox"
@@ -7,6 +8,29 @@
       (change)="onCheckboxChange(g.id_grupo, $event.checked)">
     </mat-checkbox>
 
-    <app-group [group]="g"></app-group>
+    <!-- tarjeta de grupo con edición inline -->
+    <app-group
+      [group]="g"
+      [isEditing]="editingId===g.id_grupo"
+      [editName]="editingName"
+      (editNameChange)="editingName=$event">
+    </app-group>
+
+    <!-- icono lápiz (solo en updateMode y si no está editando esa tarjeta) -->
+    <button
+      mat-icon-button
+      *ngIf="updateMode && editingId!==g.id_grupo"
+      (click)="startEdit(g)">
+      <mat-icon>edit</mat-icon>
+    </button>
+
+    <!-- botón Listo (solo en updateMode y editando esta tarjeta) -->
+    <button
+      mat-button
+      color="primary"
+      *ngIf="updateMode && editingId===g.id_grupo"
+      (click)="saveEdit(g)">
+      Listo
+    </button>
   </div>
 </div>

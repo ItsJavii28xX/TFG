@@ -76,3 +76,11 @@
   z-index: 1000;
 }
 
+.update-toolbar {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 15rem;
+  z-index: 1000;
+}
+
+

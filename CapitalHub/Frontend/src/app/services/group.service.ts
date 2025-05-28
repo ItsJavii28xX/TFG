@@ -59,4 +59,13 @@ export class GroupService {
       );
   }
 
+  update(id_grupo: number, changes: Partial<Pick<Group, 'nombre'>>): Observable<Group> {
+    return this.http.put<Group>(
+      `${this.apiUrl}/grupos/${id_grupo}`,
+      changes
+    ).pipe(
+      tap(() => this._refresh$.next())
+    );
+  }
+
 }

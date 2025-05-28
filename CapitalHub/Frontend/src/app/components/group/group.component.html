@@ -1,8 +1,19 @@
 <mat-card class="group-card">
-  <div class="group-header">
-    <h3>{{ group.nombre }}</h3>
-    <p class="date">Creado: {{ group.fecha_creacion | date:'shortDate' }}</p>
+   <div class="group-header">
+    <!-- Si estamos editando, mostramos input, si no, el título normal -->
+    <ng-container *ngIf="isEditing; else viewMode">
+      <input
+        class="edit-input"
+        [(ngModel)]="editName"
+        (ngModelChange)="editNameChange.emit($event)"
+      />
+    </ng-container>
+    <ng-template #viewMode>
+      <h3>{{ group.nombre }}</h3>
+    </ng-template>
   </div>
+
+  <p class="date">Creado: {{ group.fecha_creacion | date:'shortDate' }}</p>
 
   <div class="group-body">
     <!-- Contenedor de presupuesto -->

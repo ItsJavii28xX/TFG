@@ -8,22 +8,29 @@
     </button>
   </div>
 
- <section class="main-content">
-    <!-- Pase a Content el estado de deleteMode y selección -->
+  <section class="main-content">
+    <!-- le paso deleteMode y updateMode -->
     <app-content
       [deleteMode]="deleteMode"
       [selectedIds]="selectedToDelete"
-      (selectionChange)="onSelectionChange($event)">
+      (selectionChange)="onSelectionChange($event)"
+      [updateMode]="updateMode">
     </app-content>
 
-    <!-- Barra de acciones en modo borrado -->
-    <div *ngIf="deleteMode" class="delete-toolbar">
+    <!-- toolbar de borrar -->
+    <div *ngIf="deleteMode" class="action-toolbar delete-toolbar">
       <button mat-button (click)="cancelDelete()">Cancelar</button>
-      <button mat-raised-button color="warn"
-              (click)="confirmDelete()"
-              [disabled]="!selectedToDelete.size">
+      <button
+        mat-raised-button color="warn"
+        (click)="confirmDelete()"
+        [disabled]="!selectedToDelete.size">
         Eliminar {{ selectedToDelete.size }}
       </button>
+    </div>
+
+    <!-- toolbar de editar -->
+    <div *ngIf="updateMode" class="action-toolbar update-toolbar">
+      <button mat-button (click)="cancelUpdate()">Cancelar edición</button>
     </div>
 
     <!-- FAB y panel de opciones -->
@@ -34,11 +41,11 @@
       [open]="optionsOpen"
       (add)="openAddForm()"
       (delete)="openDeleteForm()"
-      (close)="optionsOpen = false"
-      (update)="openUpdateForm()">
+      (update)="openUpdateForm()"
+      (close)="optionsOpen=false">
     </app-group-options>
 
-    <!-- Modal para crear grupo -->
+    <!-- modal Crear Grupo -->
     <div *ngIf="showAddForm" class="overlay" (click)="onAddCancel()">
       <div class="form-wrapper" (click)="$event.stopPropagation()">
         <app-group-form
@@ -48,7 +55,6 @@
       </div>
     </div>
   </section>
-  
 </div>
 
 <app-footer></app-footer>

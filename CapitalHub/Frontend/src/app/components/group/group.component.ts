@@ -1,5 +1,5 @@
 // src/app/components/group/group.component.ts
-import { Component, Input, OnInit }     from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output }     from '@angular/core';
 import { CommonModule }                 from '@angular/common';
 import { MatCardModule }                from '@angular/material/card';
 import { MatProgressBarModule }         from '@angular/material/progress-bar';
@@ -13,6 +13,7 @@ import { Group }                        from '../../services/group.service';
 import { BudgetService, Budget }        from '../../services/budget.service';
 import { ContactService, Contact }      from '../../services/contact.service';
 import { GastoService, Gasto } from '../../services/gasto.service';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-group',
@@ -22,6 +23,8 @@ import { GastoService, Gasto } from '../../services/gasto.service';
     MatCardModule,
     MatProgressBarModule,
     MatIconModule,
+    ReactiveFormsModule,
+    FormsModule,
     MatTooltipModule
   ],
   templateUrl: './group.component.html',
@@ -29,6 +32,11 @@ import { GastoService, Gasto } from '../../services/gasto.service';
 })
 export class GroupComponent implements OnInit {
   @Input() group!: Group;
+  @Input() isEditing = false;
+  @Input() editName  = '';
+  @Output() editNameChange = new EventEmitter<string>();
+  @Input() updateMode = false;
+  
 
   activeBudget: { nombre: string; porcentaje: number } | null = null;
   members:       Contact[] = [];
