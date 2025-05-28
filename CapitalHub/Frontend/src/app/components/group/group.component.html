@@ -1,4 +1,29 @@
 <mat-card class="group-card">
-  <h3>{{ group.nombre }}</h3>
-  <p class="date">Creado: {{ group.fecha_creacion | date:'shortDate' }}</p>
+  <div class="group-header">
+    <h3>{{ group.nombre }}</h3>
+    <p class="date">Creado: {{ group.fecha_creacion | date:'shortDate' }}</p>
+  </div>
+
+  <div class="group-body">
+    <!-- Contenedor de presupuesto -->
+    <div class="budget-container" *ngIf="activeBudget">
+      <span class="budget-name">{{ activeBudget.nombre }}</span>
+      <mat-progress-bar
+        mode="determinate"
+        [value]="activeBudget.porcentaje"
+        class="budget-bar">
+      </mat-progress-bar>
+    </div>
+
+    <!-- Contenedor de miembros -->
+    <div class="members-container" *ngIf="members?.length">
+      <ng-container *ngFor="let m of membersToShow">
+        <img [src]="m.imagen_perfil"
+             matTooltip="{{m.nombre}}"
+             class="avatar">
+        <span class="member-name">{{ m.nombre }} {{m.apellidos}}</span>
+      </ng-container>
+      <span *ngIf="extraCount>0" class="more">+{{ extraCount }}</span>
+    </div>
+  </div>
 </mat-card>

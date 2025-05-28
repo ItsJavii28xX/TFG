@@ -40,4 +40,11 @@ export class BudgetService {
       }
     );
   }
+
+  getByGroup(grupoId: number): Observable<Budget[]> {
+    return this.http.get<Budget[]>(
+      `${this.apiUrl}/grupos/${grupoId}/presupuestos`
+    );
+  }
+
 }

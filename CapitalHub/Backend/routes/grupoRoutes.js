@@ -143,4 +143,6 @@ router.put('/grupos/:id', auth, grupoController.actualizarGrupo);
  */
 router.delete('/grupos/:id', auth, grupoController.eliminarGrupo);
 
+router.get('/grupos/:id/usuarios', auth, grupoController.obtenerUsuariosDeGrupo);
+
 module.exports = router;

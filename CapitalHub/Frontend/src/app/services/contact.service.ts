@@ -39,4 +39,11 @@ export class ContactService {
   getAllContacts(userId: number): Observable<Contact[]> {
     return this.http.get<Contact[]>(`${this.apiUrl}/usuarios/${userId}/contactos`);
   }
+
+  getMembersByGroup(grupoId: number): Observable<Contact[]> {
+    return this.http.get<Contact[]>(
+      `${this.apiUrl}/grupos/${grupoId}/usuarios`
+    );
+  }
+
 }

@@ -46,4 +46,7 @@ export class GroupService {
       id_usuario, id_grupo, es_administrador: false
     });
   }
+
+  
+
 }

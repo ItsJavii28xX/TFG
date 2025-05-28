@@ -1,6 +1,6 @@
 import { Component, inject, NgZone, AfterViewInit, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser }    from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, MinLengthValidator, MaxLengthValidator } from '@angular/forms';
 import { Router }               from '@angular/router';
 import { MatInputModule }       from '@angular/material/input';
 import { MatButtonModule }      from '@angular/material/button';
@@ -47,7 +47,7 @@ export class LoginComponent implements AfterViewInit {
 
   loginForm: FormGroup = this.fb.group({
     email:      ['', [Validators.required, Validators.email]],
-    password:   ['', [Validators.required]],
+    password:   ['', [Validators.required, Validators.minLength(8), Validators.maxLength(20)]],
     rememberMe: [false]
   });
 

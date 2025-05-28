@@ -51,3 +51,16 @@ exports.eliminarGrupo = async (req, res) => {
     res.status(500).json({ error: 'Error al eliminar el grupo' });
   }
 };
+
+exports.obtenerUsuariosDeGrupo = async (req, res) => {
+  try {
+    const grupo = await Grupo.findByPk(req.params.id, {
+      include: [{ model: require('../models').Usuario, as: 'usuarios' }]
+    });
+    if (!grupo) return res.status(404).json({ error: 'Grupo no encontrado' });
+    
+    res.json(grupo.usuarios);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener los usuarios del grupo' });
+  }
+}
