@@ -5,5 +5,18 @@
   padding: 1rem;
   gap: 1rem;
   background: #1d1c1c;
-  min-height: calc(100vh - 64px - 48px); /* Ajusta según header/footer */
+  min-height: calc(100vh - 64px - 48px);
 }
+
+.groups-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.group-list-item {
+  width: 100%;
+  max-width: 800px;
+}
+

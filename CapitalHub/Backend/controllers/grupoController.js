@@ -1,4 +1,4 @@
-const { Grupo } = require('../models');
+const { sequelize, UsuarioGrupo, Historico, Gasto, Presupuesto, Grupo } = require('../models');
 
 exports.obtenerGrupos = async (req, res) => {
   try {
@@ -64,3 +64,54 @@ exports.obtenerUsuariosDeGrupo = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener los usuarios del grupo' });
   }
 }
+
+exports.eliminarGruposEnCascada = async (req, res) => {
+  const { ids } = req.body;
+  const t = await sequelize.transaction();
+  try {
+    // 1) Relaciones usuario‐grupo
+    await UsuarioGrupo.destroy({
+      where: { id_grupo: ids },
+      transaction: t
+    });
+
+    // 2) Histórico
+    await Historico.destroy({
+      where: { id_grupo: ids },
+      transaction: t
+    });
+
+    // 3) Presupuestos y sus gastos
+    // primero identificar los presupuestos de esos grupos
+    const presupuestos = await Presupuesto.findAll({
+      where: { id_grupo: ids },
+      transaction: t
+    });
+    const presIds = presupuestos.map(p => p.id_presupuesto);
+    // borrar gastos
+    if (presIds.length) {
+      await Gasto.destroy({
+        where: { id_presupuesto: presIds },
+        transaction: t
+      });
+    }
+    // borrar presupuestos
+    await Presupuesto.destroy({
+      where: { id_grupo: ids },
+      transaction: t
+    });
+
+    // 4) finalmente borrar los grupos
+    await Grupo.destroy({
+      where: { id_grupo: ids },
+      transaction: t
+    });
+
+    await t.commit();
+    res.json({ mensaje: 'Grupos y dependencias eliminados correctamente' });
+  } catch (error) {
+    await t.rollback();
+    console.error('Error en eliminación en cascada:', error);
+    res.status(500).json({ error: 'No se pudo eliminar los grupos' });
+  }
+};

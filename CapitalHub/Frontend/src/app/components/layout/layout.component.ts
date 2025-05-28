@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule }   from '@angular/material/icon';
 import { GroupFormComponent } from '../group-form/group-form.component';
 import { CommonModule }    from '@angular/common';
+import { GroupService } from '../../services/group.service';
 
 @Component({
   selector: 'app-layout',
@@ -30,12 +31,13 @@ import { CommonModule }    from '@angular/common';
 })
 
 export class LayoutComponent {
-  // controla el sidebar
   collapsed     = true;
-  // controla el panel de opciones (añadir, borrar, actualizar)
   optionsOpen   = false;
-  // controla cuándo mostrar el formulario “Crear Grupo”
   showAddForm   = false;
+  deleteMode       = false;
+  selectedToDelete = new Set<number>();
+
+  constructor(private groupSvc: GroupService) {}
 
   toggleSidebar() {
     this.collapsed = !this.collapsed;
@@ -63,6 +65,34 @@ export class LayoutComponent {
     this.showAddForm = false;
   }
 
-  openDeleteForm() { /* … */ }
+
+  openDeleteForm() {
+    this.optionsOpen  = false;
+    this.deleteMode   = true;
+    this.selectedToDelete.clear();
+  }
+
+  cancelDelete() {
+    this.deleteMode   = false;
+    this.selectedToDelete.clear();
+  }
+
+  onSelectionChange(ids: Set<number>) {
+    this.selectedToDelete = ids;
+  }
+
+  
+  confirmDelete() {
+    // aquí lanzamos la eliminación en cascada de cada grupo
+    const toDelete = Array.from(this.selectedToDelete);
+    Promise.all(
+      toDelete.map(() => this.groupSvc.deleteGroupCascade(toDelete).toPromise())
+    ).then(() => {
+      this.cancelDelete();
+      // refresca tu listado de grupos (por ej. vía un Subject o recarga manual)
+      this.optionsOpen = false;
+    });
+  }
+
   openUpdateForm() { /* … */ }
 }

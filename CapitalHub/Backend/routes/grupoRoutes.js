@@ -145,4 +145,6 @@ router.delete('/grupos/:id', auth, grupoController.eliminarGrupo);
 
 router.get('/grupos/:id/usuarios', auth, grupoController.obtenerUsuariosDeGrupo);
 
+router.delete('/grupos', auth, grupoController.eliminarGruposEnCascada);
+
 module.exports = router;

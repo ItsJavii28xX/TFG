@@ -1,6 +1,12 @@
 <div class="groups-container">
-  <app-group
-    *ngFor="let g of groups"
-    [group]="g">
-  </app-group>
+  <div *ngFor="let g of groups" class="group-item">
+    <mat-checkbox
+      *ngIf="deleteMode"
+      class="delete-checkbox"
+      [checked]="selectedIds.has(g.id_grupo)"
+      (change)="onCheckboxChange(g.id_grupo, $event.checked)">
+    </mat-checkbox>
+
+    <app-group [group]="g"></app-group>
+  </div>
 </div>

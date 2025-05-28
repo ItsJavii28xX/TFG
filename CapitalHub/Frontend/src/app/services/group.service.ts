@@ -47,6 +47,16 @@ export class GroupService {
     });
   }
 
-  
+  /**
+   * Elimina en cascada uno o varios grupos: primero borra
+   * usuarios-grupos, histórico, gastos y presupuestos, y al final el grupo.
+   */
+  deleteGroupCascade(groupIds: number[]): Observable<any> {
+    return this.http
+      .request('delete', `${this.apiUrl}/grupos`, { body: { ids: groupIds } })
+      .pipe(
+        tap(() => this._refresh$.next())
+      );
+  }
 
 }
