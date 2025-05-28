@@ -10,6 +10,7 @@ import { SidebarComponent }      from '../sidebar/sidebar.component';
 import { ContentComponent }      from '../content/content.component';
 import { GroupOptionsComponent } from '../group-options/group-options.component';
 import { GroupFormComponent }    from '../group-form/group-form.component';
+import { GroupService } from '../../services/group.service';
 
 @Component({
   selector: 'app-layout',
@@ -37,6 +38,8 @@ export class LayoutComponent {
   updateMode      = false;
   selectedToDelete = new Set<number>();
 
+  constructor(private groupSvc: GroupService) {}
+
   toggleSidebar() { this.collapsed = !this.collapsed; }
   toggleOptions() { this.optionsOpen = !this.optionsOpen; }
 
@@ -60,8 +63,14 @@ export class LayoutComponent {
     this.selectedToDelete = ids;
   }
   confirmDelete() {
-    // … tu deleteGroupCascade …
-    this.cancelDelete();
+    const toDelete = Array.from(this.selectedToDelete);
+    this.groupSvc.deleteGroupCascade(toDelete)
+      .subscribe(() => {
+        this.cancelDelete();
+        this.optionsOpen = false;
+      }, err => {
+        console.error('Error borrando grupos:', err);
+      });
   }
 
   // ** NUEVO: edición **
