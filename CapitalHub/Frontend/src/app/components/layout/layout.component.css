@@ -1,20 +1,17 @@
-/* ENVUELVE a tu sidebar animado */
 .sidebar-container {
   position: relative;
-  display: flex;       /* así el toggle va al lado */
+  display: flex;
   /*overflow: hidden;*/
   flex-shrink: 0;
 }
 
-/* Mueve el toggle justo en el borde */
 .toggle-btn {
   position: absolute;
   top: 1rem;
-  right: -1.5rem;      /* medio fuera del sidebar */
+  right: -1.5rem;
   z-index: 10;
 }
 
-/* Contenido principal rellena el resto */
 .main-content {
   flex: 1;
   overflow: auto;
@@ -25,7 +22,6 @@
   z-index: 1000;
 }
 
-/* ya existente */
 :host {
   display: flex;
   flex-direction: column;
@@ -39,9 +35,6 @@
   overflow: hidden;
 }
 
-/* ... */
-
-/* Overlay semitransparente full-screen */
 .overlay {
   position: fixed;
   top: 0;
@@ -55,15 +48,31 @@
   z-index: 1000;
 }
 
-/* Contenedor centrado para la tarjeta */
 .form-wrapper {
   max-width: 400px;
   width: 90%;
   padding: 1rem;
 }
 
-/* Asegúrate de que el FAB y el panel de opciones estén siempre por debajo del overlay */
 .fab, app-group-options {
   z-index: 100;
+}
+
+.delete-checkbox {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+}
+
+.delete-toolbar {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  display: flex;
+  gap: 8px;
+  background: rgba(0,0,0,0.6);
+  padding: 8px 12px;
+  border-radius: 4px;
+  z-index: 1000;
 }
 
