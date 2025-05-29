@@ -70,7 +70,7 @@ export class MembersSelectComponent implements OnInit {
     this.contactSvc.getAllContacts(uid)
       .subscribe(cs => {
         // eliminamos al propio usuario
-        this.contacts = cs.filter(c => c.id_usuario !== uid);
+        this.contacts = cs.filter(c => c.id_contacto !== uid);
       });
   }
 

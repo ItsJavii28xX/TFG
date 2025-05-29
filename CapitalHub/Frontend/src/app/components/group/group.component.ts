@@ -14,6 +14,7 @@ import { BudgetService, Budget }        from '../../services/budget.service';
 import { ContactService, Contact }      from '../../services/contact.service';
 import { GastoService, Gasto } from '../../services/gasto.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-group',
@@ -25,7 +26,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     MatIconModule,
     ReactiveFormsModule,
     FormsModule,
-    MatTooltipModule
+    MatTooltipModule,
+    RouterModule
   ],
   templateUrl: './group.component.html',
   styleUrls:   ['./group.component.css']

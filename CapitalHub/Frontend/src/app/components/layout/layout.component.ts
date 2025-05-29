@@ -1,9 +1,8 @@
-import { Component }         from '@angular/core';
+import { Component, OnInit }         from '@angular/core';
 import { CommonModule }      from '@angular/common';
-import { RouterModule }      from '@angular/router';
+import { NavigationEnd, RouterModule }      from '@angular/router';
 import { MatButtonModule }   from '@angular/material/button';
 import { MatIconModule }     from '@angular/material/icon';
-
 import { HeaderComponent }       from '../header/header.component';
 import { FooterComponent }       from '../footer/footer.component';
 import { SidebarComponent }      from '../sidebar/sidebar.component';
@@ -11,6 +10,8 @@ import { ContentComponent }      from '../content/content.component';
 import { GroupOptionsComponent } from '../group-options/group-options.component';
 import { GroupFormComponent }    from '../group-form/group-form.component';
 import { GroupService } from '../../services/group.service';
+import { Router } from '@angular/router';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-layout',
@@ -30,15 +31,25 @@ import { GroupService } from '../../services/group.service';
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.css']
 })
-export class LayoutComponent {
+export class LayoutComponent implements OnInit {
   collapsed       = true;
   optionsOpen     = false;
   showAddForm     = false;
   deleteMode      = false;
   updateMode      = false;
   selectedToDelete = new Set<number>();
+  showProfile = false;
 
-  constructor(private groupSvc: GroupService) {}
+  constructor(private groupSvc: GroupService, private router: Router) {}
+
+  ngOnInit() {
+    // cada vez que cambie la ruta, actualizamos showProfile
+    this.router.events
+      .pipe(filter(e => e instanceof NavigationEnd))
+      .subscribe(() => {
+        this.showProfile = this.router.url.startsWith('/perfil');
+      });
+  }
 
   toggleSidebar() { this.collapsed = !this.collapsed; }
   toggleOptions() { this.optionsOpen = !this.optionsOpen; }

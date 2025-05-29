@@ -9,51 +9,58 @@
   </div>
 
   <section class="main-content">
-    <!-- le paso deleteMode y updateMode -->
-    <app-content
-      [deleteMode]="deleteMode"
-      [selectedIds]="selectedToDelete"
-      (selectionChange)="onSelectionChange($event)"
-      [updateMode]="updateMode">
-    </app-content>
+    <!-- SI NO estamos en /perfil, mostramos la zona de grupos -->
+    <ng-container *ngIf="!showProfile">
+      <app-content
+        [deleteMode]="deleteMode"
+        [selectedIds]="selectedToDelete"
+        (selectionChange)="onSelectionChange($event)"
+        [updateMode]="updateMode">
+      </app-content>
 
-    <!-- toolbar de borrar -->
-    <div *ngIf="deleteMode" class="action-toolbar delete-toolbar">
-      <button mat-button (click)="cancelDelete()">Cancelar</button>
-      <button
-        mat-raised-button color="warn"
-        (click)="confirmDelete()"
-        [disabled]="!selectedToDelete.size">
-        Eliminar {{ selectedToDelete.size }}
-      </button>
-    </div>
-
-    <!-- toolbar de editar -->
-    <div *ngIf="updateMode" class="action-toolbar update-toolbar">
-      <button mat-button (click)="cancelUpdate()">Cancelar edición</button>
-    </div>
-
-    <!-- FAB y panel de opciones -->
-    <button mat-fab class="fab" (click)="toggleOptions()">
-      <mat-icon>group_add</mat-icon>
-    </button>
-    <app-group-options
-      [open]="optionsOpen"
-      (add)="openAddForm()"
-      (delete)="openDeleteForm()"
-      (update)="openUpdateForm()"
-      (close)="optionsOpen=false">
-    </app-group-options>
-
-    <!-- modal Crear Grupo -->
-    <div *ngIf="showAddForm" class="overlay" (click)="onAddCancel()">
-      <div class="form-wrapper" (click)="$event.stopPropagation()">
-        <app-group-form
-          (cancel)="onAddCancel()"
-          (created)="onGroupCreated()">
-        </app-group-form>
+      <!-- toolbar borrar -->
+      <div *ngIf="deleteMode" class="action-toolbar delete-toolbar">
+        <button mat-button (click)="cancelDelete()">Cancelar</button>
+        <button
+          mat-raised-button color="warn"
+          (click)="confirmDelete()"
+          [disabled]="!selectedToDelete.size">
+          Eliminar {{ selectedToDelete.size }}
+        </button>
       </div>
-    </div>
+
+      <!-- toolbar editar -->
+      <div *ngIf="updateMode" class="action-toolbar update-toolbar">
+        <button mat-button (click)="cancelUpdate()">Cancelar edición</button>
+      </div>
+
+      <!-- FAB y panel de opciones -->
+      <button mat-fab class="fab" (click)="toggleOptions()">
+        <mat-icon>group_add</mat-icon>
+      </button>
+      <app-group-options
+        [open]="optionsOpen"
+        (add)="openAddForm()"
+        (delete)="openDeleteForm()"
+        (update)="openUpdateForm()"
+        (close)="optionsOpen = false">
+      </app-group-options>
+
+      <!-- modal Crear Grupo -->
+      <div *ngIf="showAddForm" class="overlay" (click)="onAddCancel()">
+        <div class="form-wrapper" (click)="$event.stopPropagation()">
+          <app-group-form
+            (cancel)="onAddCancel()"
+            (created)="onGroupCreated()">
+          </app-group-form>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- SI estamos en /perfil, dejamos que el router cargue el UserProfileComponent -->
+    <ng-container *ngIf="showProfile">
+      <router-outlet></router-outlet>
+    </ng-container>
   </section>
 </div>
 

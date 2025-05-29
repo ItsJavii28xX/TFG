@@ -2,9 +2,8 @@
 import { Injectable }        from '@angular/core';
 import { HttpClient }        from '@angular/common/http';
 import { Observable, of }    from 'rxjs';
-import { map, catchError, endWith }   from 'rxjs/operators';
+import { catchError }   from 'rxjs/operators';
 import { environment }       from '../../environments/environment';
-import { Console } from 'console';
 
 export interface Contact {
   id_contacto: number;
@@ -14,6 +13,24 @@ export interface Contact {
   email?: string;
   telefono?: string;
   imagen_perfil?: string;
+}
+
+export interface Contacto {
+  id_contacto: number;
+  nombre: string;
+  email?: string;
+  telefono?: string;
+  id_usuario_propietario: number;
+  id_usuario_contacto: number;
+}
+
+export interface ContactoCrear {
+  nombre: string;
+  apellidos: string;
+  email: string;
+  telefono?: string;
+  imagen_perfil?: string;
+  id_usuario_contacto: number;
 }
 
 @Injectable({
@@ -30,19 +47,32 @@ export class ContactService {
     return this.http
       .get<Contact>(`${this.apiUrl}/usuarios/email/${enc}`)
       .pipe(
-        // si status!==200 o 404, capturamos y devolvemos undefined
         catchError(() => of(undefined))
       );
   }
 
-  /** (Opcional) si sigues usando contactos locales */
   getAllContacts(userId: number): Observable<Contact[]> {
     return this.http.get<Contact[]>(`${this.apiUrl}/usuarios/${userId}/contactos`);
+  }
+
+    getAllContactos(userId: number): Observable<Contacto[]> {
+    return this.http.get<Contacto[]>(`${this.apiUrl}/usuarios/${userId}/contactos`);
   }
 
   getMembersByGroup(grupoId: number): Observable<Contact[]> {
     return this.http.get<Contact[]>(
       `${this.apiUrl}/grupos/${grupoId}/usuarios`
+    );
+  }
+
+
+  addContact(
+    userId: number,
+    contact: ContactoCrear
+  ): Observable<ContactoCrear> {
+    return this.http.post<ContactoCrear>(
+      `${this.apiUrl}/usuarios/${userId}/contactos`,
+      contact
     );
   }
 

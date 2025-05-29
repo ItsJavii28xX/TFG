@@ -5,6 +5,15 @@ import { environment }                     from '../../environments/environment'
 import { tap }                             from 'rxjs/operators';
 import { GroupService }                    from './group.service';
 
+export interface User {
+  id_usuario: number;
+  nombre: string;
+  apellidos: string;
+  email: string;
+  telefono: string;
+  imagen_perfil: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -86,4 +95,11 @@ export class AuthService {
       sessionStorage.getItem('token')
     );
   }
+
+  getUserById(id: number) {
+    return this.http.get<User>(
+      `${this.apiUrl}/usuarios/${id}`
+    );
+  }
+
 }

@@ -7,6 +7,7 @@ import { RegisterComponent } from './components/register/register.component';
 import { LayoutComponent }        from './components/layout/layout.component';
 import { AuthGuard }              from './guards/auth.guard';
 import { ContentComponent } from './components/content/content.component';
+import { UserProfileComponent } from './components/user-profile/user-profile.component';
 
 export const routes: Routes = [
 
@@ -21,6 +22,7 @@ export const routes: Routes = [
     children: [
       { path: '',          redirectTo: 'home', pathMatch: 'full' },
       { path: 'home',   component: ContentComponent },
+      { path: 'perfil/:id',   component: UserProfileComponent }
     ]
   },
 

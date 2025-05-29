@@ -1,6 +1,5 @@
 <mat-card class="group-card">
-   <div class="group-header">
-    <!-- Si estamos editando, mostramos input, si no, el título normal -->
+  <div class="group-header">
     <ng-container *ngIf="isEditing; else viewMode">
       <input
         class="edit-input"
@@ -16,7 +15,7 @@
   <p class="date">Creado: {{ group.fecha_creacion | date:'shortDate' }}</p>
 
   <div class="group-body">
-    <!-- Contenedor de presupuesto -->
+    <!-- Presupuesto -->
     <div class="budget-container" *ngIf="activeBudget">
       <span class="budget-name">{{ activeBudget.nombre }}</span>
       <mat-progress-bar
@@ -26,13 +25,16 @@
       </mat-progress-bar>
     </div>
 
-    <!-- Contenedor de miembros -->
-    <div class="members-container" *ngIf="members?.length">
+    <!-- Miembros -->
+   <div class="members-container" *ngIf="members?.length">
       <ng-container *ngFor="let m of membersToShow">
-        <img [src]="m.imagen_perfil"
-             matTooltip="{{m.nombre}}"
-             class="avatar">
-        <span class="member-name">{{ m.nombre }} {{m.apellidos}}</span>
+        <a [routerLink]="['/perfil', m.id_usuario]" class="member-link">
+          <img
+            [src]="m.imagen_perfil"
+            matTooltip="{{m.nombre}}"
+            class="avatar">
+          <span class="member-name">{{ m.nombre }}</span>
+        </a>
       </ng-container>
       <span *ngIf="extraCount>0" class="more">+{{ extraCount }}</span>
     </div>

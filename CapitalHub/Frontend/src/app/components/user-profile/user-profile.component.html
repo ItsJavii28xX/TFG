@@ -1,0 +1,31 @@
+<!-- src/app/components/user-profile/user-profile.component.html -->
+<mat-card *ngIf="user" class="user-card">
+    
+  <h2>{{ user.nombre }} {{ user.apellidos }}</h2>
+  <img *ngIf="user.imagen_perfil"
+    [src]="user.imagen_perfil"
+    alt="Avatar"
+    class="profile-avatar"
+  />
+  <p data-icon="✉️">Email: {{ user.email }}</p>
+  <p data-icon="📞">Teléfono: {{ user.telefono }}</p>
+
+  <button
+    mat-raised-button
+    color="primary"
+    class="add-contact-btn"
+    (click)="onAddContact()"
+    [disabled]="adding || added || isMe"
+  >
+    {{ adding ? 'Añadiendo...' : added ? '¡Contacto agregado!' : 'Añadir contacto' }}
+  </button>
+
+</mat-card>
+
+  <button
+    mat-stroked-button
+    class="back-btn"
+    (click)="goHome()"
+  >
+    Volver a inicio
+  </button>

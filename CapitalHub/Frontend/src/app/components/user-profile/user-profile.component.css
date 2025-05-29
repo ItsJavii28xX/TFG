@@ -1,0 +1,184 @@
+/* src/app/components/user-profile/user-profile.component.css */
+
+.user-card {
+  max-width: 360px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background: #fdfdfd;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  position: relative;
+}
+
+.user-card::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  left: -40%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, rgba(100, 181, 246, 0.2), transparent 70%);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+.user-card h2 {
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.user-card h2::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 4px;
+  background: #64b5f6;
+  margin: 0.5rem auto 0;
+  border-radius: 2px;
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  align-self: center;
+  border: 4px solid #64b5f6;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  margin-bottom: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.profile-avatar:hover {
+  transform: scale(1.05);
+}
+
+.user-card p {
+  margin: 0.75rem 0;
+  font-size: 1rem;
+  color: #444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-card p:first-of-type {
+  margin-top: 1rem;
+}
+
+.user-card p::before {
+  content: attr(data-icon);
+  font-size: 1.2rem;
+  margin-right: 0.5rem;
+  color: #64b5f6;
+}
+
+@media (max-width: 400px) {
+  .user-card {
+    margin: 1rem;
+    padding: 1rem;
+  }
+  .user-card h2 {
+    font-size: 1.5rem;
+  }
+  .profile-avatar {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+.user-card {
+  max-width: 360px;
+  margin: 2rem auto;
+  padding: 2rem 1.5rem;
+  border-radius: 12px;
+  background: #fdfdfd;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  position: relative;
+}
+
+.user-card::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  left: -40%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, rgba(100, 181, 246, 0.15), transparent 70%);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+.user-card h2 {
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.user-card h2::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 4px;
+  background: #64b5f6;
+  margin: 0.5rem auto 0;
+  border-radius: 2px;
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #64b5f6;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  margin: 1rem auto;
+}
+
+.user-card p {
+  margin: 0.75rem 0;
+  font-size: 1rem;
+  color: #444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-card p::before {
+  content: attr(data-icon);
+  font-size: 1.2rem;
+  margin-right: 0.5rem;
+  color: #64b5f6;
+}
+
+/* Botón de añadir contacto */
+.add-contact-btn {
+  margin: 1.5rem 0 0.5rem;
+  width: 100%;
+  background-color: #1976d2;     /* siempre visible */
+  color: #fff !important;
+}
+.add-contact-btn[disabled] {
+  background-color: #90caf9;     /* tono más claro */
+  color: rgba(255,255,255,0.7) !important;
+}
+
+/* Botón Volver a inicio */
+.back-btn {
+  margin: 1rem auto 0;
+  display: block;
+  background: transparent;
+  border-color: #64b5f6;
+  color: #64b5f6;
+}
+
+/* Responsive */
+@media (max-width: 400px) {
+  .user-card { margin: 1rem; padding: 1rem; }
+  .user-card h2 { font-size: 1.5rem; }
+  .profile-avatar { width: 100px; height: 100px; }
+}
+
