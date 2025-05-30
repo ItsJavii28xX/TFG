@@ -1,12 +1,59 @@
-import { Component }      from '@angular/core';
-import { RouterModule }   from '@angular/router';
+import { Component, OnInit }      from '@angular/core';
+import { Router, RouterModule }   from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
+import { Contact, Contacto, ContactService } from '../../services/contact.service';
+import { AuthService } from '../../services/auth.service';
+import { CommonModule } from '@angular/common';
+import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterModule, MatIcon],
+  imports: [RouterModule, MatIcon, CommonModule, MatMenuModule],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
-export class HeaderComponent {}
+export class HeaderComponent implements OnInit {
+
+  contacts: Contacto[] = [];
+  showLogoutOverlay = false;
+
+  constructor(
+    private contactSvc: ContactService,
+    private authSvc:    AuthService,
+    public router:     Router
+  ) {}
+
+  ngOnInit() {
+    const me = this.authSvc.getUserId()!;
+    this.contactSvc.getAllContactos(me).subscribe(cs => this.contacts = cs);
+  }
+
+  goToPersonal() {
+    this.router.navigate(['/personal']);
+  }
+
+  goToContactProfile(contact: Contacto) {
+    console.log('Navigating to contact profile:', contact.id_usuario_contacto);
+    this.router.navigate(['/perfil', contact.id_usuario_contacto]);
+  } 
+
+  /** cerrar sólo la sesión actual */
+  logoutCurrent() {
+    this.authSvc.logoutCurrent().subscribe(() => {
+      localStorage.removeItem('token');
+      sessionStorage.removeItem('token');
+      this.router.navigate(['/login']);
+    });
+  }
+
+  /** cerrar sesión en todos los dispositivos */
+  logoutAll() {
+    this.authSvc.logoutAll().subscribe(() => {
+      localStorage.removeItem('token');
+      sessionStorage.removeItem('token');
+      this.router.navigate(['/login']);
+    });
+  }
+}
+

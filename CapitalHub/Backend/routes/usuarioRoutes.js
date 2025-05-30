@@ -144,6 +144,8 @@ router.post('/usuarios/login-google', usuarioController.loginWithGoogle);
  */
 router.post('/usuarios/logout', auth, usuarioController.logout);
 
+router.post('/usuarios/logout-all', auth, usuarioController.logoutAll);
+
 router.post('/usuarios/forgot-password', usuarioController.forgotPassword);
 
 router.post('/usuarios/reset-password', usuarioController.resetPassword);

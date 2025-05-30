@@ -30,10 +30,10 @@
       <ng-container *ngFor="let m of membersToShow">
         <a [routerLink]="['/perfil', m.id_usuario]" class="member-link">
           <img
-            [src]="m.imagen_perfil"
+            [src]="m.imagen_perfil || 'avatar-placeholder.png'"
             matTooltip="{{m.nombre}}"
             class="avatar">
-          <span class="member-name">{{ m.nombre }}</span>
+          <span class="member-name"> {{ m.nombre }} {{ m.apellidos }}</span>
         </a>
       </ng-container>
       <span *ngIf="extraCount>0" class="more">+{{ extraCount }}</span>

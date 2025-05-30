@@ -2,8 +2,10 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser }              from '@angular/common';
 import { HttpClient }                      from '@angular/common/http';
 import { environment }                     from '../../environments/environment';
-import { tap }                             from 'rxjs/operators';
+import { catchError, tap }                             from 'rxjs/operators';
 import { GroupService }                    from './group.service';
+import { Observable, of } from 'rxjs';
+import { Router } from '@angular/router';
 
 export interface User {
   id_usuario: number;
@@ -19,12 +21,14 @@ export interface User {
 })
 
 export class AuthService {
+
   private apiUrl: string = environment.apiUrl;
   private isBrowser: boolean;
 
   constructor(
     private http: HttpClient,
     private groupSvc: GroupService,
+    private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -41,6 +45,47 @@ export class AuthService {
     } catch {
       return null;
     }
+  }
+
+    /** Elimina token de ambos storages */
+  private clearLocalToken() {
+    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
+  }
+
+  /** Cierra la sesión actual en este dispositivo */
+  logoutCurrent(): Observable<{ mensaje: string }> {
+    return this.http.post<{ mensaje: string }>(
+      `${this.apiUrl}/usuarios/logout`, {}
+    ).pipe(
+      tap(() => {
+        this.clearLocalToken();
+        this.router.navigate(['/login']);
+      }),
+      catchError(err => {
+        // aunque falle la petición, limpiamos local y redirigimos
+        this.clearLocalToken();
+        this.router.navigate(['/login']);
+        return of({ mensaje: 'Sesión cerrada localmente' });
+      })
+    );
+  }
+
+  /** Cierra sesión en todos los dispositivos */
+  logoutAll(): Observable<{ mensaje: string }> {
+    return this.http.post<{ mensaje: string }>(
+      `${this.apiUrl}/usuarios/logout-all`, {}
+    ).pipe(
+      tap(() => {
+        this.clearLocalToken();
+        this.router.navigate(['/login']);
+      }),
+      catchError(err => {
+        this.clearLocalToken();
+        this.router.navigate(['/login']);
+        return of({ mensaje: 'Sesiones cerradas localmente' });
+      })
+    );
   }
 
   /** Login tradicional: 30d o 12h según rememberMe */

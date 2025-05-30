@@ -249,6 +249,34 @@ exports.logout = async (req, res) => {
   }
 };
 
+exports.logoutAll = async (req, res) => {
+  try {
+    // req.user viene del middleware auth
+    const userId = req.user.id_usuario;
+
+    // 1) obtener todos los id_token de este usuario
+    const relations = await UsuarioToken.findAll({
+      where: { id_usuario: userId },
+      attributes: ['id_token']
+    });
+    const tokenIds = relations.map(r => r.id_token);
+
+    // 2) eliminar las relaciones usuario-token
+    await UsuarioToken.destroy({ where: { id_usuario: userId } });
+
+    // 3) eliminar los tokens en sí
+    if (tokenIds.length) {
+      await Token.destroy({ where: { id_token: tokenIds } });
+    }
+
+    // 4) finalmente respondemos
+    res.json({ mensaje: 'Sesión cerrada en todos los dispositivos' });
+  } catch (err) {
+    console.error('Error en logoutAll:', err);
+    res.status(500).json({ error: 'Error al cerrar sesión en todos los dispositivos' });
+  }
+};
+
 exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;

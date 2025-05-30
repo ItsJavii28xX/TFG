@@ -55,7 +55,7 @@ export class ContactService {
     return this.http.get<Contact[]>(`${this.apiUrl}/usuarios/${userId}/contactos`);
   }
 
-    getAllContactos(userId: number): Observable<Contacto[]> {
+  getAllContactos(userId: number): Observable<Contacto[]> {
     return this.http.get<Contacto[]>(`${this.apiUrl}/usuarios/${userId}/contactos`);
   }
 

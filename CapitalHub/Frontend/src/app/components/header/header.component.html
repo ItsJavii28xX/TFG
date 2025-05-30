@@ -3,18 +3,65 @@
     <img src="favicon.ico" alt="CapitalHub logo" class="logo-img" />
     <h1 class="logo-title">CapitalHub</h1>
   </div>
+
   <nav class="nav">
+    <!-- Inicio -->
     <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
       <mat-icon>home</mat-icon>
       <span>Inicio</span>
     </a>
-    <a mat-button routerLink="/contactos" routerLinkActive="active">
+
+    <!-- Contactos dropdown -->
+    <button mat-button [matMenuTriggerFor]="menuContacts">
       <mat-icon>contacts</mat-icon>
       <span>Contactos</span>
-    </a>
-    <a mat-button routerLink="/perfil" routerLinkActive="active">
+      <mat-icon>arrow_drop_down</mat-icon>
+    </button>
+    <mat-menu #menuContacts="matMenu">
+      <ng-container *ngIf="contacts.length; else noContacts">
+        <ng-container *ngFor="let c of contacts">
+          <button mat-menu-item (click)="goToContactProfile(c)">
+            <img [src]="'avatar-placeholder.png'" class="menu-avatar" />
+            <span>{{ c.nombre }}</span>
+          </button>
+        </ng-container>
+      </ng-container>
+      <ng-template #noContacts>
+        <button mat-menu-item disabled>No tienes contactos</button>
+      </ng-template>
+    </mat-menu>
+
+    <!-- Perfil dropdown -->
+    <button mat-button [matMenuTriggerFor]="menuProfile">
       <mat-icon>person</mat-icon>
       <span>Perfil</span>
-    </a>
+      <mat-icon>arrow_drop_down</mat-icon>
+    </button>
+    <mat-menu #menuProfile="matMenu">
+      <button mat-menu-item (click)="goToPersonal()">
+        <mat-icon>account_circle</mat-icon>
+        <span>Perfil</span>
+      </button>
+      <button mat-menu-item (click)="showLogoutOverlay = true">
+        <mat-icon>exit_to_app</mat-icon>
+        <span>Cerrar Sesión</span>
+      </button>
+    </mat-menu>
   </nav>
+
+  <!-- Overlay de logout -->
+  <div *ngIf="showLogoutOverlay" class="logout-overlay" (click)="showLogoutOverlay=false">
+    <div class="logout-dialog" (click)="$event.stopPropagation()">
+      <h3>¿Cerrar sesión…?</h3>
+      <button mat-raised-button color="primary" (click)="logoutCurrent()">
+        Cerrar Sesión
+      </button>
+      <button mat-raised-button color="warn" (click)="logoutAll()">
+        Cerrar en todos los dispositivos
+      </button>
+      <button mat-button (click)="showLogoutOverlay=false">
+        Cancelar
+      </button>
+    </div>
+  </div>
 </header>
