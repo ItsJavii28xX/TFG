@@ -5,11 +5,15 @@ import { Contact, Contacto, ContactService } from '../../services/contact.servic
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDialogModule } from '@angular/material/dialog';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatButtonModule }       from '@angular/material/button';
+import { MatIconModule }         from '@angular/material/icon';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterModule, MatIcon, CommonModule, MatMenuModule],
+  imports: [RouterModule, MatIcon, CommonModule, MatMenuModule, MatDialogModule, MatButtonModule, MatIconModule],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })

@@ -13,6 +13,17 @@ export interface Contact {
   email?: string;
   telefono?: string;
   imagen_perfil?: string;
+  oauth_provider?: string;
+  oauth_id?: string;
+}
+
+export interface Usuario {
+  id_usuario: number;
+  nombre: string;
+  apellidos: string;
+  email?: string;
+  telefono?: string;
+  imagen_perfil?: string;
 }
 
 export interface Contacto {
@@ -42,13 +53,17 @@ export class ContactService {
   constructor(private http: HttpClient) {}
 
   /** Busca cualquier usuario de la app por email */
-  findUserByEmail(email: string): Observable<Contact|undefined> {
+  findUserByEmail(email: string): Observable<Usuario|undefined> {
     const enc = encodeURIComponent(email);
     return this.http
       .get<Contact>(`${this.apiUrl}/usuarios/email/${enc}`)
       .pipe(
         catchError(() => of(undefined))
       );
+  }
+
+  getUserById(id: number): Observable<Usuario> {
+    return this.http.get<Usuario>(`${this.apiUrl}/usuarios/${id}`);
   }
 
   getAllContacts(userId: number): Observable<Contact[]> {

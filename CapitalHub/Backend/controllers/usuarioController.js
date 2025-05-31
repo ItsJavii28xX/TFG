@@ -2,7 +2,9 @@ require('dotenv').config();
 const { OAuth2Client } = require('google-auth-library');
 const nodemailer       = require('nodemailer');
 const jwt              = require('jsonwebtoken');
-const { Usuario, Token, UsuarioToken, Grupo, UsuarioGrupo } = require('../models');
+const bcrypt           = require('bcryptjs');
+const sequelize        = require('../config/database');
+const { Usuario, Token, UsuarioToken, Grupo, UsuarioGrupo, Contacto } = require('../models');
 
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -85,6 +87,58 @@ exports.eliminarUsuario = async (req, res) => {
     res.json({ mensaje: 'Usuario eliminado correctamente' });
   } catch (error) {
     res.status(500).json({ error: 'Error al eliminar usuario' });
+  }
+};
+
+exports.deleteUsersCascade = async (req, res) => {
+  const ids = req.body.ids;
+  if (!Array.isArray(ids) || !ids.length) {
+    return res.status(400).json({ error: 'Debe enviar un array de IDs de usuario' });
+  }
+
+  const t = await sequelize.transaction();
+  try {
+    for (const idUsuario of ids) {
+      // 1) Encontrar todos los tokens asociados a este usuario
+      const userTokens = await UsuarioToken.findAll({
+        where: { id_usuario: idUsuario },
+        transaction: t
+      });
+      const tokenIds = userTokens.map(ut => ut.id_token);
+
+      // 2) Borrar relaciones UsuarioToken de este usuario
+      await UsuarioToken.destroy({
+        where: { id_usuario: idUsuario },
+        transaction: t
+      });
+
+      // 3) Borrar registros en Token para esos id_token
+      if (tokenIds.length) {
+        await Token.destroy({
+          where: { id_token: tokenIds },
+          transaction: t
+        });
+      }
+
+      // 4) Borrar todos los contactos cuyo id_usuario_propietario sea este user
+      await Contacto.destroy({
+        where: { id_usuario_contacto: idUsuario },
+        transaction: t
+      });
+
+      // 5) Finalmente borrar el propio usuario
+      await Usuario.destroy({
+        where: { id_usuario: idUsuario },
+        transaction: t
+      });
+    }
+
+    await t.commit();
+    res.status(204).send();
+  } catch (error) {
+    await t.rollback();
+    console.error('Error en deleteUsersCascade:', error);
+    res.status(500).json({ error: 'Error al borrar usuarios en cascada' });
   }
 };
 
@@ -353,4 +407,28 @@ exports.resetPassword = async (req, res) => {
   await Token.destroy({ where: { id_token: null } }); // o filtrar por usuario
 
   res.json({ mensaje: 'Contraseña restablecida con éxito' });
+};
+
+exports.verifyPassword = async (req, res) => {
+  try {
+    const userId = Number(req.params.id);
+    const { password } = req.body;
+    if (!password) {
+      return res.status(400).json({ error: 'Debe proporcionar la contraseña actual' });
+    }
+
+    const usuario = await Usuario.findByPk(userId);
+    if (!usuario) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    // Compara plaintext vs hash
+    const match = await bcrypt.compare(password, usuario.contraseña);
+
+    // **Devuelve directamente el booleano**, no { valid: match }
+    return res.json(match);
+  } catch (err) {
+    console.error('Error en verifyPassword:', err);
+    return res.status(500).json({ error: 'Error interno al verificar contraseña' });
+  }
 };

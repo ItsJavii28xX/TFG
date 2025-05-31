@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { Observable } from 'rxjs';
+import { Observable, Subject, tap } from 'rxjs';
+import { User } from './auth.service';
 
 export interface RegisterDto {
   nombre: string;
@@ -27,7 +28,10 @@ export interface UserDto {
   providedIn: 'root'
 })
 export class UserService {
+
   private apiUrl = environment.apiUrl;
+  private _refresh$ = new Subject<void>();
+  public refresh$ = this._refresh$.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -53,4 +57,21 @@ export class UserService {
   update(id: number, data: Partial<RegisterDto>): Observable<UserDto> {
     return this.http.put<UserDto>(`${this.apiUrl}/usuarios/${id}`, data);
   }
+
+  verifyPassword(id: number, currentPassword: string): Observable<boolean> {
+    return this.http.post<boolean>(`${this.apiUrl}/usuarios/${id}/verify-password`, { password: currentPassword });
+  }
+
+  deleteUserCascade(userIds: number[]): Observable<UserDto> {
+    return this.http
+      .request<UserDto>(
+        'delete',
+        `${this.apiUrl}/usuarioCascada`,
+        { body: { ids: userIds } }
+      )
+      .pipe(
+        tap(() => this._refresh$.next())
+      );
+  }
+
 }

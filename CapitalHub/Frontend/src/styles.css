@@ -7,3 +7,20 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     color: aliceblue;
     
 }
+
+/* 1. Quitar márgenes/paddings por defecto del navegador
+   2. Forzar que html y body ocupen el 100% de la altura
+   3. Aplicarles el fondo oscuro para que nunca haya “blanco” debajo */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #1c1b1b;
+}
+
+/* Si tu <app-root> u otro contenedor principal llegara a tener padding/margin,
+   puedes forzarlo a ocupar todo el alto también */
+:host, app-root {
+  display: block;
+  height: 100%;
+}

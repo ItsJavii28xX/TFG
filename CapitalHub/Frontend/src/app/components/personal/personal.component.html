@@ -1,1 +1,230 @@
-<p>personal works!</p>
+<!-- src/app/components/personal/personal.component.html -->
+<div class="page-background">
+  <mat-card *ngIf="user" class="user-card">
+    <h2>Mis Datos</h2>
+
+    <!-- =========================
+         Sección de perfil
+         ========================= -->
+    <div class="profile-section">
+      <img
+        [src]="user.imagen_perfil || 'avatar-placeholder.png'"
+        alt="Avatar"
+        class="profile-avatar"
+      />
+      <p><strong>Nombre: </strong> {{ user.nombre }} {{ user.apellidos }}</p>
+      <p><strong>Email: </strong> {{ user.email }}</p>
+      <p><strong>Teléfono: </strong> {{ user.telefono || '—' }}</p>
+    </div>
+
+    <!-- =========================
+         Mensajes de advertencia o error generales
+         ========================= -->
+    <!-- Se muestra sólo si startEditInfo detectó cuenta Google -->
+    <div *ngIf="infoWarning" class="info-warning">
+      {{ infoWarning }}
+    </div>
+    <!-- Mensaje de error al intentar abrir “confirmar edición” sin campos requeridos -->
+    <div *ngIf="infoError" class="info-error">
+      {{ infoError }}
+    </div>
+
+    <!-- =========================
+         Botones de acción
+         ========================= -->
+    <div class="action-buttons">
+      <!-- 1) Actualizar información -->
+      <button
+        mat-stroked-button
+        color="primary"
+        class="info-btn"
+        (click)="startEditInfo()"
+        *ngIf="!editingInfo"
+      >
+        ✏️ Actualizar mi información
+      </button>
+
+      <!-- 2) Actualizar contraseña -->
+      <button
+        mat-stroked-button
+        color="primary"
+        class="pwd-btn"
+        (click)="showPwdForm = true"
+        *ngIf="!showPwdForm"
+      >
+        🔑 Actualizar mi contraseña
+      </button>
+
+      <!-- 3) Borrar usuario -->
+      <button
+        mat-stroked-button
+        color="warn"
+        class="delete-btn"
+        (click)="showDeleteConfirm = true"
+      >
+        🗑️ Borrar mi usuario
+      </button>
+    </div>
+
+    <!-- =========================
+         FORMULARIO “Actualizar mi información”
+         ========================= -->
+    <div *ngIf="editingInfo" class="edit-form edit-info">
+      <h3>Editar mis datos</h3>
+      <mat-form-field appearance="fill">
+        <mat-label>Nombre</mat-label>
+        <input matInput [(ngModel)]="edit.nombre" />
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Apellidos</mat-label>
+        <input matInput [(ngModel)]="edit.apellidos" />
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Email</mat-label>
+        <input matInput [(ngModel)]="edit.email" />
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Teléfono</mat-label>
+        <input matInput [(ngModel)]="edit.telefono" />
+      </mat-form-field>
+      <div class="edit-actions">
+        <button mat-button (click)="cancelEditInfo()">Cancelar</button>
+        <button
+          mat-flat-button
+          color="accent"
+          (click)="openInfoConfirm()"
+        >
+          Listo
+        </button>
+      </div>
+    </div>
+
+    <!-- =========================
+         Mensaje de error para cambiar contraseña
+         ========================= -->
+    <div *ngIf="pwdError" class="pwd-error">
+      {{ pwdError }}
+    </div>
+
+    <!-- =========================
+         FORMULARIO “Cambiar contraseña”
+         ========================= -->
+    <div *ngIf="showPwdForm" class="edit-form edit-pwd">
+      <h3>Cambiar contraseña</h3>
+      <mat-form-field appearance="fill">
+        <mat-label>Contraseña actual</mat-label>
+        <input
+          matInput
+          type="password"
+          [(ngModel)]="pwd.current"
+        />
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Nueva contraseña</mat-label>
+        <input
+          matInput
+          type="password"
+          [(ngModel)]="pwd.new"
+        />
+      </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Confirmar contraseña</mat-label>
+        <input
+          matInput
+          type="password"
+          [(ngModel)]="pwd.confirm"
+        />
+      </mat-form-field>
+      <div class="edit-actions">
+        <button mat-button (click)="showPwdForm = false">
+          Cancelar
+        </button>
+        <button
+          mat-flat-button
+          color="accent"
+          (click)="changePassword()"
+        >
+          Listo
+        </button>
+      </div>
+    </div>
+
+    <!-- =========================
+         Confirm dialog PARA BORRAR CUENTA
+         ========================= -->
+    <ng-template #deleteConfirm>
+      <h3>¿Estás seguro que quieres borrar tu cuenta?</h3>
+      <p>Se eliminarán todos tus datos y relaciones.</p>
+      <div class="edit-actions">
+        <button mat-button (click)="showDeleteConfirm = false">
+          Cancelar
+        </button>
+        <button
+          mat-flat-button
+          color="warn"
+          (click)="deleteAccount()"
+        >
+          Confirmar
+        </button>
+      </div>
+    </ng-template>
+
+    <!-- =========================
+         Confirmación de EDICIÓN
+         ========================= -->
+    <ng-template #infoConfirm>
+      <h3>Vas a cambiar tus datos a:</h3>
+      <ul class="confirm-list">
+        <li><strong>Nombre:</strong> {{ edit.nombre }} {{ edit.apellidos }}</li>
+        <li><strong>Email:</strong> {{ edit.email }}</li>
+        <li><strong>Teléfono:</strong> {{ edit.telefono }}</li>
+      </ul>
+      <div class="edit-actions">
+        <button mat-button (click)="closeInfoConfirm()">
+          Cancelar
+        </button>
+        <button
+          mat-flat-button
+          color="accent"
+          (click)="doEditInfo()"
+        >
+          Confirmar
+        </button>
+      </div>
+    </ng-template>
+
+    <!-- =========================
+         OVERLAY DE CONFIRMACIONES
+         ========================= -->
+    <!-- Overlay para BORRAR CUENTA -->
+    <div
+      class="overlay"
+      *ngIf="showDeleteConfirm"
+      (click)="showDeleteConfirm = false"
+    >
+      <div class="dialog" (click)="$event.stopPropagation()">
+        <ng-container *ngTemplateOutlet="deleteConfirm"></ng-container>
+      </div>
+    </div>
+    <!-- Overlay para CONFIRMAR EDICIÓN -->
+    <div
+      class="overlay"
+      *ngIf="showInfoConfirm"
+      (click)="closeInfoConfirm()"
+    >
+      <div class="dialog" (click)="$event.stopPropagation()">
+        <ng-container *ngTemplateOutlet="infoConfirm"></ng-container>
+      </div>
+    </div>
+    <div class="back-container">
+      <button
+        mat-stroked-button
+        class="back-btn"
+        (click)="goHome()"
+      >
+        Volver a inicio
+      </button>
+    </div>
+  </mat-card>
+</div>
+

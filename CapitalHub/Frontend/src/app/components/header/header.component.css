@@ -1,5 +1,6 @@
-/* src/app/components/header/header.component.css */
-
+/* ===========================
+   HEADER (sin cambios importantes)
+   =========================== */
 .header {
   display: flex;
   align-items: center;
@@ -10,27 +11,25 @@
   color: #fff;
   box-shadow: 0 2px 4px rgba(0,0,0,0.5);
   position: relative;
-  z-index: 1000;
+  z-index: 1000; /* Por debajo del overlay de logout */
 }
 
 .logo-container {
   display: flex;
   align-items: center;
 }
-
 .logo-img {
   width: 40px;
   height: 40px;
   margin-right: 0.5rem;
 }
-
 .logo-title {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
 }
 
-/* Nav links and buttons */
+/* Nav links y botones */
 .nav a,
 .nav button {
   display: inline-flex;
@@ -44,21 +43,20 @@
   transition: color 0.2s ease;
   font: inherit;
 }
-
 .nav a mat-icon,
 .nav button mat-icon {
   margin-right: 0.25rem;
   font-size: 1.2rem;
 }
 
-/* Hover & Active states */
+/* Hover / Active */
 .nav a.active,
 .nav a:hover,
 .nav button:hover {
   color: #64b5f6;
 }
 
-/* Contacts dropdown avatar */
+/* Avatar en menú */
 .menu-avatar {
   width: 32px;
   height: 32px;
@@ -67,40 +65,51 @@
   margin-right: 0.5rem;
 }
 
-/* Overlay de logout */
+/* ===========================
+   OVERLAY de logout
+   =========================== */
 .logout-overlay {
+  /* El overlay debe cubrir TODO el viewport, esté donde esté el scroll */
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: rgba(0,0,0,0.6);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2000;
+  z-index: 2000;           /* Por encima de todo el resto */
+  overflow: auto;          /* Por si el contenido del diálogo fuera mayor que la pantalla */
 }
 
-/* Diálogo de logout */
+/* DIALOG de logout */
 .logout-dialog {
-  background: #fff !important;
-  padding: 2rem !important;
-  border-radius: 8px !important;
-  width: 320px !important;
-  max-width: 90% !important;
-  text-align: center !important;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.2) !important;
+  /* Forzamos a que el fondo del diálogo sea blanco sólido */
+  background: #fff;        /* !important no debería ser necesario si no hay otro estilo que lo anule */
+  padding: 2rem;
+  border-radius: 8px;
+  width: 320px;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
 }
 
+/* Título del diálogo */
 .logout-dialog h3 {
-  margin-bottom: 1.5rem !important;
-  font-size: 1.25rem !important;
-  color: #333 !important;
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+  color: #333;
 }
 
-/* Buttons inside the dialog */
+/* Botones internos */
 .logout-dialog button {
-  margin: 0.5rem !important;
+  margin: 0.5rem;
 }
 
-/* Responsive */
+/* ===========================
+   Responsive
+   =========================== */
 @media (max-width: 480px) {
   .header {
     padding: 0 0.5rem;
@@ -117,5 +126,10 @@
   .menu-avatar {
     width: 28px;
     height: 28px;
+  }
+  /* Si el diálogo de logout ocupa demasiado, lo reducimos un poco */
+  .logout-dialog {
+    width: 90%;
+    padding: 1.5rem;
   }
 }

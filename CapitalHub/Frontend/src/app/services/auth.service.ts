@@ -2,7 +2,7 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser }              from '@angular/common';
 import { HttpClient }                      from '@angular/common/http';
 import { environment }                     from '../../environments/environment';
-import { catchError, tap }                             from 'rxjs/operators';
+import { catchError, tap, map }                             from 'rxjs/operators';
 import { GroupService }                    from './group.service';
 import { Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
@@ -14,6 +14,17 @@ export interface User {
   email: string;
   telefono: string;
   imagen_perfil: string;
+}
+
+export interface UserDto {
+  id_usuario: number;
+  nombre: string;
+  apellidos: string;
+  email: string;
+  telefono: string;
+  imagen_perfil?: string;
+  oauth_provider?: string;
+  oauth_id?: string;
 }
 
 @Injectable({
@@ -142,8 +153,29 @@ export class AuthService {
   }
 
   getUserById(id: number) {
-    return this.http.get<User>(
+    return this.http.get<UserDto>(
       `${this.apiUrl}/usuarios/${id}`
+    );
+  }
+
+  getCurrentUser(): any | null {
+    const token =
+      localStorage.getItem('token') ||
+      sessionStorage.getItem('token');
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload;
+    } catch {
+      return null;
+    }
+  }
+
+  isGoogleUser(): Observable<boolean> {
+    const idUser = this.getCurrentUser().id_usuario;
+    return this.getUserById(idUser).pipe(
+      tap(user => console.log('isGoogleUser', user)),
+      map(user => user?.oauth_provider === 'google')
     );
   }
 

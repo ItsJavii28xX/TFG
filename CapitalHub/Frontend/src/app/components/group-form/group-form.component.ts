@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators }      from '@a
 import { GroupService }    from '../../services/group.service';
 import { BudgetService, BudgetDto, Budget } from '../../services/budget.service';
 import { AuthService }     from '../../services/auth.service';
-import { Contact, MembersSelectComponent, MembersSelection } from '../members-select/members-select.component';
+import { MembersSelectComponent, MembersSelection } from '../members-select/members-select.component';
 import { BudgetFormComponent }    from '../budget-form/budget-form.component';
 import { MatChip } from '@angular/material/chips';
 import { MatButton } from '@angular/material/button';
@@ -16,6 +16,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatLabel } from '@angular/material/form-field';
 import { MatChipSet } from '@angular/material/chips';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { Usuario } from '../../services/contact.service';
 
 @Component({
   selector: 'app-group-form',
@@ -45,8 +46,8 @@ export class GroupFormComponent implements OnInit {
   f!: FormGroup;
   addingMembers   = false;
   addingBudget    = false;
-  selectedMembers: Contact[]     = [];
-  membersAsAdmin:   boolean      = false;
+  selectedMembers: Usuario[]     = [];
+  membersAsAdmin: number[] = [];
   budgetData: BudgetDto | null = null;
 
   constructor(
@@ -67,7 +68,7 @@ export class GroupFormComponent implements OnInit {
 
   onMembersDone(selection: MembersSelection) {
     this.selectedMembers = selection.contacts;
-    this.membersAsAdmin  = selection.asAdmin;
+    this.membersAsAdmin  = selection.admins;
     this.addingMembers   = false;
   }
 

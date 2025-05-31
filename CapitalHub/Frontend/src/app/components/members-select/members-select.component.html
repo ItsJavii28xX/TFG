@@ -1,49 +1,63 @@
-<!-- src/app/components/members-select/members-select.component.html -->
-<mat-card class="members-card">
+<mat-card class="members-select-card">
   <h3>Selecciona miembros</h3>
 
-  <mat-list>
-    <mat-list-item *ngFor="let c of contacts"
-                   (click)="toggle(c)"
-                   [class.selected]="selected.includes(c)">
-      <img matListAvatar [src]="c.imagen_perfil" alt="">
-      <h4 matLine>{{ c.nombre }} {{ c.apellidos }}</h4>
-      <mat-icon matListIcon *ngIf="selected.includes(c)">check</mat-icon>
+  <!-- 1) LISTADO SCROLLABLE DE CONTACTOS -->
+  <mat-list class="scrollable-list">
+    <mat-list-item
+      *ngFor="let u of allUsers"
+      class="flex-row"
+      (click)="toggle(u)"
+      [class.selected]="isSelected(u)"
+    >
+      <!-- AVATAR A LA IZQUIERDA -->
+      <img
+        matListAvatar
+        [src]="u.imagen_perfil || 'avatar-placeholder.png'"
+        alt="avatar"
+        class="menu-avatar"
+      />
+
+      <!-- NOMBRE + APELLIDOS A LA DERECHA DEL AVATAR -->
+      <span class="user-name">{{ u.nombre }}</span>
+
+      <!-- ICONO “CHECK” SI ESTÁ SELECCIONADO -->
+      <mat-icon matListIcon *ngIf="isSelected(u)">check</mat-icon>
+
+      <!-- CHECKBOX “Admin” a la derecha -->
+      <mat-checkbox
+        *ngIf="isSelected(u)"
+        class="admin-checkbox"
+        [checked]="adminMap[u.id_usuario]"
+        (change)="adminMap[u.id_usuario] = $event.checked"
+        (click)="$event.stopPropagation()"
+      >
+        Admin
+      </mat-checkbox>
     </mat-list-item>
   </mat-list>
 
-  <!-- formGroup wrapper que incluye email + checkbox -->
-  <div [formGroup]="form" class="manual-section">
-    <div class="manual-email">
-      <mat-form-field appearance="outline" class="email-field">
-        <mat-label>Correo manual</mat-label>
-        <input matInput formControlName="manualEmail"
-               placeholder="usuario@ejemplo.com">
-        <mat-error *ngIf="form.get('manualEmail')?.hasError('email')">
-          Email inválido
-        </mat-error>
-      </mat-form-field>
-      <button mat-stroked-button
-              type="button"
-              [disabled]="form.invalid"
-              (click)="addManual()">
-        Añadir
-      </button>
-    </div>
-
-    <!-- Checkbox dentro del mismo formGroup y justo debajo -->
-    <mat-checkbox formControlName="isAdmin" class="admin-checkbox">
-      Admin?
-    </mat-checkbox>
+  <div class="manual-email">
+    <input
+      matInput
+      placeholder="Correo manual"
+      [(ngModel)]="manualEmail"
+      class="manual-input"
+    />
+    <!-- IMPORTANTE: agregar type="button" para que NO haga submit -->
+    <button type="button" mat-stroked-button color="primary" (click)="addManual()">
+      Añadir
+    </button>
   </div>
 
-  <div class="actions">
-    <button mat-button type="button" (click)="close()">Cancelar</button>
-    <button mat-raised-button
-            color="primary"
-            type="button"
-            [disabled]="!selected.length"
-            (click)="finish()">
+  <!-- 3) BOTONES “Cancelar” y “Listo” -->
+  <div class="edit-actions members-actions">
+    <button mat-button color="warn" (click)="onCancel()">Cancelar</button>
+    <button
+      mat-flat-button
+      color="primary"
+      [disabled]="selected.length === 0"
+      (click)="onDone()"
+    >
       Listo
     </button>
   </div>

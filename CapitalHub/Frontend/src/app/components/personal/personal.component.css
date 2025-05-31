@@ -1,0 +1,367 @@
+/* src/app/components/personal/personal.component.css */
+/* Asegúrate de que el <html> y el <body> ocupen todo el alto y no tengan márgenes */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #1c1b1b !important; /* mismo color oscuro que tu .page-background */
+}
+
+/* Opcional: si tus componentes están anidados dentro de algún <app-root> u otro contenedor, 
+   también comprueba que éste no tenga márgenes extra. Ejemplo para el componente raíz: */
+:host {
+  display: block;
+  height: 100% !important;
+}
+
+
+/* =======================
+   1) Fondo oscuro de la página
+   ======================= */
+.page-background {
+  background: #1c1b1b !important;
+  height: 90%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  box-sizing: border-box;
+}
+
+/* =======================
+   2) Tarjeta de perfil
+   ======================= */
+.user-card {
+  max-width: 360px;
+  width: 100%;
+  margin: 0; /* Centramos con flex en el contenedor padre */
+  padding: 2rem 1.5rem;
+  border-radius: 12px;
+  background: #fcf4ee;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  position: relative;
+}
+
+/* “Brillo” detrás de la tarjeta */
+.user-card::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  left: -40%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at center,
+    rgba(100, 180, 246, 0.178),
+    transparent 70%
+  );
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+/* Título principal */
+.user-card h2 {
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.user-card h2::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 4px;
+  background: #64b5f6;
+  margin: 0.5rem auto 0;
+  border-radius: 2px;
+}
+
+/* =======================
+   3) Sección de perfil (imagen + texto)
+   ======================= */
+.profile-section p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+  color: #444;
+}
+
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 3px solid #64b5f6;
+  display: block;
+  margin: 0 auto 1rem;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.profile-avatar:hover {
+  transform: scale(1.05);
+}
+
+/* =======================
+   4) Mensajes de advertencia / error
+   ======================= */
+.info-warning {
+  background: #fff9c4; /* color claro de advertencia */
+  color: #666;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.info-error,
+.pwd-error {
+  background: #ffcdd2; /* rojo claro */
+  color: #b71c1c;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+/* =======================
+   5) Botones principales (Actualizar / Contraseña / Borrar)
+   ======================= */
+.action-buttons {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.action-buttons button {
+  flex: 1;
+  border-radius: 24px;
+  text-transform: none;
+  font-size: 0.95rem;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.2s ease;
+}
+
+/* Botón “Actualizar info” y “Actualizar contraseña” */
+button.info-btn,
+button.pwd-btn {
+  border-color: #64b5f6 !important;
+  color: #64b5f6 !important;
+}
+
+button.info-btn:hover,
+button.pwd-btn:hover {
+  background-color: rgba(100, 181, 246, 0.1);
+}
+
+/* Botón “Borrar usuario” */
+button.delete-btn {
+  border-color: #e57373 !important;
+  color: #e57373 !important;
+}
+
+button.delete-btn:hover {
+  background-color: rgba(229, 115, 115, 0.1);
+}
+
+/* =======================
+   6) Formularios “edit-form”
+   ======================= */
+.edit-form {
+  margin-top: 1.5rem;
+}
+
+.edit-info h3,
+.edit-pwd h3 {
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+/* Cada mat-form-field ocupa 100% y algo de margen */
+.edit-info mat-form-field,
+.edit-pwd mat-form-field {
+  width: 100%;
+  margin-bottom: 0.75rem;
+}
+
+.edit-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.edit-actions button {
+  flex: 1;
+  margin: 0 0.25rem;
+}
+
+/* =======================
+   7) Estilos de lista de confirmación
+   ======================= */
+.confirm-list {
+  list-style: none;
+  padding-left: 0;
+  text-align: left;
+  margin-bottom: 1rem;
+}
+
+.confirm-list li {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+/* =======================
+   8) Overlay de confirmaciones
+   ======================= */
+.overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.dialog {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 360px;
+  text-align: center;
+}
+
+/* =======================
+   9) Responsive (pantallas pequeñas)
+   ======================= */
+@media (max-width: 400px) {
+  .page-background {
+    padding: 1rem;
+  }
+  .user-card {
+    padding: 1rem;
+  }
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .action-buttons button {
+    width: 100%;
+  }
+  .edit-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+.back-btn {
+  position: relative;
+  font-size: 1.25rem;
+  font-weight: 700;
+  padding: 1rem 2rem;
+  margin-top: 1cm;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  background: linear-gradient(
+    45deg,
+    #ff0080,
+    #ff8c00,
+    #ffe600,
+    #00e676,
+    #00b0ff,
+    #d500f9
+  );
+  background-size: 300% 300%;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    0 0 20px rgba(255, 0, 128, 0.5),
+    0 0 30px rgba(255, 140, 0, 0.5),
+    0 0 40px rgba(0, 230, 118, 0.5),
+    0 5px 20px rgba(0, 0, 0, 0.3);
+  transition:
+    background-position 3s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+  animation: rainbowShift 6s ease infinite;
+}
+
+@keyframes rainbowShift {
+  0%   { background-position: 0% 50%; }
+  25%  { background-position: 50% 100%; }
+  50%  { background-position: 100% 50%; }
+  75%  { background-position: 50% 0%; }
+  100% { background-position: 0% 50%; }
+}
+
+.back-btn:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 30px rgba(255, 0, 128, 0.7),
+    0 0 40px rgba(255, 140, 0, 0.7),
+    0 0 50px rgba(0, 230, 118, 0.7),
+    0 0 60px rgba(213, 0, 249, 0.7),
+    0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.back-btn:active {
+  transform: scale(0.97);
+  box-shadow:
+    0 0 15px rgba(255, 0, 128, 0.4),
+    0 0 20px rgba(255, 140, 0, 0.4),
+    0 0 25px rgba(0, 230, 118, 0.4),
+    0 0 30px rgba(213, 0, 249, 0.4),
+    0 4px 15px rgba(0, 0, 0, 0.3);
+  animation-play-state: paused;
+}
+
+.back-btn::after {
+  content: '';
+  position: absolute;
+  top: -2px; left: -2px; right: -2px; bottom: -2px;
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.2);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.back-btn:hover::after {
+  opacity: 1;
+}
+
+/* ——————————————
+   6) Ajuste responsive para móvil
+   —————————————— */
+@media (max-width: 400px) {
+  .page-background {
+    padding: 1rem;
+  }
+  .user-card {
+    padding: 1rem;
+  }
+  .profile-avatar {
+    width: 100px;
+    height: 100px;
+  }
+  .back-btn {
+    width: 100%;
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+  }
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .edit-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

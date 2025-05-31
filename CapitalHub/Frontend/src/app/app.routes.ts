@@ -15,6 +15,7 @@ export const routes: Routes = [
   { path: 'login',          component: LoginComponent },
   { path: 'register',       component: RegisterComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
+  { path: 'personal',   component: PersonalComponent },
 
   {
     path: '',
@@ -24,7 +25,6 @@ export const routes: Routes = [
       { path: '',           redirectTo: 'home', pathMatch: 'full' },
       { path: 'home',       component: ContentComponent },
       { path: 'perfil/:id', component: UserProfileComponent },
-      { path: 'personal',   component: PersonalComponent }
     ]
   },
 

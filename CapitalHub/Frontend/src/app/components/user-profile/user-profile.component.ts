@@ -5,6 +5,7 @@ import { MatCardModule }                           from '@angular/material/card'
 import { MatButtonModule }                         from '@angular/material/button';
 import { ContactService, ContactoCrear }           from '../../services/contact.service';
 import { AuthService, User }                       from '../../services/auth.service';
+import { UserDto } from '../../services/user.service';
 
 @Component({
   selector: 'app-user-profile',
@@ -14,7 +15,7 @@ import { AuthService, User }                       from '../../services/auth.ser
   styleUrls: ['./user-profile.component.css']
 })
 export class UserProfileComponent implements OnInit {
-  user?: User;
+  user?: UserDto;
   adding    = false;
   added     = false;
   isMe      = false;

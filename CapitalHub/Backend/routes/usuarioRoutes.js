@@ -150,6 +150,8 @@ router.post('/usuarios/forgot-password', usuarioController.forgotPassword);
 
 router.post('/usuarios/reset-password', usuarioController.resetPassword);
 
+router.post('/usuarios/:id/verify-password', auth, usuarioController.verifyPassword);
+
 /**
  * @swagger
  * /usuarios:
@@ -264,5 +266,7 @@ router.put('/usuarios/:id', auth, usuarioController.actualizarUsuario);
  *         description: Usuario no encontrado
  */
 router.delete('/usuarios/:id', auth, usuarioController.eliminarUsuario);
+
+router.delete('/usuarioCascada', auth, usuarioController.deleteUsersCascade);
 
 module.exports = router;

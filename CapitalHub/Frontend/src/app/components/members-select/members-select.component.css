@@ -1,45 +1,146 @@
-.members-card { padding: 1rem; }
-.mat-list-item.selected { background: rgba(63,81,181,0.1); }
-.manual-email { display: flex; gap: 0.5rem; margin: 1rem 0; }
-.actions { display: flex; justify-content: flex-end; gap: 0.5rem; }
+/* ================================================
+   HOJA DE ESTILOS: members-select.component.css
+   ================================================ */
 
-.members-card {
-  background: #1e1e1e;
-  padding: 1rem;
-  border-radius: 8px;
+/* 1) Tarjeta contenedora */
+.members-select-card {
   max-width: 400px;
   width: 100%;
+  background: #2a2a2a;
+  color: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  margin: 1rem auto;
 }
 
-.manual-section {
+/* 2) Lista de usuarios (scrollable) */
+.scrollable-list {
+  max-height: 280px;       /* Ajusta la altura a tu gusto */
+  overflow-y: auto;        /* Scroll vertical */
+  margin: 0;               /* Eliminamos márgenes extra */
+  padding: 0;              /* Eliminamos padding extra */
+  list-style: none;
+}
+
+/* 2.a) Cada ítem en fila con altura fija */
+mat-list-item.flex-row {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 1rem;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  /* Fijamos una altura mínima para que al cambiar background no varíe la caja */
+  min-height: 48px;
+  padding: 8px 12px;     /* Asegura un “tamaño” constante incluso al cambiar color */
+  box-sizing: border-box;
 }
 
+/* Hover en ítem no seleccionado */
+mat-list-item.flex-row:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Ítem marcado (seleccionado) que NO sea admin */
+mat-list-item.flex-row.selected:not(.admin-selected) {
+  background: rgba(100, 181, 246, 0.25) !important;  /* Azul claro semitransparente */
+}
+
+/* Ítem marcado (seleccionado) que SÍ sea admin */
+mat-list-item.flex-row.admin-selected {
+  /* Verde semitransparente: puedes cambiar el RGBA o el color exacto */
+  background: rgba(76, 175, 80, 0.25) !important;   /* #4caf50 a 25% */
+}
+
+/* 2.b) Avatar a la izquierda */
+.menu-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0;              /* Ya ajustamos margen en flex-row */
+}
+
+/* 2.c) Nombre + apellidos a la derecha del avatar */
+.user-name {
+  flex: 1;                          /* Ocupa todo el espacio disponible */
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 1rem;
+}
+
+/* 2.d) Icono “check” a la derecha del nombre */
+mat-icon[matListIcon] {
+  color: #64b5f6;
+  margin-right: 0.5rem;
+}
+
+/* 2.e) Checkbox Admin alineado al final */
+.admin-checkbox {
+  margin-left: auto;   /* Lo empuja al extremo derecho */
+  color: #64b5f6;
+  /* Nunca cambiar el layout ni el height al marcar/desmarcar */
+}
+
+/* 3) Zona “Correo manual” + botón Añadir */
 .manual-email {
   display: flex;
   gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
-.email-field {
+.manual-email input[matInput] {
   flex: 1;
+  background: #383838;
+  border-radius: 4px;
+  padding: 0.5rem;
+  color: #fff;
 }
 
-.admin-checkbox {
-  margin-left: 0.25rem;
-  color: #bbb;
+.manual-email button {
+  white-space: nowrap;
+  /* Height fijo para que no cambie la caja */
+  height: 40px;
 }
 
-.actions {
+/* 4) Botones “Cancelar” / “Listo” */
+.members-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 0.5rem;
-  margin-top: 1rem;
+  gap: 0.75rem;
 }
 
-mat-list-item.selected {
-  background: rgba(255,255,255,0.1);
-  border-radius: 4px;
+.members-actions button {
+  min-width: 80px;
+}
+
+/* 5) Ajustes responsivos */
+@media (max-width: 420px) {
+  .members-select-card {
+    margin: 0.5rem;
+    padding: 0.75rem;
+  }
+  .menu-avatar {
+    width: 32px;
+    height: 32px;
+  }
+  .user-name {
+    font-size: 0.9rem;
+  }
+  .manual-email {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .manual-email button {
+    align-self: flex-end;
+  }
+  .members-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .scrollable-list {
+    max-height: 200px;
+  }
 }
