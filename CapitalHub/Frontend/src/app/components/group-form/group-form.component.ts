@@ -86,17 +86,17 @@ export class GroupFormComponent implements OnInit {
       const gid = grp.id_grupo;
 
       // 1) fundador (siempre devolvemos un Observable)
-      const creatorOp = this.membersAsAdmin
-        ? this.groupSvc.addAdmin(founder, gid)
-        : this.groupSvc.addMember(founder, gid);
+      const creatorOp = this.groupSvc.addAdmin(founder, gid);
 
       creatorOp.subscribe(() => {
         // 2) resto de miembros
-        const ops = this.selectedMembers.map(u =>
-          this.membersAsAdmin
-            ? this.groupSvc.addAdmin(u.id_usuario, gid)
-            : this.groupSvc.addMember(u.id_usuario, gid)
-        );
+        const ops = this.selectedMembers.map(u => {
+          if (this.membersAsAdmin.includes(u.id_usuario)) {
+            return this.groupSvc.addAdmin(u.id_usuario, gid);
+          } else {
+            return this.groupSvc.addMember(u.id_usuario, gid);
+          }
+      });
 
         // 3) esperamos a que terminen todas las inserciones
         Promise.all(ops.map(o => o.toPromise()))

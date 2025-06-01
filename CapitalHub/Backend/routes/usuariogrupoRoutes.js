@@ -145,4 +145,6 @@ router.put('/usuarios-grupos/:id', auth, usuarioGrupoController.actualizarUsuari
  */
 router.delete('/usuarios-grupos/:id', auth, usuarioGrupoController.eliminarUsuarioGrupo);
 
+router.get('/usuarios-grupos/:id_usuario/:id_grupo/es-administrador', auth, usuarioGrupoController.comprobarAdministrador);
+
 module.exports = router;

@@ -1,3 +1,5 @@
+<!-- src/app/components/layout/layout.component.html -->
+
 <app-header></app-header>
 
 <div class="layout">
@@ -22,11 +24,31 @@
       <div *ngIf="deleteMode" class="action-toolbar delete-toolbar">
         <button mat-button (click)="cancelDelete()">Cancelar</button>
         <button
-          mat-raised-button color="warn"
+          mat-raised-button
+          color="warn"
           (click)="confirmDelete()"
           [disabled]="!selectedToDelete.size">
           Eliminar {{ selectedToDelete.size }}
         </button>
+      </div>
+
+      <!-- OVERLAY de advertencia: sólo si hay al menos un grupo inválido -->
+      <div
+        *ngIf="showInvalidOverlay"
+        class="invalid-overlay"
+        (click)="onInvalidCancel()"
+      >
+        <div class="invalid-dialog" (click)="$event.stopPropagation()">
+          <h3>No puedes borrar estos grupo(s) porque no eres administrador:</h3>
+          <ul>
+            <li *ngFor="let g of invalidGroups">{{ g.nombre }}</li>
+          </ul>
+          <div class="invalid-actions">
+            <button mat-flat-button color="warn" (click)="onInvalidConfirm()">
+              Confirmar
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- toolbar editar -->

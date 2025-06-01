@@ -2,7 +2,7 @@
 import { Injectable }     from '@angular/core';
 import { HttpClient }     from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
-import { tap }            from 'rxjs/operators';
+import { map, tap }            from 'rxjs/operators';
 import { environment }    from '../../environments/environment';
 
 export interface Group {
@@ -25,6 +25,10 @@ export class GroupService {
     this._refresh$.next();
   }
 
+  getById(id_grupo: number): Observable<Group> {
+    return this.http.get<Group>(`${this.apiUrl}/grupos/${id_grupo}`);
+  }
+
   /** TRAE SOLO LOS GRUPOS de un usuario dado */
   getAll(userId: number): Observable<Group[]> {
     return this.http.get<Group[]>(`${this.apiUrl}/usuarios/${userId}/grupos`);
@@ -45,6 +49,14 @@ export class GroupService {
     return this.http.post(`${this.apiUrl}/usuarios-grupos`, {
       id_usuario, id_grupo, es_administrador: false
     });
+  }
+
+  checkIfAdmin(id_usuario: number, id_grupo: number): Observable<boolean> {
+    return this.http
+      .get<{ esAdministrador: boolean }>(`${this.apiUrl}/usuarios-grupos/${id_usuario}/${id_grupo}/es-administrador`)
+      .pipe(
+        map(response => response.esAdministrador)
+      );
   }
 
   /**

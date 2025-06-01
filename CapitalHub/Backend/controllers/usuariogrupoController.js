@@ -60,3 +60,19 @@ exports.eliminarUsuarioGrupo = async (req, res) => {
     res.status(500).json({ error: 'Error al eliminar relación usuario-grupo' });
   }
 };
+
+exports.comprobarAdministrador = async (req, res) => {
+  try {
+    const { id_usuario, id_grupo } = req.params;
+    const relacion = await UsuarioGrupo.findOne({
+      where: { id_usuario, id_grupo, es_administrador: true }
+    });
+    if (relacion) {
+      res.json({ esAdministrador: true });
+    } else {
+      res.json({ esAdministrador: false });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Error al comprobar administrador' });
+  }
+};
