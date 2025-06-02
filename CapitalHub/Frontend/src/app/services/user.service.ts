@@ -74,4 +74,9 @@ export class UserService {
       );
   }
 
+  searchUsers(query: string): Observable<UserDto[]> {
+    const enc = encodeURIComponent(query);
+    return this.http.get<UserDto[]>(`${this.apiUrl}/usuarios/search?q=${enc}`);
+  }
+
 }

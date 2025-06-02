@@ -80,4 +80,9 @@ export class GroupService {
     );
   }
 
+  searchGroups(query: string, uid: number): Observable<Group[]> {
+    const enc = encodeURIComponent(query);
+    return this.http.get<Group[]>(`${this.apiUrl}/grupos/${uid}/search?q=${enc}`);
+  }
+
 }

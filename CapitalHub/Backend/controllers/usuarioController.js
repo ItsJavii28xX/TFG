@@ -4,6 +4,7 @@ const nodemailer       = require('nodemailer');
 const jwt              = require('jsonwebtoken');
 const bcrypt           = require('bcryptjs');
 const sequelize        = require('../config/database');
+const { Op }          = require('sequelize');
 const { Usuario, Token, UsuarioToken, Grupo, UsuarioGrupo, Contacto } = require('../models');
 
 
@@ -65,6 +66,35 @@ exports.obtenerUsuarioPorEmail = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error al buscar usuario por email' });
+  }
+};
+
+
+exports.searchUsuarios = async (req, res) => {
+  try {
+    // 1) Recuperamos el parámetro "q" de la query string
+    const query = req.query.q?.trim();
+    if (!query || query.length < 1) {
+      // Si no viene query o está vacío, devolvemos array vacío
+      return res.json([]);
+    }
+
+    // 2) Buscamos de forma case-insensitive en nombre y apellidos
+    const usuarios = await Usuario.findAll({
+      where: {
+        [Op.or]: [
+          { nombre: { [Op.like]: `%${query}%` } },
+          { apellidos: { [Op.like]: `%${query}%` } }
+        ]
+      },
+      attributes: ['id_usuario', 'nombre', 'apellidos', 'email', 'telefono', 'imagen_perfil']
+    });
+
+    // 3) Devolvemos el array de coincidencias
+    return res.json(usuarios);
+  } catch (error) {
+    console.error('Error en searchUsuarios:', error);
+    return res.status(500).json({ error: 'Error al buscar usuarios.' });
   }
 };
 

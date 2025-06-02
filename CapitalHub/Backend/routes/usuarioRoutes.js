@@ -176,6 +176,8 @@ router.get('/usuarios', auth, usuarioController.obtenerUsuarios);
 
 router.get('/usuarios/email/:email', auth, usuarioController.obtenerUsuarioPorEmail);
 
+router.get('/usuarios/search', auth, usuarioController.searchUsuarios);
+
 /**
  * @swagger
  * /usuarios/{id}:

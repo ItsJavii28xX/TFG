@@ -30,6 +30,8 @@ const auth = require('../middleware/auth');
  */
 router.get('/grupos', auth, grupoController.obtenerGrupos);
 
+router.get('/grupos/:uid/search', auth, grupoController.searchGrupos);
+
 /**
  * @swagger
  * /grupos/{id}:

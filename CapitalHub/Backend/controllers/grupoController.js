@@ -1,4 +1,6 @@
-const { sequelize, UsuarioGrupo, Historico, Gasto, Presupuesto, Grupo } = require('../models');
+const { UsuarioGrupo, Historico, Gasto, Presupuesto, Grupo } = require('../models');
+const sequelize                                              = require('../config/database');
+const { Op }                                                 = require('sequelize');
 
 exports.obtenerGrupos = async (req, res) => {
   try {
@@ -25,6 +27,42 @@ exports.obtenerGrupoPorId = async (req, res) => {
     res.json(grupo);
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener el grupo' });
+  }
+};
+
+exports.searchGrupos = async (req, res) => {
+  try {
+    const query = req.query.q?.trim();
+    const id_usuario = parseInt(req.params.uid, 10);
+    // Validación inmediata: si no es un entero válido, respondemos 400
+    if (isNaN(id_usuario)) {
+      return res.status(400).json({ error: 'UID inválido (no se recibió un número).' });
+    }
+
+    if (!query || query.length < 1) {
+      return res.json([]);
+    }
+
+    // Buscamos grupos cuyo nombre contenga "query" Y en los que el usuario está relacionado
+    const grupos = await Grupo.findAll({
+      where: {
+        nombre: { [Op.like]: `%${query}%` }
+      },
+      include: [
+        {
+          model: UsuarioGrupo,
+          as: 'miembros',
+          where: { id_usuario },       // sólo incluimos si existe relación con este usuario
+          attributes: []
+        }
+      ],
+      attributes: ['id_grupo', 'nombre', 'fecha_creacion']
+    });
+
+    return res.json(grupos);
+  } catch (error) {
+    console.error('Error en searchGrupos:', error);
+    return res.status(500).json({ error: 'Error al buscar grupos.' });
   }
 };
 

@@ -1,12 +1,76 @@
+<!-- src/app/components/header/header.component.html -->
+
 <header class="header">
   <div class="logo-container">
     <img src="favicon.ico" alt="CapitalHub logo" class="logo-img" />
     <h1 class="logo-title">CapitalHub</h1>
   </div>
 
+  <!-- =======================
+       BARRA DE BÚSQUEDA
+       ======================= -->
+  <div class="search-container">
+    <input
+      matInput
+      [formControl]="searchControl"
+      placeholder="Buscar usuarios o grupos..."
+      class="search-input"
+      type="text"
+    />
+    <!-- Opcional: un ícono de búsqueda delante -->
+    <mat-icon class="search-icon">search</mat-icon>
+
+    <!-- Desplegable de resultados -->
+    <div
+      class="search-dropdown"
+      *ngIf="
+        (searchControl.value?.length! >= 3) &&
+        ( (userResults$ | async)?.length! > 0 || (groupResults$ | async)?.length! > 0 )
+      "
+    >
+      <!-- Sección de usuarios -->
+      <ng-container *ngIf="(userResults$ | async) as users">
+        <div class="dropdown-section" *ngIf="users.length > 0">
+          <div class="section-title">Usuarios</div>
+          <div *ngFor="let u of users" class="dropdown-item" (click)="goToUserProfile(u)">
+            <img [src]="u.imagen_perfil || 'avatar-placeholder.png'" class="item-avatar" />
+            <span class="item-text">{{ u.nombre }} {{ u.apellidos }}</span>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Sección de grupos -->
+      <ng-container *ngIf="(groupResults$ | async) as groups">
+        <div class="dropdown-section" *ngIf="groups.length > 0">
+          <div class="section-title">Grupos</div>
+          <div *ngFor="let g of groups" class="dropdown-item" (click)="goToGroupDetail(g)">
+            <mat-icon class="item-icon">group</mat-icon>
+            <span class="item-text">{{ g.nombre }}</span>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Si no hay resultados en ninguno, podrías mostrar un “No se encontraron resultados” -->
+      <ng-container *ngIf="
+        (userResults$ | async)?.length === 0 &&
+        (groupResults$ | async)?.length === 0
+      ">
+        <div class="no-results">No se encontraron resultados</div>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- =======================
+       MENÚS "Inicio / Contactos / Perfil"
+       ======================= -->
   <nav class="nav">
     <!-- Inicio -->
-    <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+    <a
+      mat-button
+      routerLink="/"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
       <mat-icon>home</mat-icon>
       <span>Inicio</span>
     </a>
@@ -49,8 +113,10 @@
     </mat-menu>
   </nav>
 
-  <!-- Overlay de logout -->
-  <div *ngIf="showLogoutOverlay" class="logout-overlay" (click)="showLogoutOverlay=false">
+  <!-- =======================
+       OVERLAY de logout
+       ======================= -->
+  <div *ngIf="showLogoutOverlay" class="logout-overlay" (click)="showLogoutOverlay = false">
     <div class="logout-dialog" (click)="$event.stopPropagation()">
       <h3>¿Cerrar sesión…?</h3>
       <button mat-raised-button color="primary" (click)="logoutCurrent()">
@@ -59,7 +125,7 @@
       <button mat-raised-button color="warn" (click)="logoutAll()">
         Cerrar en todos los dispositivos
       </button>
-      <button mat-button (click)="showLogoutOverlay=false">
+      <button mat-button (click)="showLogoutOverlay = false">
         Cancelar
       </button>
     </div>
