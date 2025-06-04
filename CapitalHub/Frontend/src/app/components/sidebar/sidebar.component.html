@@ -1,7 +1,147 @@
 <aside class="sidebar" [@openClose]="status">
-  <ul>
-    <li><a routerLink="/filtro1">Filtro 1</a></li>
-    <li><a routerLink="/filtro2">Filtro 2</a></li>
-    <li><a routerLink="/filtro3">Filtro 3</a></li>
-  </ul>
+  <mat-card class="sidebar-card" [formGroup]="filtersForm">
+    <h3>Filtros de Grupo</h3>
+
+    <!-- 1) NOMBRE -->
+    <section class="filtro-seccion">
+      <h4>Nombre</h4>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Buscar por nombre</mat-label>
+        <input
+          matInput
+          formControlName="nombre"
+          placeholder="Escriba para buscar"
+        />
+      </mat-form-field>
+    </section>
+
+    <!-- 2) MIEMBROS -->
+    <section class="filtro-seccion">
+      <h4>Miembros</h4>
+
+      <!-- 2a) Autocomplete de contactos -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Selecciona contactos</mat-label>
+
+        <mat-chip-grid #chipList>
+          <mat-chip
+            *ngFor="let uId of filtersForm.get('miembrosSeleccionados')!.value"
+            removable="true"
+            (removed)="removeMember(uId)"
+          >
+            {{ contactosUsuariosMap[uId].nombre }}
+            {{ contactosUsuariosMap[uId].apellidos }}
+            <button matChipRemove>
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip>
+
+          <input
+            matInput
+            [formControl]="searchContactCtrl"
+            [matAutocomplete]="auto"
+            [matChipInputFor]="chipList"
+            placeholder="Escribe para buscar contactos"
+          />
+        </mat-chip-grid>
+
+        <mat-autocomplete
+          #auto="matAutocomplete"
+          (optionSelected)="onMemberSelected($event.option.value)"
+        >
+          <mat-option *ngFor="let u of contactosUsuarios$ | async" [value]="u.id_usuario">
+            {{ u.nombre }} {{ u.apellidos }}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+
+      <!-- 2b) Número mínimo de miembros -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Miembros ≥</mat-label>
+        <input
+          matInput
+          type="number"
+          formControlName="minMiembros"
+          min="0"
+          placeholder="Ej: 3"
+        />
+        <span matSuffix>integrantes</span>
+      </mat-form-field>
+    </section>
+
+    <!-- 3) PRESUPUESTOS -->
+    <section class="filtro-seccion">
+      <h4>Presupuestos</h4>
+      <mat-checkbox formControlName="presupuestosActivos">
+        Solo con presupuesto activo
+      </mat-checkbox>
+    </section>
+
+    <!-- 4) FECHA -->
+    <section class="filtro-seccion">
+      <h4>Fecha de creación</h4>
+      <div class="fecha-rango">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Antes de</mat-label>
+          <input
+            matInput
+            [matDatepicker]="picker1"
+            formControlName="fechaAntes"
+            placeholder="dd/mm/aaaa"
+          />
+          <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+          <mat-datepicker #picker1></mat-datepicker>
+          <button
+            *ngIf="filtersForm.get('fechaAntes')!.value"
+            matSuffix
+            mat-icon-button
+            aria-label="Borrar fecha antes"
+            (click)="clearFechaAntes()"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Después de</mat-label>
+          <input
+            matInput
+            [matDatepicker]="picker2"
+            formControlName="fechaDespues"
+            placeholder="dd/mm/aaaa"
+          />
+          <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+          <mat-datepicker #picker2></mat-datepicker>
+          <button
+            *ngIf="filtersForm.get('fechaDespues')!.value"
+            matSuffix
+            mat-icon-button
+            aria-label="Borrar fecha después"
+            (click)="clearFechaDespues()"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+    </section>
+
+    <!-- 5) LISTA DE GRUPOS FILTRADOS -->
+    <section class="filtro-seccion">
+      <h4>Resultados ({{ (filteredGroups$ | async)?.length || 0 }})</h4>
+      <mat-nav-list>
+        <mat-list-item
+          *ngFor="let g of filteredGroups$ | async"
+          (click)="onGrupoClick(g)"
+          class="grupo-item"
+        >
+          <span>{{ g.nombre }}</span>
+          <span class="spacer"></span>
+          <small> {{ g.fecha_creacion | date: 'shortDate' }} </small>
+        </mat-list-item>
+        <mat-list-item *ngIf="(filteredGroups$ | async)?.length === 0">
+          No se encontraron grupos
+        </mat-list-item>
+      </mat-nav-list>
+    </section>
+  </mat-card>
 </aside>
