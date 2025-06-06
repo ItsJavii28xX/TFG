@@ -1,4 +1,4 @@
-const { UsuarioGrupo, Historico, Gasto, Presupuesto, Grupo } = require('../models');
+const { UsuarioGrupo, Historico, Gasto, Presupuesto, Grupo, Usuario } = require('../models');
 const sequelize                                              = require('../config/database');
 const { Op }                                                 = require('sequelize');
 
@@ -63,6 +63,54 @@ exports.searchGrupos = async (req, res) => {
   } catch (error) {
     console.error('Error en searchGrupos:', error);
     return res.status(500).json({ error: 'Error al buscar grupos.' });
+  }
+};
+
+exports.getGruposConMiembros = async (req, res) => {
+  try {
+    const userId = req.params.idUsuario;
+
+    const grupos = await Grupo.findAll({
+      include: [
+        // 1) “Filtrar sólo aquellos grupos donde el usuario exista en UsuarioGrupo”
+        {
+          model: UsuarioGrupo,
+          as: 'miembros',            // ← coincide con `Grupo.hasMany(UsuarioGrupo, { as: 'miembros' })`
+          where: { id_usuario: userId },
+          attributes: []
+        },
+        // 2) “Incluir todos los Usuarios (miembros completos) que pertenecen a ese grupo”
+        {
+          model: Usuario,
+          as: 'usuarios',            // ← coincide con `Grupo.belongsToMany(Usuario, …, as: 'usuarios')`
+          attributes: ['id_usuario','nombre','apellidos','imagen_perfil']
+        },
+        // 3) “Incluir presupuestos cuyo fechaFin ≥ hoy (si los hay)”
+        {
+          model: Presupuesto,       // ← coincide con `Grupo.hasMany(Presupuesto, { as: 'presupuestos' })`
+          where: { fecha_fin: { [Op.gte]: new Date() } },
+          required: false            // si no tiene presupuesto activo, igual devolvemos el grupo
+        }
+      ],
+      attributes: ['id_grupo','nombre','fecha_creacion']
+    });
+
+    // Mapear el resultado para enviar sólo lo que nos interese
+    const resultado = grupos.map(g => ({
+      id_grupo: g.id_grupo,
+      nombre: g.nombre,
+      fecha_creacion: g.fecha_creacion,
+      // g.usuarios es un array de Usuario con los campos que pedimos arriba
+      miembros: g.usuarios,
+      // comprobar si existe al menos un presupuesto vigente
+      tienePresupuestoActivo:
+        Array.isArray(g.presupuestos) && g.presupuestos.length > 0
+    }));
+
+    return res.json(resultado);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Error al obtener grupos con miembros.' });
   }
 };
 

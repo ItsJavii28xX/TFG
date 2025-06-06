@@ -32,6 +32,8 @@ router.get('/grupos', auth, grupoController.obtenerGrupos);
 
 router.get('/grupos/:uid/search', auth, grupoController.searchGrupos);
 
+router.get('/usuarios/:idUsuario/grupos', auth, grupoController.getGruposConMiembros);
+
 /**
  * @swagger
  * /grupos/{id}:

@@ -4,11 +4,20 @@ import { HttpClient }     from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import { map, tap }            from 'rxjs/operators';
 import { environment }    from '../../environments/environment';
+import { Usuario } from './contact.service';
 
 export interface Group {
   id_grupo: number;
   nombre: string;
   fecha_creacion: string;
+}
+
+interface Grupo {
+  id_grupo: number;
+  nombre: string;
+  fecha_creacion: string;
+  miembros: Usuario[];             // array de objetos con { id_usuario, nombre, apellidos… }
+  tienePresupuestoActivo: boolean;  // true/false
 }
 
 @Injectable({
@@ -84,5 +93,9 @@ export class GroupService {
     const enc = encodeURIComponent(query);
     return this.http.get<Group[]>(`${this.apiUrl}/grupos/${uid}/search?q=${enc}`);
   }
+
+createGetAllWithMembers(idUsuario: number): Observable<Group[]> {
+  return this.http.get<Group[]>(`${this.apiUrl}/usuarios/${idUsuario}/grupos`);
+}
 
 }

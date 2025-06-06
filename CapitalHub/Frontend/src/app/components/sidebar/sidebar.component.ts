@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Router, RouterModule }     from '@angular/router';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { FormGroup, FormBuilder, FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
@@ -59,7 +59,7 @@ import { MatInputModule } from '@angular/material/input';
     ])
   ]
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
 
   @Input() status: 'open' | 'closed' = 'closed';
 
@@ -104,10 +104,8 @@ export class SidebarComponent {
     });
 
     // 2) Traemos todos los grupos (con sus propiedades necesarias)
-    this.groupSvc.getAll(this.authSvc.getUserId()!).subscribe((grps: any[]) => {
-      // Se asume que cada grupo tiene al menos:
-      //   id_grupo, nombre, fecha_creacion, miembros (Usuario[]), tienePresupuestoActivo (boolean)
-      this.allGroups = grps as Group[];
+    this.groupSvc.createGetAllWithMembers(this.authSvc.getUserId()!).subscribe(grps => {
+      this.allGroups = grps;
       this.setupFiltering();
     });
 
