@@ -433,8 +433,15 @@ exports.resetPassword = async (req, res) => {
   await user.save();
 
   // Revocar todos los tokens activos
+  const relations = await UsuarioToken.findAll({
+    where: { id_usuario: user.id_usuario },
+    attributes: ['id_token']
+  });
+  const tokenIds = relations.map(r => r.id_token);
   await UsuarioToken.destroy({ where: { id_usuario: user.id_usuario } });
-  await Token.destroy({ where: { id_token: null } }); // o filtrar por usuario
+  if (tokenIds.length) {
+    await Token.destroy({ where: { id_token: tokenIds } });
+  }
 
   res.json({ mensaje: 'Contraseña restablecida con éxito' });
 };
