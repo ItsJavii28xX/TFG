@@ -12,7 +12,7 @@ export interface Group {
   fecha_creacion: string;
 }
 
-interface Grupo {
+export interface Grupo {
   id_grupo: number;
   nombre: string;
   fecha_creacion: string;
@@ -94,8 +94,12 @@ export class GroupService {
     return this.http.get<Group[]>(`${this.apiUrl}/grupos/${uid}/search?q=${enc}`);
   }
 
-createGetAllWithMembers(idUsuario: number): Observable<Group[]> {
-  return this.http.get<Group[]>(`${this.apiUrl}/usuarios/${idUsuario}/grupos`);
-}
+  createGetAllWithMembers(idUsuario: number): Observable<Group[]> {
+    return this.http.get<Group[]>(`${this.apiUrl}/usuarios/${idUsuario}/grupos`);
+  }
+
+  buscarGrupoPorId(id_grupo: number): Observable<Grupo> {
+    return this.http.get<Grupo>(`${this.apiUrl}/grupos/${id_grupo}`)
+  }
 
 }

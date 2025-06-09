@@ -1,92 +1,32 @@
-// src/app/components/layout/layout.component.ts
-
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { NavigationEnd, RouterModule, RouterOutlet } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { HeaderComponent }   from '../header/header.component';
-import { FooterComponent }   from '../footer/footer.component';
-import { SidebarComponent }  from '../sidebar/sidebar.component';
 import { GroupService, Group } from '../../services/group.service';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter, forkJoin } from 'rxjs';
 import { map, switchMap }    from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
-import { AnimationTriggerMetadata, trigger, transition, style, animate, group, query } from '@angular/animations';
-
-export const slideInAnimation: AnimationTriggerMetadata =
-  trigger('routeAnimations', [
-    transition('HomePage => DetailsPage', [
-      style({ position: 'relative' }),
-      query(':enter, :leave', [
-        style({
-          position: 'absolute',
-          top: 0, left: 0,
-          width: '100%'
-        })
-      ], { optional: true }),
-      group([
-        // view que sale
-        query(':leave', [
-          animate('250ms ease-out', style({
-            opacity: 0,
-            transform: 'scale(0.8)'
-          }))
-        ], { optional: true }),
-        // view que entra
-        query(':enter', [
-          style({ opacity: 0, transform: 'scale(1.2)' }),
-          animate('300ms ease-out', style({
-            opacity: 1,
-            transform: 'scale(1)'
-          }))
-        ], { optional: true })
-      ])
-    ]),
-    transition('DetailsPage => HomePage', [
-      style({ position: 'relative' }),
-      query(':enter, :leave', [
-        style({
-          position: 'absolute',
-          top: 0, left: 0,
-          width: '100%'
-        })
-      ], { optional: true }),
-      group([
-        query(':leave', [
-          animate('200ms ease-out', style({
-            opacity: 0,
-            transform: 'scale(0.8)'
-          }))
-        ], { optional: true }),
-        query(':enter', [
-          style({ opacity: 0, transform: 'scale(1.2)' }),
-          animate('250ms ease-out', style({
-            opacity: 1,
-            transform: 'scale(1)'
-          }))
-        ], { optional: true })
-      ])
-    ])
-  ]);
+import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { ContentComponent } from '../content/content.component';
+import { GroupFormComponent } from '../group-form/group-form.component';
+import { GroupOptionsComponent } from '../group-options/group-options.component';
 
 @Component({
-  selector: 'app-layout',
+  selector: 'app-home',
   standalone: true,
   imports: [
     CommonModule,
     RouterModule,
     MatButtonModule,
     MatIconModule,
-    HeaderComponent,
-    FooterComponent,
-    SidebarComponent
+    ContentComponent,
+    GroupOptionsComponent,
+    GroupFormComponent
   ],
-  templateUrl: './layout.component.html',
-  styleUrls: ['./layout.component.css']
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.css']
 })
-export class LayoutComponent implements OnInit {
+export class HomeComponent implements OnInit {
   collapsed        = true;
   optionsOpen      = false;
   showAddForm      = false;
@@ -97,10 +37,6 @@ export class LayoutComponent implements OnInit {
 
   /** Listado de grupos inválidos (id + nombre) */
   invalidGroups: Array<{ id: number; nombre: string }> = [];
-
-  prepareRoute(outlet: RouterOutlet) {
-    return outlet && outlet.activatedRouteData && outlet.activatedRouteData['animation'];
-  }
 
   /** Controla si se ve el overlay de advertencia */
   showInvalidOverlay = false;

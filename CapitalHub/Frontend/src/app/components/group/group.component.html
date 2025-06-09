@@ -39,4 +39,17 @@
       <span *ngIf="extraCount>0" class="more">+{{ extraCount }}</span>
     </div>
   </div>
+
+   <div class="actions">
+    <button
+      mat-stroked-button
+      color="accent"
+      class="details-btn"
+      (click)="onGroupClick(group.id_grupo)"
+      [routerLink]="['/app-group-details', group.id_grupo]">
+      <mat-icon>info</mat-icon>
+      Detalles
+    </button>
+  </div>
+
 </mat-card>

@@ -7,6 +7,7 @@ import { GroupService, Group } from '../../services/group.service';
 import { GroupComponent } from '../group/group.component';
 import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-content',
@@ -31,7 +32,8 @@ export class ContentComponent implements OnInit, OnDestroy {
 
   constructor(
     private groupSvc: GroupService,
-    private authSvc:  AuthService
+    private authSvc:  AuthService,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -82,5 +84,6 @@ export class ContentComponent implements OnInit, OnDestroy {
   cancelEdit() {
     this.editingId = null;
   }
+
 
 }

@@ -265,7 +265,7 @@ export class SidebarComponent implements OnInit {
 
   /** Al hacer clic en un grupo filtrado, navegamos a su detalle */
   onGrupoClick(g: Group) {
-    this.router.navigate(['/grupos', g.id_grupo]);
+    this.router.navigate(['/app-group-details', g.id_grupo]);
   }
 }
 

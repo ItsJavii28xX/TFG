@@ -14,7 +14,7 @@ import { BudgetService, Budget }        from '../../services/budget.service';
 import { ContactService, Contact }      from '../../services/contact.service';
 import { GastoService, Gasto } from '../../services/gasto.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-group',
@@ -39,9 +39,11 @@ export class GroupComponent implements OnInit {
   @Output() editNameChange = new EventEmitter<string>();
   @Input() updateMode = false;
   
+  
 
   activeBudget: { nombre: string; porcentaje: number } | null = null;
   members:       Contact[] = [];
+  mostrarGrupo = false;
 
   get membersToShow() {
     return this.members.slice(0, 5);
@@ -53,7 +55,8 @@ export class GroupComponent implements OnInit {
   constructor(
     private budgetSvc : BudgetService,
     private gastoSvc  : GastoService,
-    private contactSvc: ContactService
+    private contactSvc: ContactService,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -78,7 +81,13 @@ export class GroupComponent implements OnInit {
       this.activeBudget = activos.length > 0 ? activos[0] : null;
     });
 
-    this.contactSvc.getMembersByGroup(this.group.id_grupo)
-      .subscribe(ms => this.members = ms);
+  this.contactSvc.getMembersByGroup(this.group.id_grupo)
+    .subscribe(ms => this.members = ms);
+  }
+
+  
+  onGroupClick(groupId: number) {
+    this.mostrarGrupo = !this.mostrarGrupo;
+    this.router.navigate(['/app-group-details', groupId]);
   }
 }

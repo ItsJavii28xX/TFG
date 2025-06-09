@@ -6,9 +6,10 @@ import { ResetPasswordComponent }  from './components/reset-password/reset-passw
 import { RegisterComponent } from './components/register/register.component';
 import { LayoutComponent }        from './components/layout/layout.component';
 import { AuthGuard }              from './guards/auth.guard';
-import { ContentComponent } from './components/content/content.component';
+import { HomeComponent } from './components/home/home.component';
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
 import { PersonalComponent } from './components/personal/personal.component';
+import { GroupDetailsComponent } from './components/group-details/group-details.component';
 
 export const routes: Routes = [
 
@@ -22,11 +23,11 @@ export const routes: Routes = [
     component: LayoutComponent,
     canActivate: [AuthGuard],
     children: [
-      { path: '',           redirectTo: 'home', pathMatch: 'full' },
-      { path: 'home',       component: ContentComponent },
-      { path: 'perfil/:id', component: UserProfileComponent },
+      { path: '',               redirectTo: 'home',            pathMatch: 'full' },
+      { path: 'home',           component: HomeComponent, data: { animation: 'HomePage' }       },
+      { path: 'perfil/:id',     component: UserProfileComponent },
+      { path: 'app-group-details/:id_grupo', component: GroupDetailsComponent, data: { animation: 'DetailsPage' } }
     ]
   },
-
   { path: '**', redirectTo: '' }
 ];

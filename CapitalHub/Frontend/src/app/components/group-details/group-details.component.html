@@ -1,0 +1,41 @@
+<mat-card class="details-card">
+  <div class="header">
+    <h1>{{ (group$ | async)?.nombre }}</h1>
+    <button mat-mini-fab color="accent" (click)="editName()">
+      <mat-icon>edit</mat-icon>
+    </button>
+  </div>
+
+  <p class="creation-date">
+    Creado el {{ (group$ | async)?.fecha_creacion | date: 'longDate' }}
+  </p>
+
+  <section class="members">
+    <h2>👥 Miembros</h2>
+    <mat-list>
+      <mat-list-item *ngFor="let u of (group$ | async)?.miembros">
+        <img matListAvatar [src]="u.imagen_perfil" alt="{{u.nombre}}" />
+        <div matLine class="member-name">
+          {{ u.nombre }} {{ u.apellidos }}
+        </div>
+        <div matLine class="member-email">
+          <mat-icon inline>email</mat-icon> {{ u.email }}
+        </div>
+      </mat-list-item>
+    </mat-list>
+  </section>
+
+  <section class="budgets">
+    <h2>💰 Presupuestos</h2>
+    <p *ngIf="!(group$ | async)?.tienePresupuestoActivo" class="no-budget">
+      No hay presupuesto activo
+    </p>
+    <p *ngIf="(group$ | async)?.tienePresupuestoActivo" class="has-budget">
+      ¡Presupuesto activo! ✔️
+    </p>
+  </section>
+
+  <button mat-stroked-button color="warn" class="back-btn" (click)="goBack()">
+    <mat-icon>arrow_back</mat-icon> Volver
+  </button>
+</mat-card>

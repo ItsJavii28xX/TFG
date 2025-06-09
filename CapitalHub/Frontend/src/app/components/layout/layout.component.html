@@ -10,79 +10,13 @@
     </button>
   </div>
 
-  <section class="main-content">
-    <!-- SI NO estamos en /perfil, mostramos la zona de grupos -->
-    <ng-container *ngIf="!showProfile">
-      <app-content
-        [deleteMode]="deleteMode"
-        [selectedIds]="selectedToDelete"
-        (selectionChange)="onSelectionChange($event)"
-        [updateMode]="updateMode">
-      </app-content>
-
-      <!-- toolbar borrar -->
-      <div *ngIf="deleteMode" class="action-toolbar delete-toolbar">
-        <button mat-button (click)="cancelDelete()">Cancelar</button>
-        <button
-          mat-raised-button
-          color="warn"
-          (click)="confirmDelete()"
-          [disabled]="!selectedToDelete.size">
-          Eliminar {{ selectedToDelete.size }}
-        </button>
-      </div>
-
-      <!-- OVERLAY de advertencia: sólo si hay al menos un grupo inválido -->
-      <div
-        *ngIf="showInvalidOverlay"
-        class="invalid-overlay"
-        (click)="onInvalidCancel()"
-      >
-        <div class="invalid-dialog" (click)="$event.stopPropagation()">
-          <h3>No puedes borrar estos grupo(s) porque no eres administrador:</h3>
-          <ul>
-            <li *ngFor="let g of invalidGroups">{{ g.nombre }}</li>
-          </ul>
-          <div class="invalid-actions">
-            <button mat-flat-button color="warn" (click)="onInvalidConfirm()">
-              Confirmar
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- toolbar editar -->
-      <div *ngIf="updateMode" class="action-toolbar update-toolbar">
-        <button mat-button (click)="cancelUpdate()">Cancelar edición</button>
-      </div>
-
-      <!-- FAB y panel de opciones -->
-      <button mat-fab class="fab" (click)="toggleOptions()">
-        <mat-icon>group_add</mat-icon>
-      </button>
-      <app-group-options
-        [open]="optionsOpen"
-        (add)="openAddForm()"
-        (delete)="openDeleteForm()"
-        (update)="openUpdateForm()"
-        (close)="optionsOpen = false">
-      </app-group-options>
-
-      <!-- modal Crear Grupo -->
-      <div *ngIf="showAddForm" class="overlay" (click)="onAddCancel()">
-        <div class="form-wrapper" (click)="$event.stopPropagation()">
-          <app-group-form
-            (cancel)="onAddCancel()"
-            (created)="onGroupCreated()">
-          </app-group-form>
-        </div>
-      </div>
-    </ng-container>
-
-    <ng-container *ngIf="showProfile">
-      <router-outlet></router-outlet>
-    </ng-container>
+  <section
+    class="main-content"
+    [@routeAnimations]="prepareRoute(routerOutlet)"
+  >
+    <router-outlet #routerOutlet="outlet"></router-outlet>
   </section>
+
 </div>
 
 <app-footer></app-footer>

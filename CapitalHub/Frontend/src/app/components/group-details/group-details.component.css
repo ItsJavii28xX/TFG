@@ -1,0 +1,98 @@
+/* Fondo degradado y sombra profunda */
+.details-card {
+  background: linear-gradient(135deg, #1f1c2c, #928dab);
+  color: #fff;
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.7);
+  max-width: 800px;
+  margin: 24px auto;
+}
+
+/* Encabezado con texto recortado en gradiente */
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.header h1 {
+  font-size: 2.8rem;
+  font-weight: 900;
+  margin: 0;
+  background: linear-gradient(90deg, #ff416c, #ff4b2b);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.header button {
+  margin-left: auto;
+  transform: scale(1.2);
+}
+
+/* Fecha de creación en cursiva y subrayado de neón */
+.creation-date {
+  font-style: italic;
+  font-size: 1.1rem;
+  text-decoration: underline;
+  text-decoration-color: #ff4b2b;
+  margin-bottom: 24px;
+}
+
+/* Secciones con títulos impactantes */
+.members h2,
+.budgets h2 {
+  font-size: 1.6rem;
+  border-bottom: 3px solid #ff416c;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+
+/* Estilos de lista de miembros */
+mat-list-item {
+  background: rgba(255,255,255,0.1);
+  margin-bottom: 8px;
+  border-radius: 8px;
+  transition: transform 0.3s, background 0.3s;
+}
+mat-list-item:hover {
+  transform: translateX(8px) scale(1.02);
+  background: rgba(255,255,255,0.2);
+}
+.member-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+.member-email {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* Avatares redondeados */
+img[matListAvatar] {
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+}
+
+/* Mensajes de presupuesto */
+.no-budget {
+  color: #ff6b6b;
+  font-weight: bold;
+}
+.has-budget {
+  color: #7bed9f;
+  font-weight: bold;
+}
+
+/* Botón volver con efecto glow */
+.back-btn {
+  margin-top: 32px;
+  border-color: #ff4b2b;
+  color: #ff4b2b;
+  font-weight: bold;
+  box-shadow: 0 0 8px #ff4b2b, 0 0 16px #ff416c;
+  transition: box-shadow 0.3s;
+}
+.back-btn:hover {
+  box-shadow: 0 0 16px #ff4b2b, 0 0 32px #ff416c;
+}

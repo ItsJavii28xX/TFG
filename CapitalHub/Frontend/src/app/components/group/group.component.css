@@ -132,3 +132,21 @@
   cursor: pointer;
 }
 
+/* Contenedor para el botón */
+.actions {
+  margin-top: 1rem;
+  text-align: right;
+}
+
+/* Botón Detalles con neón y glow */
+.details-btn {
+  border-color: #ff4b2b;
+  color: #ff4b2b;
+  font-weight: bold;
+  box-shadow: 0 0 6px #ff4b2b, 0 0 12px #ff416c;
+  transition: box-shadow 0.3s, transform 0.2s;
+}
+.details-btn:hover {
+  box-shadow: 0 0 12px #ff4b2b, 0 0 24px #ff416c;
+  transform: scale(1.05);
+}
