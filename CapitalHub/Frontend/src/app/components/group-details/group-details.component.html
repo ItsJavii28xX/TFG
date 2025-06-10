@@ -75,7 +75,7 @@
           <!-- Datos del presupuesto -->
           <div matLine>
             <strong>{{ b.nombre }}</strong>
-            ({{ b.fecha_inicio | date:'shortDate' }} – {{ b.fecha_fin | date:'shortDate' }})
+            {{ b.fecha_inicio | date:'shortDate' }} – {{ b.fecha_fin | date:'shortDate' }}
           </div>
           <div matLine class="budget-amount">{{ b.cantidad | currency }}</div>
         </mat-list-item>
@@ -101,13 +101,13 @@
         </mat-form-field>
         <mat-form-field appearance="fill">
           <mat-label>Fecha Inicio</mat-label>
-          <input matInput [matDatepicker]="bi" formControlName="fecha_inicio" required />
+          <input matInput [matDatepicker]="bi" formControlName="fechaInicio" required />
           <mat-datepicker-toggle matSuffix [for]="bi"></mat-datepicker-toggle>
           <mat-datepicker #bi></mat-datepicker>
         </mat-form-field>
         <mat-form-field appearance="fill">
           <mat-label>Fecha Fin</mat-label>
-          <input matInput [matDatepicker]="bf" formControlName="fecha_fin" required />
+          <input matInput [matDatepicker]="bf" formControlName="fechaFin" required />
           <mat-datepicker-toggle matSuffix [for]="bf"></mat-datepicker-toggle>
           <mat-datepicker #bf></mat-datepicker>
         </mat-form-field>

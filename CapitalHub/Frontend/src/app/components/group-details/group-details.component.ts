@@ -50,7 +50,7 @@ export class GroupDetailsComponent implements OnInit {
   group$!: Observable<Grupo>;
 
   // PAGINACIÓN miembros
-  private membersRaw$!: Observable<Contact[]>;
+  private membersRawSubject = new BehaviorSubject<Contact[]>([]);
   pageIndex$ = new BehaviorSubject<number>(0);
   readonly pageSize = 3;
   totalPages = 1;
@@ -96,16 +96,22 @@ export class GroupDetailsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    // ① ¡Primero! recupera el parámetro de ruta
     this.groupId = Number(this.route.snapshot.paramMap.get('id_grupo'));
-
-    // 1) datos básicos
     this.group$ = this.groupSvc.buscarGrupoPorId(this.groupId);
 
-    // 2) miembros + paginación
-    this.membersRaw$ = this.contactSvc.getMembersByGroup(this.groupId);
-    this.members$ = combineLatest([this.membersRaw$, this.pageIndex$]).pipe(
+    // ② carga la lista y emítela en el subject
+    this.contactSvc.getMembersByGroup(this.groupId)
+      .subscribe(list => this.membersRawSubject.next(list));
+
+    // ③ define members$ combinando el subject y la paginación
+    this.members$ = combineLatest([
+      this.membersRawSubject,
+      this.pageIndex$
+    ]).pipe(
       map(([all, idx]) => {
         this.totalPages = Math.max(Math.ceil(all.length / this.pageSize), 1);
+        // ajusta índice si sale de rango
         const page = Math.min(Math.max(idx, 0), this.totalPages - 1);
         if (page !== idx) this.pageIndex$.next(page);
         return all.slice(page * this.pageSize, page * this.pageSize + this.pageSize);
@@ -119,7 +125,7 @@ export class GroupDetailsComponent implements OnInit {
 
     // 4) formularios
     this.addMemberForm    = this.fb.group({ id_usuario_contacto: [null] });
-    this.addBudgetForm    = this.fb.group({ nombre: [''], cantidad: [0], fecha_inicio: [null], fecha_fin: [null] });
+    this.addBudgetForm    = this.fb.group({ nombre: [''], cantidad: [0], fechaInicio: [null], fechaFin: [null] });
     this.updateBudgetForm = this.fb.group({ id_presupuesto: [null], nombre: [''], cantidad: [0], fecha_inicio: [null], fecha_fin: [null] });
     this.addExpenseForm   = this.fb.group({ descripcion: [''], cantidad: [0] });
     this.updateExpenseForm= this.fb.group({ id_gasto: [null], descripcion: [''], cantidad: [0] });
@@ -166,30 +172,36 @@ export class GroupDetailsComponent implements OnInit {
 
   /* === SUBMITS === */
   onMembersDone(selection: MembersSelection) {
-    // 1️⃣ Salimos del modo “añadir”
+    // 1) Cerramos el formulario
     this.showAddMemberForm = false;
-
-    // 2️⃣ Para cada usuario seleccionado, añadimos como admin o miembro
-    selection.contacts.forEach(u => {
-      const op$ = selection.admins.includes(u.id_usuario)
+    // 2) Para cada seleccionado, lanzamos la petición
+    const ops = selection.contacts.map(u => {
+      return (selection.admins.includes(u.id_usuario)
         ? this.groupSvc.addAdmin(u.id_usuario, this.groupId)
-        : this.groupSvc.addMember(u.id_usuario, this.groupId);
-      op$.subscribe(() => {
-        // refrescamos listados cuando todas las peticiones respondan
-        this.membersRaw$ = this.contactSvc.getMembersByGroup(this.groupId);
-      });
+        : this.groupSvc.addMember(u.id_usuario, this.groupId)
+      );
+    });
+    // 3) Cuando terminen todas:
+    Promise.all(ops.map(o => o.toPromise())).then(() => {
+      // Resetea página y recarga
+      this.pageIndex$.next(0);
+      this.contactSvc.getMembersByGroup(this.groupId)
+        .subscribe(list => this.membersRawSubject.next(list));
     });
   }
 
   submitDeleteMember(member: Contact) {
-    this.contactSvc.removeMemberFromGroup(this.groupId, member.id_usuario).subscribe(() => {
-      this.membersRaw$ = this.contactSvc.getMembersByGroup(this.groupId);
-    });
+    this.contactSvc.removeMemberFromGroup(this.groupId, member.id_usuario)
+      .subscribe(() => {
+        this.pageIndex$.next(0);
+        this.contactSvc.getMembersByGroup(this.groupId)
+          .subscribe(list => this.membersRawSubject.next(list));
+      });
   }
 
   submitAddBudget() {
     const b = this.addBudgetForm.value;
-    this.budgetSvc.create(this.groupId, { ...b }).subscribe(() => {
+    this.budgetSvc.create(this.groupId, b ).subscribe(() => {
       this.toggleAddBudgetForm();
       this.budgets$ = this.budgetSvc.getByGroup(this.groupId);
     });
