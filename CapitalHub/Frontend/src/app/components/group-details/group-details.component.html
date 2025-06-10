@@ -1,41 +1,287 @@
-<mat-card class="details-card">
-  <div class="header">
-    <h1>{{ (group$ | async)?.nombre }}</h1>
-    <button mat-mini-fab color="accent" (click)="editName()">
-      <mat-icon>edit</mat-icon>
+<div class="details-layout">
+  <!-- ==== PANELO PRINCIPAL ==== -->
+  <mat-card class="details-card">
+    <!-- Cabecera igual -->
+    <div class="header">
+      <h1>{{ (group$ | async)?.nombre }}</h1>
+    </div>
+    <p class="creation-date">
+      Creado el {{ (group$ | async)?.fecha_creacion | date:'longDate' }}
+    </p>
+
+    <!-- Miembros paginados -->
+    <section class="members">
+      <h2>👥 Miembros</h2>
+      <div class="pager">
+        <button mat-icon-button (click)="prevPage()" [disabled]="pageIndex$.value===0">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <span>{{ pageIndex$.value+1 }} / {{ totalPages }}</span>
+        <button mat-icon-button (click)="nextPage()" [disabled]="pageIndex$.value+1>=totalPages">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+      <mat-list >
+        <mat-list-item *ngFor="let u of members$ | async">
+          <!-- Checkbox de borrado -->
+          <mat-checkbox
+            *ngIf="deleteMemberMode"
+            (change)="submitDeleteMember(u)"
+            aria-label="Eliminar miembro">
+          </mat-checkbox>
+
+          <!-- Avatar y datos -->
+          <img matListAvatar [src]="u.imagen_perfil" alt="{{u.nombre}}" (click)="goToProfile(u)"/>
+          <div matLine class="member-name" (click)="goToProfile(u)">{{ u.nombre }} {{ u.apellidos }}</div>
+          <div matLine class="member-email" (click)="goToProfile(u)">
+            <mat-icon inline>email</mat-icon> {{ u.email }}
+          </div>
+        </mat-list-item>
+
+        <mat-list-item *ngIf="(members$ | async)?.length === 0">
+          No hay miembros en este grupo
+        </mat-list-item>
+      </mat-list>
+
+      <!-- Formulario Añadir Miembro -->
+      <app-members-select
+        *ngIf="showAddMemberForm"
+        (done)="onMembersDone($event)"
+        (cancel)="showAddMemberForm = false">
+      </app-members-select>
+    </section>
+
+    <!-- Presupuestos -->
+    <section class="budgets">
+      <h2>💰 Presupuestos</h2>
+      <mat-list *ngIf="(budgets$ | async) as budgets; else noBudgets">
+        <mat-list-item *ngFor="let b of budgets">
+          <!-- Checkbox de borrar presupuesto -->
+          <mat-checkbox
+            *ngIf="deleteBudgetMode"
+            (change)="submitDeleteBudget(b)"
+            aria-label="Eliminar presupuesto">
+          </mat-checkbox>
+          <!-- Botón de editar presupuesto -->
+          <button
+            mat-icon-button
+            *ngIf="updateBudgetMode"
+            (click)="toggleUpdateBudgetMode(b)"
+            aria-label="Editar presupuesto"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+
+          <!-- Datos del presupuesto -->
+          <div matLine>
+            <strong>{{ b.nombre }}</strong>
+            ({{ b.fecha_inicio | date:'shortDate' }} – {{ b.fecha_fin | date:'shortDate' }})
+          </div>
+          <div matLine class="budget-amount">{{ b.cantidad | currency }}</div>
+        </mat-list-item>
+      </mat-list>
+      <ng-template #noBudgets>
+        <p class="no-budget">No hay presupuestos</p>
+      </ng-template>
+
+      <!-- Formulario Añadir Presupuesto -->
+      <form
+        *ngIf="showAddBudgetForm"
+        [formGroup]="addBudgetForm"
+        class="inline-form"
+        (ngSubmit)="submitAddBudget()"
+      >
+        <mat-form-field appearance="fill">
+          <mat-label>Nombre</mat-label>
+          <input matInput formControlName="nombre" required />
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Cantidad</mat-label>
+          <input matInput type="number" formControlName="cantidad" required />
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Fecha Inicio</mat-label>
+          <input matInput [matDatepicker]="bi" formControlName="fecha_inicio" required />
+          <mat-datepicker-toggle matSuffix [for]="bi"></mat-datepicker-toggle>
+          <mat-datepicker #bi></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Fecha Fin</mat-label>
+          <input matInput [matDatepicker]="bf" formControlName="fecha_fin" required />
+          <mat-datepicker-toggle matSuffix [for]="bf"></mat-datepicker-toggle>
+          <mat-datepicker #bf></mat-datepicker>
+        </mat-form-field>
+        <div class="form-buttons">
+          <button mat-raised-button color="primary" type="submit" [disabled]="addBudgetForm.invalid">
+            Añadir
+          </button>
+          <button mat-button type="button" (click)="toggleAddBudgetForm()">Cancelar</button>
+        </div>
+      </form>
+
+      <!-- Formulario Editar Presupuesto -->
+      <form
+        *ngIf="updateBudgetMode"
+        [formGroup]="updateBudgetForm"
+        class="inline-form"
+        (ngSubmit)="submitUpdateBudget()"
+      >
+        <mat-form-field appearance="fill">
+          <mat-label>Nombre</mat-label>
+          <input matInput formControlName="nombre" required />
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Cantidad</mat-label>
+          <input matInput type="number" formControlName="cantidad" required />
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Fecha Inicio</mat-label>
+          <input matInput [matDatepicker]="ebi" formControlName="fecha_inicio" required />
+          <mat-datepicker-toggle matSuffix [for]="ebi"></mat-datepicker-toggle>
+          <mat-datepicker #ebi></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Fecha Fin</mat-label>
+          <input matInput [matDatepicker]="ebf" formControlName="fecha_fin" required />
+          <mat-datepicker-toggle matSuffix [for]="ebf"></mat-datepicker-toggle>
+          <mat-datepicker #ebf></mat-datepicker>
+        </mat-form-field>
+        <div class="form-buttons">
+          <button mat-raised-button color="accent" type="submit" [disabled]="updateBudgetForm.invalid">
+            Guardar
+          </button>
+          <button mat-button type="button" (click)="toggleUpdateBudgetMode()">Cancelar</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Gastos -->
+    <section class="expenses">
+      <h2>💸 Gastos</h2>
+      <mat-list *ngIf="(gastos$ | async) as gastos; else noExpenses">
+        <mat-list-item *ngFor="let g of gastos">
+          <!-- Checkbox de borrar gasto -->
+          <mat-checkbox
+            *ngIf="deleteExpenseMode"
+            (change)="submitDeleteExpense(g)"
+            aria-label="Eliminar gasto">
+          </mat-checkbox>
+          <!-- Botón de editar gasto -->
+          <button
+            mat-icon-button
+            *ngIf="updateExpenseMode"
+            (click)="toggleUpdateExpenseMode(g)"
+            aria-label="Editar gasto"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+
+          <!-- Datos del gasto -->
+          <div matLine>{{ g.descripcion }} – {{ g.cantidad | currency }}</div>
+          <div matLine class="expense-date">{{ g.fecha_creacion | date:'shortDate' }}</div>
+        </mat-list-item>
+      </mat-list>
+      <ng-template #noExpenses>
+        <p class="no-expenses">No hay gastos registrados</p>
+      </ng-template>
+
+      <!-- Formulario Añadir Gasto -->
+      <form
+        *ngIf="showAddExpenseForm"
+        [formGroup]="addExpenseForm"
+        class="inline-form"
+        (ngSubmit)="submitAddExpense()"
+      >
+        <mat-form-field appearance="fill">
+          <mat-label>Descripción</mat-label>
+          <input matInput formControlName="descripcion" required />
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Cantidad</mat-label>
+          <input matInput type="number" formControlName="cantidad" required />
+        </mat-form-field>
+        <div class="form-buttons">
+          <button mat-raised-button color="primary" type="submit" [disabled]="addExpenseForm.invalid">
+            Añadir
+          </button>
+          <button mat-button type="button" (click)="toggleAddExpenseForm()">Cancelar</button>
+        </div>
+      </form>
+
+      <!-- Formulario Editar Gasto -->
+      <form
+        *ngIf="updateExpenseMode"
+        [formGroup]="updateExpenseForm"
+        class="inline-form"
+        (ngSubmit)="submitUpdateExpense()"
+      >
+        <mat-form-field appearance="fill">
+          <mat-label>Descripción</mat-label>
+          <input matInput formControlName="descripcion" required />
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Cantidad</mat-label>
+          <input matInput type="number" formControlName="cantidad" required />
+        </mat-form-field>
+        <div class="form-buttons">
+          <button mat-raised-button color="accent" type="submit" [disabled]="updateExpenseForm.invalid">
+            Guardar
+          </button>
+          <button mat-button type="button" (click)="toggleUpdateExpenseMode()">Cancelar</button>
+        </div>
+      </form>
+    </section>
+
+    <button mat-stroked-button color="warn" class="back-btn" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon> Volver
     </button>
-  </div>
+  </mat-card>
 
-  <p class="creation-date">
-    Creado el {{ (group$ | async)?.fecha_creacion | date: 'longDate' }}
-  </p>
+  <!-- ==== PANEL DE GESTIÓN ==== -->
+  <mat-nav-list class="management-panel">
+    <h3>Gestión</h3>
+    <mat-divider></mat-divider>
 
-  <section class="members">
-    <h2>👥 Miembros</h2>
-    <mat-list>
-      <mat-list-item *ngFor="let u of (group$ | async)?.miembros">
-        <img matListAvatar [src]="u.imagen_perfil" alt="{{u.nombre}}" />
-        <div matLine class="member-name">
-          {{ u.nombre }} {{ u.apellidos }}
-        </div>
-        <div matLine class="member-email">
-          <mat-icon inline>email</mat-icon> {{ u.email }}
-        </div>
-      </mat-list-item>
-    </mat-list>
-  </section>
+    <!-- Miembros -->
+    <mat-list-item>
+      <mat-icon matListIcon>group</mat-icon>
+      <h4 matLine>Miembros</h4>
+      <button mat-mini-fab color="primary" (click)="toggleAddMemberForm()">
+        <mat-icon>person_add</mat-icon>
+      </button>
+      <button mat-mini-fab color="warn" (click)="toggleDeleteMemberMode()">
+        <mat-icon>person_remove</mat-icon>
+      </button>
+    </mat-list-item>
 
-  <section class="budgets">
-    <h2>💰 Presupuestos</h2>
-    <p *ngIf="!(group$ | async)?.tienePresupuestoActivo" class="no-budget">
-      No hay presupuesto activo
-    </p>
-    <p *ngIf="(group$ | async)?.tienePresupuestoActivo" class="has-budget">
-      ¡Presupuesto activo! ✔️
-    </p>
-  </section>
+    <!-- Presupuestos -->
+    <mat-list-item>
+      <mat-icon matListIcon>account_balance_wallet</mat-icon>
+      <h4 matLine>Presupuestos</h4>
+      <button mat-mini-fab color="primary" (click)="toggleAddBudgetForm()">
+        <mat-icon>add</mat-icon>
+      </button>
+      <button mat-mini-fab color="warn" (click)="toggleDeleteBudgetMode()">
+        <mat-icon>delete</mat-icon>
+      </button>
+      <button mat-mini-fab color="accent" (click)="toggleUpdateBudgetMode()">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </mat-list-item>
 
-  <button mat-stroked-button color="warn" class="back-btn" (click)="goBack()">
-    <mat-icon>arrow_back</mat-icon> Volver
-  </button>
-</mat-card>
+    <!-- Gastos -->
+    <mat-list-item>
+      <mat-icon matListIcon>shopping_cart</mat-icon>
+      <h4 matLine>Gastos</h4>
+      <button mat-mini-fab color="primary" (click)="toggleAddExpenseForm()">
+        <mat-icon>add</mat-icon>
+      </button>
+      <button mat-mini-fab color="warn" (click)="toggleDeleteExpenseMode()">
+        <mat-icon>delete</mat-icon>
+      </button>
+      <button mat-mini-fab color="accent" (click)="toggleUpdateExpenseMode()">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </mat-list-item>
+  </mat-nav-list>
+</div>

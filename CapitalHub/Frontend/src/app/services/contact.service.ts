@@ -91,4 +91,10 @@ export class ContactService {
     );
   }
 
+  removeMemberFromGroup(grupoId: number, usuarioId: number): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiUrl}/grupos/${grupoId}/usuarios/${usuarioId}`
+    );
+  }
+
 }

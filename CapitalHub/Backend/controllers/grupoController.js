@@ -151,6 +151,39 @@ exports.obtenerUsuariosDeGrupo = async (req, res) => {
   }
 }
 
+exports.removeMember = async (req, res) => {
+  const { idGrupo, idUsuario } = req.params;
+
+  try {
+    // Verificamos que el grupo exista (opcional)
+    const grupo = await Grupo.findByPk(idGrupo);
+    if (!grupo) {
+      return res.status(404).json({ error: 'Grupo no encontrado' });
+    }
+
+    // Buscamos la relación usuario↔grupo
+    const usuarioGrupo = await UsuarioGrupo.findOne({
+      where: {
+        id_grupo: idGrupo,
+        id_usuario: idUsuario
+      }
+    });
+
+    if (!usuarioGrupo) {
+      return res.status(404).json({ error: 'Miembro no encontrado en el grupo' });
+    }
+
+    // Eliminamos la relación
+    await usuarioGrupo.destroy();
+
+    // Devolvemos 204 No Content
+    return res.status(204).send();
+  } catch (err) {
+    console.error('Error eliminando miembro del grupo:', err);
+    return res.status(500).json({ error: 'Error interno al eliminar miembro' });
+  }
+};
+
 exports.eliminarGruposEnCascada = async (req, res) => {
   const { ids } = req.body;
   const t = await sequelize.transaction();

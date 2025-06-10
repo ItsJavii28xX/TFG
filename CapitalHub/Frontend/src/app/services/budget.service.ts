@@ -41,6 +41,21 @@ export class BudgetService {
     );
   }
 
+  /** DELETE /presupuestos/:id */
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiUrl}/presupuestos/${id}`
+    );
+  }
+
+  /** PUT /presupuestos/:id */
+  update(id: number, data: Partial<Budget>): Observable<Budget> {
+    return this.http.put<Budget>(
+      `${this.apiUrl}/presupuestos/${id}`,
+      data
+    );
+  }
+
   getByGroup(grupoId: number): Observable<Budget[]> {
     return this.http.get<Budget[]>(
       `${this.apiUrl}/grupos/${grupoId}/presupuestos`

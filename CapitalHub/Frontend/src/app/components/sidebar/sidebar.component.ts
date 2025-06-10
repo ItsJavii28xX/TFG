@@ -25,12 +25,10 @@ import { MatInputModule } from '@angular/material/input';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-
-    // Módulos de Angular Material que usa tu plantilla:
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    MatChipsModule,           // <— IMPORTANTE: aquí va MatChipsModule
+    MatChipsModule,
     MatChip,
     MatChipGrid,
     MatIconModule,
@@ -268,6 +266,3 @@ export class SidebarComponent implements OnInit {
     this.router.navigate(['/app-group-details', g.id_grupo]);
   }
 }
-
-
-

@@ -13,63 +13,74 @@ import { Router } from '@angular/router';
 import { filter, forkJoin } from 'rxjs';
 import { map, switchMap }    from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
-import { AnimationTriggerMetadata, trigger, transition, style, animate, group, query } from '@angular/animations';
+import { AnimationTriggerMetadata, trigger, transition, style, animate, group, query, keyframes } from '@angular/animations';
 
-export const slideInAnimation: AnimationTriggerMetadata =
-  trigger('routeAnimations', [
-    transition('HomePage => DetailsPage', [
-      style({ position: 'relative' }),
-      query(':enter, :leave', [
-        style({
-          position: 'absolute',
-          top: 0, left: 0,
-          width: '100%'
-        })
+
+export const epicFlipAnimation = trigger('routeAnimations', [
+  // de HomePage a DetailsPage
+  transition('HomePage => DetailsPage', [
+    style({ position: 'relative', perspective: '1200px' }),
+    query(':enter, :leave', [
+      style({
+        position: 'absolute',
+        top: 0, left: 0,
+        width: '100%', height: '100%',
+        transformStyle: 'preserve-3d'
+      })
+    ], { optional: true }),
+    group([
+      // cartão que sale
+      query(':leave', [
+        animate('800ms ease-in', keyframes([
+          style({ offset: 0,    transform: 'rotateY(0)   translateZ(0)',       opacity: 1 }),
+          style({ offset: 0.3,  transform: 'rotateY(-30deg) translateZ(-100px)', opacity: 0.8 }),
+          style({ offset: 1.0,  transform: 'rotateY(-90deg) translateZ(-400px)', opacity: 0 })
+        ]))
       ], { optional: true }),
-      group([
-        // view que sale
-        query(':leave', [
-          animate('250ms ease-out', style({
-            opacity: 0,
-            transform: 'scale(0.8)'
-          }))
-        ], { optional: true }),
-        // view que entra
-        query(':enter', [
-          style({ opacity: 0, transform: 'scale(1.2)' }),
-          animate('300ms ease-out', style({
-            opacity: 1,
-            transform: 'scale(1)'
-          }))
-        ], { optional: true })
-      ])
-    ]),
-    transition('DetailsPage => HomePage', [
-      style({ position: 'relative' }),
-      query(':enter, :leave', [
-        style({
-          position: 'absolute',
-          top: 0, left: 0,
-          width: '100%'
-        })
-      ], { optional: true }),
-      group([
-        query(':leave', [
-          animate('200ms ease-out', style({
-            opacity: 0,
-            transform: 'scale(0.8)'
-          }))
-        ], { optional: true }),
-        query(':enter', [
-          style({ opacity: 0, transform: 'scale(1.2)' }),
-          animate('250ms ease-out', style({
-            opacity: 1,
-            transform: 'scale(1)'
-          }))
-        ], { optional: true })
-      ])
+      // cartão que entra
+      query(':enter', [
+        style({ transform: 'rotateY(90deg) translateZ(-400px)', opacity: 0 }),
+        animate('800ms ease-out', keyframes([
+          style({ offset: 0,    transform: 'rotateY(90deg)  translateZ(-400px)', opacity: 0 }),
+          style({ offset: 0.7,  transform: 'rotateY(30deg)  translateZ(-100px)', opacity: 0.8 }),
+          style({ offset: 1.0,  transform: 'rotateY(0)      translateZ(0)',       opacity: 1 })
+        ]))
+      ], { optional: true })
     ])
-  ]);
+  ]),
+
+  // de DetailsPage a HomePage (la vuelta)
+  transition('DetailsPage => HomePage', [
+    style({ position: 'relative', perspective: '1200px' }),
+    query(':enter, :leave', [
+      style({
+        position: 'absolute',
+        top: 0, left: 0,
+        width: '100%', height: '100%',
+        transformStyle: 'preserve-3d'
+      })
+    ], { optional: true }),
+    group([
+      // cartão actual gira fuera
+      query(':leave', [
+        animate('700ms ease-in', keyframes([
+          style({ offset: 0,    transform: 'rotateY(0)   translateZ(0)',       opacity: 1 }),
+          style({ offset: 0.3,  transform: 'rotateY(30deg) translateZ(-100px)', opacity: 0.8 }),
+          style({ offset: 1.0,  transform: 'rotateY(90deg) translateZ(-400px)', opacity: 0 })
+        ]))
+      ], { optional: true }),
+      // novo cartão gira dentro
+      query(':enter', [
+        style({ transform: 'rotateY(-90deg) translateZ(-400px)', opacity: 0 }),
+        animate('700ms ease-out', keyframes([
+          style({ offset: 0,    transform: 'rotateY(-90deg) translateZ(-400px)', opacity: 0 }),
+          style({ offset: 0.7,  transform: 'rotateY(-30deg) translateZ(-100px)', opacity: 0.8 }),
+          style({ offset: 1.0,  transform: 'rotateY(0)      translateZ(0)',       opacity: 1 })
+        ]))
+      ], { optional: true })
+    ])
+  ])
+]);
 
 @Component({
   selector: 'app-layout',
@@ -84,7 +95,8 @@ export const slideInAnimation: AnimationTriggerMetadata =
     SidebarComponent
   ],
   templateUrl: './layout.component.html',
-  styleUrls: ['./layout.component.css']
+  styleUrls: ['./layout.component.css'],
+  animations: [ epicFlipAnimation ]
 })
 export class LayoutComponent implements OnInit {
   collapsed        = true;
