@@ -21,13 +21,12 @@
           <mat-icon>chevron_right</mat-icon>
         </button>
       </div>
-      <mat-list >
+      <mat-list>
         <mat-list-item *ngFor="let u of members$ | async">
-          <!-- Checkbox de borrado -->
           <mat-checkbox
             *ngIf="deleteMemberMode"
-            (change)="submitDeleteMember(u)"
-            aria-label="Eliminar miembro">
+            (change)="toggleSelectMember(u, $event.checked)"
+            aria-label="Marcar miembro">
           </mat-checkbox>
 
           <!-- Avatar y datos -->
@@ -49,6 +48,14 @@
         (done)="onMembersDone($event)"
         (cancel)="showAddMemberForm = false">
       </app-members-select>
+
+      <!-- Botones de Confirmar/Cancelar selección -->
+      <div *ngIf="deleteMemberMode && selectedMembers.length">
+        <button mat-button color="warn" (click)="openConfirmDeleteMembers()">
+          Eliminar {{ selectedMembers.length }} miembro(s)
+        </button>
+        <button mat-button (click)="cancelDeleteMembers()">Cancelar</button>
+      </div>
     </section>
 
     <!-- Presupuestos -->
@@ -56,12 +63,12 @@
       <h2>💰 Presupuestos</h2>
       <mat-list *ngIf="(budgets$ | async) as budgets; else noBudgets">
         <mat-list-item *ngFor="let b of budgets">
-          <!-- Checkbox de borrar presupuesto -->
           <mat-checkbox
             *ngIf="deleteBudgetMode"
-            (change)="submitDeleteBudget(b)"
-            aria-label="Eliminar presupuesto">
+            (change)="toggleSelectBudget(b, $event.checked)"
+            aria-label="Marcar presupuesto">
           </mat-checkbox>
+
           <!-- Botón de editar presupuesto -->
           <button
             mat-icon-button
@@ -80,6 +87,14 @@
           <div matLine class="budget-amount">{{ b.cantidad | currency }}</div>
         </mat-list-item>
       </mat-list>
+
+      <div *ngIf="deleteBudgetMode && selectedBudgets.length">
+        <button mat-button color="warn" (click)="openConfirmDeleteBudgets()">
+          Eliminar {{ selectedBudgets.length }} presupuesto(s)
+        </button>
+        <button mat-button (click)="cancelDeleteBudgets()">Cancelar</button>
+      </div>
+
       <ng-template #noBudgets>
         <p class="no-budget">No hay presupuestos</p>
       </ng-template>
@@ -163,8 +178,8 @@
           <!-- Checkbox de borrar gasto -->
           <mat-checkbox
             *ngIf="deleteExpenseMode"
-            (change)="submitDeleteExpense(g)"
-            aria-label="Eliminar gasto">
+            (change)="toggleSelectExpense(g, $event.checked)"
+            aria-label="Marcar gasto">
           </mat-checkbox>
           <!-- Botón de editar gasto -->
           <button
@@ -181,6 +196,14 @@
           <div matLine class="expense-date">{{ g.fecha_creacion | date:'shortDate' }}</div>
         </mat-list-item>
       </mat-list>
+
+      <div *ngIf="deleteExpenseMode && selectedExpenses.length">
+        <button mat-button color="warn" (click)="openConfirmDeleteExpenses()">
+          Eliminar {{ selectedExpenses.length }} gasto(s)
+        </button>
+        <button mat-button (click)="cancelDeleteExpenses()">Cancelar</button>
+      </div>
+
       <ng-template #noExpenses>
         <p class="no-expenses">No hay gastos registrados</p>
       </ng-template>
@@ -242,34 +265,56 @@
     <h3>Gestión</h3>
     <mat-divider></mat-divider>
 
-    <!-- Miembros -->
-    <mat-list-item>
-      <mat-icon matListIcon>group</mat-icon>
-      <h4 matLine>Miembros</h4>
-      <button mat-mini-fab color="primary" (click)="toggleAddMemberForm()">
-        <mat-icon>person_add</mat-icon>
-      </button>
-      <button mat-mini-fab color="warn" (click)="toggleDeleteMemberMode()">
-        <mat-icon>person_remove</mat-icon>
-      </button>
-    </mat-list-item>
+    <!-- === Miembros === -->
+    <ng-container *ngIf="isAdmin; else noAdminMiembros">
+      <mat-list-item>
+        <mat-icon matListIcon>group</mat-icon>
+        <h4 matLine>Miembros</h4>
+        <button mat-mini-fab color="primary" (click)="toggleAddMemberForm()">
+          <mat-icon>person_add</mat-icon>
+        </button>
+        <button mat-mini-fab color="warn" (click)="toggleDeleteMemberMode()">
+          <mat-icon>person_remove</mat-icon>
+        </button>
+      </mat-list-item>
+    </ng-container>
+    <ng-template #noAdminMiembros>
+      <mat-list-item>
+        <mat-icon matListIcon>block</mat-icon>
+        <h4 matLine>Miembros</h4>
+        <p matLine class="not-admin-msg">
+          Necesitas ser administrador
+        </p>
+      </mat-list-item>
+    </ng-template>
 
-    <!-- Presupuestos -->
-    <mat-list-item>
-      <mat-icon matListIcon>account_balance_wallet</mat-icon>
-      <h4 matLine>Presupuestos</h4>
-      <button mat-mini-fab color="primary" (click)="toggleAddBudgetForm()">
-        <mat-icon>add</mat-icon>
-      </button>
-      <button mat-mini-fab color="warn" (click)="toggleDeleteBudgetMode()">
-        <mat-icon>delete</mat-icon>
-      </button>
-      <button mat-mini-fab color="accent" (click)="toggleUpdateBudgetMode()">
-        <mat-icon>edit</mat-icon>
-      </button>
-    </mat-list-item>
+    <!-- === Presupuestos === -->
+    <ng-container *ngIf="isAdmin; else noAdminPresupuestos">
+      <mat-list-item>
+        <mat-icon matListIcon>account_balance_wallet</mat-icon>
+        <h4 matLine>Presupuestos</h4>
+        <button mat-mini-fab color="primary" (click)="toggleAddBudgetForm()">
+          <mat-icon>add</mat-icon>
+        </button>
+        <button mat-mini-fab color="warn" (click)="toggleDeleteBudgetMode()">
+          <mat-icon>delete</mat-icon>
+        </button>
+        <button mat-mini-fab color="accent" (click)="openEditBudgetOverlay()">
+          <mat-icon>edit</mat-icon>
+        </button>
+      </mat-list-item>
+    </ng-container>
+    <ng-template #noAdminPresupuestos>
+      <mat-list-item>
+        <mat-icon matListIcon>block</mat-icon>
+        <h4 matLine>Presupuestos</h4>
+        <p matLine class="not-admin-msg">
+          Necesitas ser administrador
+        </p>
+      </mat-list-item>
+    </ng-template>
 
-    <!-- Gastos -->
+    <!-- === Gastos (sin restricción) === -->
     <mat-list-item>
       <mat-icon matListIcon>shopping_cart</mat-icon>
       <h4 matLine>Gastos</h4>
@@ -284,4 +329,143 @@
       </button>
     </mat-list-item>
   </mat-nav-list>
+</div>
+
+<!-- ① Overlay de Edición -->
+<div class="overlay-2" *ngIf="showEditBudgetOverlay">
+  <mat-card class="overlay-card-2">
+    <mat-card-header>
+      <mat-card-title>Editar presupuesto</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content [formGroup]="editBudgetForm">
+      <!-- Selector del presupuesto -->
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Selecciona presupuesto</mat-label>
+        <mat-select
+          panelClass="above-overlay-panel"
+          formControlName="presupuestoSeleccionado"
+          (selectionChange)="onBudgetSelected($event.value)"
+        >
+          <mat-option *ngFor="let b of budgetsSnapshot" [value]="b.id_presupuesto">
+            {{ b.nombre }} ({{ b.fecha_inicio | date:'shortDate' }} – {{ b.fecha_fin | date:'shortDate' }})
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Si ya elegiste uno, muestra campos -->
+      <ng-container *ngIf="budgetToEditOverlay">
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Nombre</mat-label>
+          <input matInput formControlName="nombre">
+        </mat-form-field>
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Descripción</mat-label>
+          <textarea matInput formControlName="descripcion"></textarea>
+        </mat-form-field>
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Cantidad</mat-label>
+          <input matInput type="number" formControlName="cantidad">
+        </mat-form-field>
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Fecha Fin</mat-label>
+          <input matInput [matDatepicker]="editFin" formControlName="fecha_fin">
+          <mat-datepicker-toggle matSuffix [for]="editFin"></mat-datepicker-toggle>
+          <mat-datepicker #editFin></mat-datepicker>
+        </mat-form-field>
+      </ng-container>
+    </mat-card-content>
+
+    <mat-card-actions align="end">
+      <button mat-button (click)="cancelEditBudget()">Cancelar</button>
+      <button mat-raised-button color="primary" (click)="goToReviewBudget()"
+              [disabled]="!budgetToEditOverlay || editBudgetForm.invalid">
+        Siguiente
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>
+
+<!-- ② Overlay de Revisión -->
+<div class="overlay" *ngIf="showReviewBudgetOverlay">
+  <mat-card class="overlay-card">
+    <mat-card-header>
+      <mat-card-title>Revisar cambios</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <p>Vas a cambiar:</p>
+      <mat-list dense>
+        <mat-list-item *ngFor="let c of reviewChanges">
+          <strong>{{ c.field }}:</strong>
+          <span class="before">{{ c.before }}</span>
+          →
+          <span class="after">{{ c.after }}</span>
+        </mat-list-item>
+      </mat-list>
+    </mat-card-content>
+
+    <mat-card-actions align="end">
+      <button mat-button (click)="backToEditBudget()">Volver</button>
+      <button mat-raised-button color="warn" (click)="confirmReviewBudget()">
+        Confirmar
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>
+
+<!-- Overlay de confirmación -->
+<div
+  class="overlay"
+  *ngIf="showConfirmDeleteMembers || showConfirmDeleteBudgets || showConfirmDeleteExpenses"
+>
+  <mat-card class="confirm-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>warning</mat-icon>
+        {{ showConfirmDeleteMembers   ? 'Eliminar miembros'    : '' }}
+        {{ showConfirmDeleteBudgets   ? 'Eliminar presupuestos' : '' }}
+        {{ showConfirmDeleteExpenses  ? 'Eliminar gastos'       : '' }}
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <p>Vas a borrar estos elementos:</p>
+      <mat-list dense *ngIf="showConfirmDeleteMembers || showConfirmDeleteBudgets || showConfirmDeleteExpenses">
+        <!-- Miembros -->
+        <mat-list-item *ngFor="let u of selectedMembers">
+          <mat-icon matListIcon>person</mat-icon>
+          <div matLine>{{ u.nombre }} {{ u.apellidos }}</div>
+        </mat-list-item>
+        <!-- Presupuestos -->
+        <mat-list-item *ngFor="let b of selectedBudgets">
+          <mat-icon matListIcon>account_balance_wallet</mat-icon>
+          <div matLine>{{ b.nombre }} — {{ b.cantidad | currency }}</div>
+        </mat-list-item>
+        <!-- Gastos -->
+        <mat-list-item *ngFor="let g of selectedExpenses">
+          <mat-icon matListIcon>shopping_cart</mat-icon>
+          <div matLine>{{ g.descripcion }} — {{ g.cantidad | currency }}</div>
+        </mat-list-item>
+      </mat-list>
+    </mat-card-content>
+
+    <mat-card-actions align="end">
+      <button mat-button (click)="
+        showConfirmDeleteMembers   ? cancelDeleteMembers()  :
+        showConfirmDeleteBudgets   ? cancelDeleteBudgets()  :
+        cancelDeleteExpenses()
+      ">
+        Cancelar
+      </button>
+      <button mat-raised-button color="warn" (click)="
+        showConfirmDeleteMembers   ? confirmDeleteMembers() :
+        showConfirmDeleteBudgets   ? confirmDeleteBudgets() :
+        confirmDeleteExpenses()
+      ">
+        <mat-icon>delete_forever</mat-icon>
+        Confirmar
+      </button>
+    </mat-card-actions>
+  </mat-card>
 </div>

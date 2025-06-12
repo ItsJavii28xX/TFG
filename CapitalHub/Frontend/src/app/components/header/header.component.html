@@ -2,8 +2,8 @@
 
 <header class="header">
   <div class="logo-container">
-    <img src="favicon.ico" alt="CapitalHub logo" class="logo-img" />
-    <h1 class="logo-title">CapitalHub</h1>
+    <img src="favicon.ico" alt="CapitalHub logo" class="logo-img" [routerLink]="['/home']"/>
+    <h1 class="logo-title" [routerLink]="['/home']">CapitalHub</h1>
   </div>
 
   <!-- =======================
@@ -65,15 +65,6 @@
        ======================= -->
   <nav class="nav">
     <!-- Inicio -->
-    <a
-      mat-button
-      routerLink="/"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
-    >
-      <mat-icon>home</mat-icon>
-      <span>Inicio</span>
-    </a>
 
     <!-- Contactos dropdown -->
     <button mat-button [matMenuTriggerFor]="menuContacts">

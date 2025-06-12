@@ -1,7 +1,7 @@
 // src/app/services/group.service.ts
 import { Injectable }     from '@angular/core';
 import { HttpClient }     from '@angular/common/http';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, firstValueFrom } from 'rxjs';
 import { map, tap }            from 'rxjs/operators';
 import { environment }    from '../../environments/environment';
 import { Usuario } from './contact.service';
@@ -66,6 +66,14 @@ export class GroupService {
       .pipe(
         map(response => response.esAdministrador)
       );
+  }
+
+  async checkAdmin(id_usuario: number, id_grupo: number): Promise<boolean> {
+    const response = await firstValueFrom(
+      this.http
+        .get<{ esAdministrador: boolean }>(`${this.apiUrl}/usuarios-grupos/${id_usuario}/${id_grupo}/es-administrador`)
+    );
+    return response.esAdministrador;
   }
 
   /**

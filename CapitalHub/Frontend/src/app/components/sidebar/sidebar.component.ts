@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Router, RouterModule }     from '@angular/router';
+import { Router, RouterLink, RouterModule }     from '@angular/router';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { FormGroup, FormBuilder, FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { Observable, of, switchMap, combineLatest, startWith, map } from 'rxjs';
@@ -37,7 +37,8 @@ import { MatInputModule } from '@angular/material/input';
     MatDatepickerModule,
     MatNativeDateModule,
     MatListModule,
-    MatButtonModule
+    MatButtonModule,
+    RouterLink
   ],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css'],

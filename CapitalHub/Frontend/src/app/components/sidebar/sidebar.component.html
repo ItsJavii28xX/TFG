@@ -132,6 +132,7 @@
         <mat-list-item
           *ngFor="let g of filteredGroups$ | async"
           (click)="onGrupoClick(g)"
+          [routerLink]="['/app-group-details', g.id_grupo]"
           class="grupo-item"
         >
           <span>{{ g.nombre }}</span>

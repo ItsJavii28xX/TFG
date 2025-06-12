@@ -1,6 +1,6 @@
-import { Component, OnInit }  from '@angular/core';
+import { Component, OnInit, ViewEncapsulation }  from '@angular/core';
 import { ActivatedRoute, Router }     from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { Grupo, GroupService }     from '../../services/group.service';
 import { Contact, ContactService, Usuario } from '../../services/contact.service';
@@ -8,15 +8,15 @@ import { BudgetService, Budget }   from '../../services/budget.service';
 import { GastoService, Gasto }     from '../../services/gasto.service';
 
 import { Observable, BehaviorSubject, combineLatest, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { MatFormFieldModule, MatLabel } from '@angular/material/form-field';
 import { MatButton } from '@angular/material/button';
 import { MatList, MatListModule } from '@angular/material/list';
 import { MatDatepicker, MatDatepickerModule } from '@angular/material/datepicker';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
-import { MatCard } from '@angular/material/card';
+import { MatCard, MatCardModule } from '@angular/material/card';
 import { MatOption, MatOptionModule } from '@angular/material/core';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatInputModule } from '@angular/material/input';
@@ -40,14 +40,18 @@ import { MembersSelectComponent, MembersSelection } from '../members-select/memb
     MatInputModule,
     MatSelectModule,
     MatOptionModule,
-    MembersSelectComponent
+    MembersSelectComponent,
+    MatCardModule
   ],
+  providers: [DatePipe],
   templateUrl: './group-details.component.html',
   styleUrls: ['./group-details.component.css']
 })
 export class GroupDetailsComponent implements OnInit {
   groupId!: number;
   group$!: Observable<Grupo>;
+
+  isAdmin!: boolean;
 
   // PAGINACIÓN miembros
   private membersRawSubject = new BehaviorSubject<Contact[]>([]);
@@ -67,6 +71,26 @@ export class GroupDetailsComponent implements OnInit {
   updateBudgetForm!: FormGroup;
   updateExpenseForm!: FormGroup;
 
+  // Arrays de selección
+  selectedMembers: Contact[] = [];
+  selectedBudgets: Budget[]   = [];
+  selectedExpenses: Gasto[]  = [];
+
+  // Flags para modal de confirmación
+  showConfirmDeleteMembers  = false;
+  showConfirmDeleteBudgets  = false;
+  showConfirmDeleteExpenses = false;
+
+  showEditBudgetOverlay   = false;
+  showReviewBudgetOverlay = false;
+
+  // Budget seleccionado originalmente y formulario de edición
+  budgetToEditOverlay?: Budget;
+  editBudgetForm!: FormGroup;
+
+  // Para tener la lista de budgets en memoria rápida
+  budgetsSnapshot: Budget[] = [];
+
   // FLAGS de UI
   showAddMemberForm    = false;
   deleteMemberMode     = false;
@@ -84,6 +108,8 @@ export class GroupDetailsComponent implements OnInit {
   // lista de contactos para el selector
   allContacts$!: Observable<Contact[]>;
 
+  reviewChanges: { field: string; before: string; after: string }[] = [];
+
   constructor(
     private route: ActivatedRoute,
     private fb: FormBuilder,
@@ -92,13 +118,42 @@ export class GroupDetailsComponent implements OnInit {
     private budgetSvc: BudgetService,
     private gastoSvc: GastoService,
     private authSvc: AuthService,
-    private router: Router
+    private router: Router,
+    private datePipe: DatePipe
   ) {}
 
   ngOnInit() {
     // ① ¡Primero! recupera el parámetro de ruta
     this.groupId = Number(this.route.snapshot.paramMap.get('id_grupo'));
     this.group$ = this.groupSvc.buscarGrupoPorId(this.groupId);
+
+    const userId = this.authSvc.getUserId()!;
+    if (userId != null) {
+      this.groupSvc.checkIfAdmin(userId, this.groupId)
+        .subscribe(isAdmin => this.isAdmin = isAdmin);
+    } else {
+      this.isAdmin = false;
+    }
+      
+
+    console.log(userId, this.groupId, this.isAdmin);
+
+    this.editBudgetForm = this.fb.group({
+      id_presupuesto: [null],
+      presupuestoSeleccionado: [null, Validators.required], // dropdown
+      nombre: ['', Validators.required],
+      descripcion: [''],
+      cantidad: [0, [Validators.required, Validators.min(0.01)]],
+      fecha_fin: [null, Validators.required]
+    });
+
+     // ③ presupuestos y snapshot
+    this.budgets$ = this.budgetSvc.getByGroup(this.groupId);
+    this.budgets$
+      .pipe(take(1))
+      .subscribe(b => this.budgetsSnapshot = b);
+
+    this.gastos$  = this.gastoSvc.getByGroup(this.groupId);
 
     // ② carga la lista y emítela en el subject
     this.contactSvc.getMembersByGroup(this.groupId)
@@ -129,6 +184,181 @@ export class GroupDetailsComponent implements OnInit {
     this.updateBudgetForm = this.fb.group({ id_presupuesto: [null], nombre: [''], cantidad: [0], fecha_inicio: [null], fecha_fin: [null] });
     this.addExpenseForm   = this.fb.group({ descripcion: [''], cantidad: [0] });
     this.updateExpenseForm= this.fb.group({ id_gasto: [null], descripcion: [''], cantidad: [0] });
+  }
+
+  toggleSelectMember(u: Contact, checked: boolean) {
+    if (checked) {
+      this.selectedMembers.push(u);
+    } else {
+      this.selectedMembers = this.selectedMembers.filter(x => x.id_usuario !== u.id_usuario);
+    }
+  }
+  toggleSelectBudget(b: Budget, checked: boolean) {
+    if (checked) {
+      this.selectedBudgets.push(b);
+    } else {
+      this.selectedBudgets = this.selectedBudgets.filter(x => x.id_presupuesto !== b.id_presupuesto);
+    }
+  }
+  toggleSelectExpense(g: Gasto, checked: boolean) {
+    if (checked) {
+      this.selectedExpenses.push(g);
+    } else {
+      this.selectedExpenses = this.selectedExpenses.filter(x => x.id_gasto !== g.id_gasto);
+    }
+  }
+
+  // Apertura del modal
+  openConfirmDeleteMembers()  { this.showConfirmDeleteMembers  = true; }
+  openConfirmDeleteBudgets()  { this.showConfirmDeleteBudgets  = true; }
+  openConfirmDeleteExpenses() { this.showConfirmDeleteExpenses = true; }
+
+  // Cancelar
+  cancelDeleteMembers()  { this.showConfirmDeleteMembers  = false; this.selectedMembers  = []; }
+  cancelDeleteBudgets()  { this.showConfirmDeleteBudgets  = false; this.selectedBudgets  = []; }
+  cancelDeleteExpenses() { this.showConfirmDeleteExpenses = false; this.selectedExpenses = []; }
+
+  // Confirmar: llamamos a los servicios y recargamos
+  confirmDeleteMembers() {
+    Promise.all(
+      this.selectedMembers.map(u =>
+        this.contactSvc.removeMemberFromGroup(this.groupId, u.id_usuario).toPromise()
+      )
+    ).then(() => {
+      this.cancelDeleteMembers();
+      this.reloadMembers();
+    });
+  }
+  confirmDeleteBudgets() {
+    Promise.all(
+      this.selectedBudgets.map(b =>
+        this.budgetSvc.delete(b.id_presupuesto).toPromise()
+      )
+    ).then(() => {
+      this.cancelDeleteBudgets();
+      this.budgets$ = this.budgetSvc.getByGroup(this.groupId);
+    });
+  }
+  confirmDeleteExpenses() {
+    Promise.all(
+      this.selectedExpenses.map(g =>
+        this.gastoSvc.delete(g.id_gasto).toPromise()
+      )
+    ).then(() => {
+      this.cancelDeleteExpenses();
+      this.gastos$ = this.gastoSvc.getByGroup(this.groupId);
+    });
+  }
+
+  private reloadMembers() {
+    this.pageIndex$.next(0);
+    this.contactSvc.getMembersByGroup(this.groupId)
+      .subscribe(list => this.membersRawSubject.next(list));
+  }
+
+  // －－－－－ Apertura del primer overlay －－－－－
+  openEditBudgetOverlay() {
+    this.budgets$.pipe(take(1)).subscribe(budgets => {
+      // Precarga la lista de presupuestos en el FormControl 'presupuestoSeleccionado'
+      if (budgets && budgets.length > 0) {
+        this.editBudgetForm
+        .get('presupuestoSeleccionado')
+        ?.setValue(budgets[0].id_presupuesto);
+      } else {
+        this.editBudgetForm.get('presupuestoSeleccionado')?.reset();
+      }
+      this.showEditBudgetOverlay = true;
+    });
+  }
+
+  // Cuando el usuario elige un presupuesto del dropdown
+  onBudgetSelected(id: number) {
+    const selected = (this.budgetsSnapshot || []).find(b => b.id_presupuesto === id);
+    if (!selected) return;
+    this.budgetToEditOverlay = selected;
+    // Rellenar el form con los valores originales
+    this.editBudgetForm.patchValue({
+      id_presupuesto: selected.id_presupuesto,
+      nombre: selected.nombre,
+      descripcion: selected.descripcion ?? '',
+      cantidad: selected.cantidad,
+      fecha_fin: selected.fecha_fin
+    });
+  }
+
+  // Al hacer “Siguiente” en el primer overlay
+  goToReviewBudget() {
+    if (this.editBudgetForm.invalid) return;
+    const form = this.editBudgetForm.value;
+    this.reviewChanges = [];
+
+    // Comparamos campo a campo
+    const orig = this.budgetToEditOverlay!;
+    if (form.nombre !== orig.nombre) {
+      this.reviewChanges.push({
+        field: 'Nombre',
+        before: orig.nombre,
+        after: form.nombre
+      });
+    }
+    if ((form.descripcion || '') !== (orig.descripcion || '')) {
+      this.reviewChanges.push({
+        field: 'Descripción',
+        before: orig.descripcion || '',
+        after: form.descripcion
+      });
+    }
+    if (form.cantidad !== orig.cantidad) {
+      this.reviewChanges.push({
+        field: 'Cantidad',
+        before: orig.cantidad.toString(),
+        after: form.cantidad.toString()
+      });
+    }
+    if (new Date(form.fecha_fin).getTime() !== new Date(orig.fecha_fin).getTime()) {
+      this.reviewChanges.push({
+        field: 'Fecha fin',
+        before: this.datePipe.transform(orig.fecha_fin, 'shortDate')!,
+        after: this.datePipe.transform(form.fecha_fin, 'shortDate')!
+      });
+    }
+
+    // Solo avanzamos si hay cambios
+    if (this.reviewChanges.length) {
+      this.showEditBudgetOverlay   = false;
+      this.showReviewBudgetOverlay = true;
+    } else {
+    }
+  }
+
+  // Cancelar edición
+  cancelEditBudget() {
+    this.showEditBudgetOverlay = false;
+    this.editBudgetForm.reset();
+    this.budgetToEditOverlay = undefined;
+  }
+
+  // Volver al primer overlay desde revisión
+  backToEditBudget() {
+    this.showReviewBudgetOverlay = false;
+    this.showEditBudgetOverlay   = true;
+  }
+
+  // Confirmar revisión y hacer PATCH/PUT
+  confirmReviewBudget() {
+    const form = this.editBudgetForm.value;
+    this.budgetSvc.update(form.id_presupuesto, {
+      nombre: form.nombre,
+      descripcion: form.descripcion,
+      cantidad: form.cantidad,
+      fecha_fin: form.fecha_fin
+    }).subscribe(() => {
+      // recargamos presupuestos y cerramos todo
+      this.budgets$ = this.budgetSvc.getByGroup(this.groupId);
+      this.showReviewBudgetOverlay = false;
+      this.budgetToEditOverlay = undefined;
+      this.editBudgetForm.reset();
+    });
   }
 
   /* === PAGINACIÓN === */

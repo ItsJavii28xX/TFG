@@ -22,11 +22,17 @@
   width: 40px;
   height: 40px;
   margin-right: 0.5rem;
+  cursor: pointer !important;
 }
 .logo-title {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
+  cursor: pointer !important;
+}
+
+.logo-container:hover {
+  color: green;
 }
 
 /* Nav links y botones */

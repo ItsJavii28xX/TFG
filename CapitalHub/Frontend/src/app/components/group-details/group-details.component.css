@@ -198,4 +198,72 @@ mat-list-item:hover {
   justify-content: flex-end;
 }
 
-/* ¡Mantén el resto de tu CSS “impactante” intacto! */
+.overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Tarjeta de confirmación */
+.confirm-card {
+  width: 400px;
+  max-height: 80vh;
+  overflow: auto;
+  border-radius: 8px;
+}
+
+/* Ajustes opcionales */
+mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: darkgrey;
+}
+mat-card-content p {
+  margin: 0 0 0.5rem;
+  color: grey
+}
+
+.not-admin-msg {
+  color: rgba(255, 0, 0, 0.8);
+  font-style: italic;
+  margin-left: 1rem;
+  font-size: small;
+}
+
+.overlay-2 {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay-card-2 {
+  width: 450px;
+  max-height: 85vh;
+  overflow: auto;
+}
+
+.full-width {
+  width: 100%;
+}
+
+mat-list-item .before {
+  text-decoration: line-through;
+  margin: 0 0.5rem;
+  opacity: 0.7;
+}
+mat-list-item .after {
+  font-weight: bold;
+}
+
+.cdk-overlay-pane.above-overlay-panel {
+  z-index: 4000 !important;
+}
