@@ -138,6 +138,8 @@ router.post('/grupos/:idGrupo/presupuestos', auth, presupuestoController.crearPr
  */
 router.put('/presupuestos/:id', auth, presupuestoController.actualizarPresupuesto);
 
+router.delete('/presupuestos/:id/borrarCascada', auth, presupuestoController.eliminarPresupuestosEnCascada);
+
 /**
  * @swagger
  * /presupuestos/{id}:
@@ -160,5 +162,7 @@ router.put('/presupuestos/:id', auth, presupuestoController.actualizarPresupuest
  *         description: Presupuesto no encontrado
  */
 router.delete('/presupuestos/:id', auth, presupuestoController.eliminarPresupuesto);
+
+
 
 module.exports = router;

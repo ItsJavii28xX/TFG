@@ -24,3 +24,11 @@ html, body {
   display: block;
   height: 100%;
 }
+
+.cdk-overlay-pane {
+  z-index: 3000 !important;
+}
+
+.cdk-overlay-container {
+  z-index: 4000 !important;
+}

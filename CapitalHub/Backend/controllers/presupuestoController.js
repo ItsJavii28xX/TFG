@@ -1,4 +1,5 @@
-const { Presupuesto, Grupo } = require('../models');
+const { Presupuesto, Grupo, Gasto } = require('../models');
+const sequelize        = require('../config/database');
 
 exports.obtenerPresupuestosDeGrupo = async (req, res) => {
   try {
@@ -58,5 +59,33 @@ exports.eliminarPresupuesto = async (req, res) => {
     res.json({ mensaje: 'Presupuesto eliminado correctamente' });
   } catch (error) {
     res.status(500).json({ error: 'Error al eliminar el presupuesto' });
+  }
+};
+
+exports.eliminarPresupuestosEnCascada = async (req, res) => {
+  const id = Number(req.params.id);
+  const t = await sequelize.transaction();
+  try {
+    // 1) Borrar todos los gastos vinculados a esos presupuestos
+    await Gasto.destroy({
+      where: { id_presupuesto: id },
+      transaction: t
+    });
+
+    // 2) Borrar los propios presupuestos
+    const deleted = await Presupuesto.destroy({
+      where: { id_presupuesto: id },
+      transaction: t
+    });
+
+    await t.commit();
+    if (deleted === 0) {
+      return res.status(404).json({ mensaje: 'No se encontraron presupuestos para eliminar' });
+    }
+    res.json({ mensaje: 'Presupuestos y sus gastos eliminados correctamente' });
+  } catch (error) {
+    await t.rollback();
+    console.error('Error al eliminar presupuestos en cascada:', error);
+    res.status(500).json({ error: 'No se pudo eliminar los presupuestos' });
   }
 };

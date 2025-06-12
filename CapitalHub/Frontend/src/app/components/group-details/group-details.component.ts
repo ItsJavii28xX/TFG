@@ -7,8 +7,8 @@ import { Contact, ContactService, Usuario } from '../../services/contact.service
 import { BudgetService, Budget }   from '../../services/budget.service';
 import { GastoService, Gasto }     from '../../services/gasto.service';
 
-import { Observable, BehaviorSubject, combineLatest, of } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { Observable, BehaviorSubject, combineLatest, of, Subject, forkJoin } from 'rxjs';
+import { map, startWith, switchMap, take, tap } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { MatFormFieldModule, MatLabel } from '@angular/material/form-field';
 import { MatButton } from '@angular/material/button';
@@ -49,7 +49,9 @@ import { MembersSelectComponent, MembersSelection } from '../members-select/memb
 })
 export class GroupDetailsComponent implements OnInit {
   groupId!: number;
+  private reloadGroup$ = new Subject<void>();
   group$!: Observable<Grupo>;
+
 
   isAdmin!: boolean;
 
@@ -91,6 +93,14 @@ export class GroupDetailsComponent implements OnInit {
   // Para tener la lista de budgets en memoria rápida
   budgetsSnapshot: Budget[] = [];
 
+  // PARA EL OVERLAY DE EDICIÓN UNO-A-UNO
+  activeBudgets: Budget[] = [];
+  budgetIndex   = 0;
+  totalBudgets  = 0;
+
+  expiredBudgets: Budget[] = [];
+  budgetView: 'active' | 'expired' = 'active';
+
   // FLAGS de UI
   showAddMemberForm    = false;
   deleteMemberMode     = false;
@@ -125,7 +135,13 @@ export class GroupDetailsComponent implements OnInit {
   ngOnInit() {
     // ① ¡Primero! recupera el parámetro de ruta
     this.groupId = Number(this.route.snapshot.paramMap.get('id_grupo'));
-    this.group$ = this.groupSvc.buscarGrupoPorId(this.groupId);
+
+    this.group$ = this.reloadGroup$.pipe(
+      startWith(void 0),          // dispara la primera carga
+      switchMap(() =>
+        this.groupSvc.buscarGrupoPorId(this.groupId)
+      )
+    );
 
     const userId = this.authSvc.getUserId()!;
     if (userId != null) {
@@ -140,18 +156,22 @@ export class GroupDetailsComponent implements OnInit {
 
     this.editBudgetForm = this.fb.group({
       id_presupuesto: [null],
-      presupuestoSeleccionado: [null, Validators.required], // dropdown
       nombre: ['', Validators.required],
       descripcion: [''],
       cantidad: [0, [Validators.required, Validators.min(0.01)]],
       fecha_fin: [null, Validators.required]
     });
 
-     // ③ presupuestos y snapshot
-    this.budgets$ = this.budgetSvc.getByGroup(this.groupId);
-    this.budgets$
+    // ① Carga todos y filtra activos
+    const today = new Date();
+    this.budgetSvc.getByGroup(this.groupId)
       .pipe(take(1))
-      .subscribe(b => this.budgetsSnapshot = b);
+      .subscribe(all => {
+        this.activeBudgets  = all.filter(b => new Date(b.fecha_fin) > today);
+        this.expiredBudgets = all.filter(b => new Date(b.fecha_fin) <= today);
+
+        this.totalBudgets = this.activeBudgets.length;
+      });
 
     this.gastos$  = this.gastoSvc.getByGroup(this.groupId);
 
@@ -175,7 +195,9 @@ export class GroupDetailsComponent implements OnInit {
     this.allContacts$ = this.contactSvc.getAllContacts(this.authSvc.getCurrentUser().id_usuario);
 
     // 3) presupuestos y gastos
-    this.budgets$ = this.budgetSvc.getByGroup(this.groupId);
+    this.budgets$ = this.budgetSvc.getByGroup(this.groupId).pipe(
+      tap(all => this.splitBudgets(all))
+    );
     this.gastos$  = this.gastoSvc.getByGroup(this.groupId);
 
     // 4) formularios
@@ -184,6 +206,16 @@ export class GroupDetailsComponent implements OnInit {
     this.updateBudgetForm = this.fb.group({ id_presupuesto: [null], nombre: [''], cantidad: [0], fecha_inicio: [null], fecha_fin: [null] });
     this.addExpenseForm   = this.fb.group({ descripcion: [''], cantidad: [0] });
     this.updateExpenseForm= this.fb.group({ id_gasto: [null], descripcion: [''], cantidad: [0] });
+  }
+
+  private splitBudgets(all: Budget[]) {
+    const today = new Date();
+    this.activeBudgets  = all.filter(b => new Date(b.fecha_fin) > today);
+    this.expiredBudgets = all.filter(b => new Date(b.fecha_fin) <= today);
+  }
+
+  setBudgetView(view: 'active' | 'expired') {
+    this.budgetView = view;
   }
 
   toggleSelectMember(u: Contact, checked: boolean) {
@@ -230,13 +262,17 @@ export class GroupDetailsComponent implements OnInit {
     });
   }
   confirmDeleteBudgets() {
-    Promise.all(
-      this.selectedBudgets.map(b =>
-        this.budgetSvc.delete(b.id_presupuesto).toPromise()
-      )
-    ).then(() => {
+    // 1) construimos un array de Observables deleteCascade(...)
+    const ops = this.selectedBudgets.map(b =>
+      this.budgetSvc.deleteCascade(b.id_presupuesto)
+    );
+    // 2) los ejecutamos en paralelo
+    forkJoin(ops).pipe(
+      switchMap(() => this.budgetSvc.getByGroup(this.groupId)),
+      tap(all => this.splitBudgets(all)),
+      take(1)
+    ).subscribe(() => {
       this.cancelDeleteBudgets();
-      this.budgets$ = this.budgetSvc.getByGroup(this.groupId);
     });
   }
   confirmDeleteExpenses() {
@@ -246,6 +282,7 @@ export class GroupDetailsComponent implements OnInit {
       )
     ).then(() => {
       this.cancelDeleteExpenses();
+      this.reloadGroup$.next();
       this.gastos$ = this.gastoSvc.getByGroup(this.groupId);
     });
   }
@@ -258,16 +295,37 @@ export class GroupDetailsComponent implements OnInit {
 
   // －－－－－ Apertura del primer overlay －－－－－
   openEditBudgetOverlay() {
-    this.budgets$.pipe(take(1)).subscribe(budgets => {
-      // Precarga la lista de presupuestos en el FormControl 'presupuestoSeleccionado'
-      if (budgets && budgets.length > 0) {
-        this.editBudgetForm
-        .get('presupuestoSeleccionado')
-        ?.setValue(budgets[0].id_presupuesto);
-      } else {
-        this.editBudgetForm.get('presupuestoSeleccionado')?.reset();
-      }
-      this.showEditBudgetOverlay = true;
+    if (!this.activeBudgets.length) {
+      console.warn('No hay presupuestos activos para editar.');
+      return;
+    }
+    this.budgetIndex = 0;
+    this.loadBudgetIntoForm();
+    this.showEditBudgetOverlay = true;
+  }
+
+  prevBudgetOverlay() {
+    if (this.budgetIndex > 0) {
+      this.budgetIndex--;
+      this.loadBudgetIntoForm();
+    }
+  }
+  nextBudgetOverlay() {
+    if (this.budgetIndex + 1 < this.totalBudgets) {
+      this.budgetIndex++;
+      this.loadBudgetIntoForm();
+    }
+  }
+
+  private loadBudgetIntoForm() {
+    const b = this.activeBudgets[this.budgetIndex];
+    this.budgetToEditOverlay = b;
+    this.editBudgetForm.patchValue({
+      id_presupuesto: b.id_presupuesto,
+      nombre: b.nombre,
+      descripcion: b.descripcion ?? '',
+      cantidad: b.cantidad,
+      fecha_fin: b.fecha_fin
     });
   }
 
@@ -352,11 +410,14 @@ export class GroupDetailsComponent implements OnInit {
       descripcion: form.descripcion,
       cantidad: form.cantidad,
       fecha_fin: form.fecha_fin
-    }).subscribe(() => {
-      // recargamos presupuestos y cerramos todo
-      this.budgets$ = this.budgetSvc.getByGroup(this.groupId);
+    }).pipe(
+      // Una vez termine el update, volvemos a cargar la lista
+      switchMap(() => this.budgetSvc.getByGroup(this.groupId)),
+      take(1)
+    ).subscribe(all => {
+      // repartimos activos / caducados y cerramos overlays
+      this.splitBudgets(all);
       this.showReviewBudgetOverlay = false;
-      this.budgetToEditOverlay = undefined;
       this.editBudgetForm.reset();
     });
   }
@@ -431,13 +492,16 @@ export class GroupDetailsComponent implements OnInit {
 
   submitAddBudget() {
     const b = this.addBudgetForm.value;
-    this.budgetSvc.create(this.groupId, b ).subscribe(() => {
+    this.budgetSvc.create(this.groupId, b).pipe(
+      switchMap(() => this.budgetSvc.getByGroup(this.groupId)),
+      tap(all => this.splitBudgets(all)),
+      take(1)
+    ).subscribe(() => {
       this.toggleAddBudgetForm();
-      this.budgets$ = this.budgetSvc.getByGroup(this.groupId);
     });
   }
   submitDeleteBudget(b: Budget) {
-    this.budgetSvc.delete(b.id_presupuesto).subscribe(() => {
+    this.budgetSvc.deleteCascade(b.id_presupuesto).subscribe(() => {
       this.budgets$ = this.budgetSvc.getByGroup(this.groupId);
     });
   }
@@ -467,6 +531,10 @@ export class GroupDetailsComponent implements OnInit {
       this.toggleUpdateExpenseMode();
       this.gastos$ = this.gastoSvc.getByGroup(this.groupId);
     });
+  }
+
+  private loadGroup() {
+    this.group$ = this.groupSvc.buscarGrupoPorId(this.groupId);
   }
 
   goToProfile(u: Usuario) {

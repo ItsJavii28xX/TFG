@@ -264,6 +264,38 @@ mat-list-item .after {
   font-weight: bold;
 }
 
-.cdk-overlay-pane.above-overlay-panel {
-  z-index: 4000 !important;
+.budget-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  color: #fff;
 }
+
+.overlay-2 .full-width {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.fecha {
+  display: flex !important;
+  z-index: 50000000000000000000000000000000000000 !important;
+}
+
+.add-budget-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 1110 !important;
+}
+
+/* .delete-actions {
+    position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+} */

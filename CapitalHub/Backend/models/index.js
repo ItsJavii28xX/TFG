@@ -59,6 +59,8 @@ Grupo.hasMany(Historico, { foreignKey: 'id_grupo' });
 Usuario.hasMany(Historico, { foreignKey: 'id_usuario' });
 Historico.belongsTo(Grupo, { foreignKey: 'id_grupo' });
 Historico.belongsTo(Usuario, { foreignKey: 'id_usuario' });
+Gasto.hasMany(Historico,    { foreignKey: 'id_gasto' });
+Historico.belongsTo(Gasto,  { foreignKey: 'id_gasto' });
 
 module.exports = {
   sequelize,

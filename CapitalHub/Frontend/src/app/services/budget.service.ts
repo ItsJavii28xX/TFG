@@ -48,6 +48,10 @@ export class BudgetService {
     );
   }
 
+  deleteCascade(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/presupuestos/${id}/borrarCascada`);
+  }
+
   /** PUT /presupuestos/:id */
   update(id: number, data: Partial<Budget>): Observable<Budget> {
     return this.http.put<Budget>(

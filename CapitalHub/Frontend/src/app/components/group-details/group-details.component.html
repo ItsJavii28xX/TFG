@@ -61,25 +61,35 @@
     <!-- Presupuestos -->
     <section class="budgets">
       <h2>💰 Presupuestos</h2>
-      <mat-list *ngIf="(budgets$ | async) as budgets; else noBudgets">
-        <mat-list-item *ngFor="let b of budgets">
+
+  <!-- PESTAÑAS Activos / Caducados -->
+      <div class="budget-tabs">
+        <button mat-button
+                [color]="budgetView==='active' ? 'primary' : undefined"
+                (click)="setBudgetView('active')">
+          Activos ({{ activeBudgets.length }})
+        </button>
+        <button mat-button
+                [color]="budgetView==='expired' ? 'primary' : undefined"
+                (click)="setBudgetView('expired')">
+          Caducados ({{ expiredBudgets.length }})
+        </button>
+      </div>
+
+      <!-- LISTA FILTRADA -->
+      <mat-list *ngIf="(budgetView==='active' ? activeBudgets : expiredBudgets)?.length; else noBudgets">
+        <mat-list-item *ngFor="let b of budgetView==='active' ? activeBudgets : expiredBudgets">
           <mat-checkbox
             *ngIf="deleteBudgetMode"
-            (change)="toggleSelectBudget(b, $event.checked)"
-            aria-label="Marcar presupuesto">
+            (change)="toggleSelectBudget(b, $event.checked)">
           </mat-checkbox>
 
-          <!-- Botón de editar presupuesto -->
-          <button
-            mat-icon-button
-            *ngIf="updateBudgetMode"
-            (click)="toggleUpdateBudgetMode(b)"
-            aria-label="Editar presupuesto"
-          >
+          <button mat-icon-button
+                  *ngIf="updateBudgetMode"
+                  (click)="toggleUpdateBudgetMode(b)">
             <mat-icon>edit</mat-icon>
           </button>
 
-          <!-- Datos del presupuesto -->
           <div matLine>
             <strong>{{ b.nombre }}</strong>
             {{ b.fecha_inicio | date:'shortDate' }} – {{ b.fecha_fin | date:'shortDate' }}
@@ -88,51 +98,53 @@
         </mat-list-item>
       </mat-list>
 
-      <div *ngIf="deleteBudgetMode && selectedBudgets.length">
+      <ng-template #noBudgets>
+        <p class="no-budget">No hay presupuestos {{ budgetView==='active' ? 'activos' : 'caducados' }}</p>
+      </ng-template>
+
+      <div *ngIf="deleteBudgetMode && selectedBudgets.length" class="delete-actions">
         <button mat-button color="warn" (click)="openConfirmDeleteBudgets()">
           Eliminar {{ selectedBudgets.length }} presupuesto(s)
         </button>
         <button mat-button (click)="cancelDeleteBudgets()">Cancelar</button>
       </div>
 
-      <ng-template #noBudgets>
-        <p class="no-budget">No hay presupuestos</p>
-      </ng-template>
-
       <!-- Formulario Añadir Presupuesto -->
-      <form
-        *ngIf="showAddBudgetForm"
-        [formGroup]="addBudgetForm"
-        class="inline-form"
-        (ngSubmit)="submitAddBudget()"
-      >
-        <mat-form-field appearance="fill">
-          <mat-label>Nombre</mat-label>
-          <input matInput formControlName="nombre" required />
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Cantidad</mat-label>
-          <input matInput type="number" formControlName="cantidad" required />
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Fecha Inicio</mat-label>
-          <input matInput [matDatepicker]="bi" formControlName="fechaInicio" required />
-          <mat-datepicker-toggle matSuffix [for]="bi"></mat-datepicker-toggle>
-          <mat-datepicker #bi></mat-datepicker>
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Fecha Fin</mat-label>
-          <input matInput [matDatepicker]="bf" formControlName="fechaFin" required />
-          <mat-datepicker-toggle matSuffix [for]="bf"></mat-datepicker-toggle>
-          <mat-datepicker #bf></mat-datepicker>
-        </mat-form-field>
-        <div class="form-buttons">
-          <button mat-raised-button color="primary" type="submit" [disabled]="addBudgetForm.invalid">
-            Añadir
-          </button>
-          <button mat-button type="button" (click)="toggleAddBudgetForm()">Cancelar</button>
-        </div>
-      </form>
+       <div class="add-budget-container">
+        <form
+          *ngIf="showAddBudgetForm"
+          [formGroup]="addBudgetForm"
+          class="inline-form"
+          (ngSubmit)="submitAddBudget()"
+        >
+          <mat-form-field appearance="fill">
+            <mat-label>Nombre</mat-label>
+            <input matInput formControlName="nombre" required />
+          </mat-form-field>
+          <mat-form-field appearance="fill">
+            <mat-label>Cantidad</mat-label>
+            <input matInput type="number" formControlName="cantidad" required />
+          </mat-form-field>
+          <mat-form-field appearance="fill">
+            <mat-label>Fecha Inicio</mat-label>
+            <input matInput [matDatepicker]="bi" formControlName="fechaInicio" required />
+            <mat-datepicker-toggle matSuffix [for]="bi"></mat-datepicker-toggle>
+            <mat-datepicker #bi></mat-datepicker>
+          </mat-form-field>
+          <mat-form-field appearance="fill">
+            <mat-label>Fecha Fin</mat-label>
+            <input matInput [matDatepicker]="bf" formControlName="fechaFin" required />
+            <mat-datepicker-toggle matSuffix [for]="bf"></mat-datepicker-toggle>
+            <mat-datepicker #bf></mat-datepicker>
+          </mat-form-field>
+          <div class="form-buttons">
+            <button mat-raised-button color="primary" type="submit" [disabled]="addBudgetForm.invalid">
+              Añadir
+            </button>
+            <button mat-button type="button" (click)="toggleAddBudgetForm()">Cancelar</button>
+          </div>
+        </form>
+      </div>
 
       <!-- Formulario Editar Presupuesto -->
       <form
@@ -331,7 +343,7 @@
   </mat-nav-list>
 </div>
 
-<!-- ① Overlay de Edición -->
+<!-- ① Overlay de Edición UNO-A-UNO -->
 <div class="overlay-2" *ngIf="showEditBudgetOverlay">
   <mat-card class="overlay-card-2">
     <mat-card-header>
@@ -339,47 +351,43 @@
     </mat-card-header>
 
     <mat-card-content [formGroup]="editBudgetForm">
-      <!-- Selector del presupuesto -->
-      <mat-form-field appearance="fill" class="full-width">
-        <mat-label>Selecciona presupuesto</mat-label>
-        <mat-select
-          panelClass="above-overlay-panel"
-          formControlName="presupuestoSeleccionado"
-          (selectionChange)="onBudgetSelected($event.value)"
-        >
-          <mat-option *ngFor="let b of budgetsSnapshot" [value]="b.id_presupuesto">
-            {{ b.nombre }} ({{ b.fecha_inicio | date:'shortDate' }} – {{ b.fecha_fin | date:'shortDate' }})
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
+      <!-- PAGINADOR UNO-A-UNO -->
+      <div class="budget-pager">
+        <button mat-icon-button (click)="prevBudgetOverlay()" [disabled]="budgetIndex===0">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <span>{{ budgetIndex+1 }} / {{ totalBudgets }}</span>
+        <button mat-icon-button (click)="nextBudgetOverlay()" [disabled]="budgetIndex+1>=totalBudgets">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
 
-      <!-- Si ya elegiste uno, muestra campos -->
-      <ng-container *ngIf="budgetToEditOverlay">
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label>Nombre</mat-label>
-          <input matInput formControlName="nombre">
-        </mat-form-field>
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label>Descripción</mat-label>
-          <textarea matInput formControlName="descripcion"></textarea>
-        </mat-form-field>
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label>Cantidad</mat-label>
-          <input matInput type="number" formControlName="cantidad">
-        </mat-form-field>
-        <mat-form-field appearance="fill" class="full-width">
-          <mat-label>Fecha Fin</mat-label>
-          <input matInput [matDatepicker]="editFin" formControlName="fecha_fin">
-          <mat-datepicker-toggle matSuffix [for]="editFin"></mat-datepicker-toggle>
-          <mat-datepicker #editFin></mat-datepicker>
-        </mat-form-field>
-      </ng-container>
+      <!-- FORMULARIO EDITAR CAMPOS -->
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="nombre" />
+      </mat-form-field>
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Descripción</mat-label>
+        <textarea matInput formControlName="descripcion"></textarea>
+      </mat-form-field>
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Cantidad</mat-label>
+        <input matInput type="number" formControlName="cantidad" />
+      </mat-form-field>
+      <mat-form-field appearance="fill" class="full-width fecha">
+        <mat-label>Fecha Fin</mat-label>
+        <input matInput [matDatepicker]="editFin" formControlName="fecha_fin" />
+        <mat-datepicker-toggle matSuffix [for]="editFin" style="z-index: 10000;"></mat-datepicker-toggle>
+        <mat-datepicker #editFin></mat-datepicker>
+      </mat-form-field>
     </mat-card-content>
 
     <mat-card-actions align="end">
       <button mat-button (click)="cancelEditBudget()">Cancelar</button>
-      <button mat-raised-button color="primary" (click)="goToReviewBudget()"
-              [disabled]="!budgetToEditOverlay || editBudgetForm.invalid">
+      <button mat-raised-button color="primary"
+              (click)="goToReviewBudget()"
+              [disabled]="editBudgetForm.invalid">
         Siguiente
       </button>
     </mat-card-actions>
