@@ -62,6 +62,14 @@ export class GroupDetailsComponent implements OnInit {
   totalPages = 1;
   members$!: Observable<Contact[]>;
 
+  acceptedExpenses: Gasto[] = [];
+  pendingExpenses:  Gasto[] = [];
+  deniedExpenses:   Gasto[] = [];
+
+  pageIndex = { accepted: 0, pending: 0, denied: 0 };
+  totalPagesExpenses = { accepted: 1, pending: 1, denied: 1 };
+  readonly pageSizeExpenses = 3;
+
   // STREAMS
   budgets$!: Observable<Budget[]>;
   gastos$!: Observable<Gasto[]>;
@@ -100,6 +108,9 @@ export class GroupDetailsComponent implements OnInit {
 
   expiredBudgets: Budget[] = [];
   budgetView: 'active' | 'expired' = 'active';
+  
+  showAddExpenseOverlay = false;
+  addExpenseOverlayForm!: FormGroup;
 
   // FLAGS de UI
   showAddMemberForm    = false;
@@ -137,10 +148,30 @@ export class GroupDetailsComponent implements OnInit {
     this.groupId = Number(this.route.snapshot.paramMap.get('id_grupo'));
 
     this.group$ = this.reloadGroup$.pipe(
-      startWith(void 0),          // dispara la primera carga
-      switchMap(() =>
-        this.groupSvc.buscarGrupoPorId(this.groupId)
-      )
+      startWith(void 0),
+      switchMap(() => this.groupSvc.buscarGrupoPorId(this.groupId))
+    );
+
+    this.reloadGroup$.pipe(
+      startWith(void 0),
+      switchMap(() => this.gastoSvc.getByGroup(this.groupId)),
+      tap(all => this.splitExpenses(all))
+    ).subscribe();
+
+    // ② Carga budgets (y pártelos)
+    this.budgets$ = this.reloadGroup$.pipe(
+      startWith(void 0),
+      switchMap(() => this.budgetSvc.getByGroup(this.groupId)),
+      tap(all => {
+        this.splitBudgets(all);
+        this.budgetsSnapshot = all;
+      })
+    );
+
+    // ③ Carga gastos
+    this.gastos$ = this.reloadGroup$.pipe(
+      startWith(void 0),
+      switchMap(() => this.gastoSvc.getByGroup(this.groupId))
     );
 
     const userId = this.authSvc.getUserId()!;
@@ -171,6 +202,7 @@ export class GroupDetailsComponent implements OnInit {
         this.expiredBudgets = all.filter(b => new Date(b.fecha_fin) <= today);
 
         this.totalBudgets = this.activeBudgets.length;
+        this.budgetsSnapshot = all;
       });
 
     this.gastos$  = this.gastoSvc.getByGroup(this.groupId);
@@ -199,6 +231,7 @@ export class GroupDetailsComponent implements OnInit {
       tap(all => this.splitBudgets(all))
     );
     this.gastos$  = this.gastoSvc.getByGroup(this.groupId);
+    this.initAddExpenseForm();
 
     // 4) formularios
     this.addMemberForm    = this.fb.group({ id_usuario_contacto: [null] });
@@ -208,10 +241,71 @@ export class GroupDetailsComponent implements OnInit {
     this.updateExpenseForm= this.fb.group({ id_gasto: [null], descripcion: [''], cantidad: [0] });
   }
 
+  private initAddExpenseForm() {
+    this.addExpenseOverlayForm = this.fb.group({
+      id_presupuesto: [null, Validators.required],
+      nombre: ['', Validators.required],
+      cantidad: [0, [Validators.required, Validators.min(0.01)]],
+      descripcion: ['']
+    });
+  }
+
   private splitBudgets(all: Budget[]) {
     const today = new Date();
     this.activeBudgets  = all.filter(b => new Date(b.fecha_fin) > today);
     this.expiredBudgets = all.filter(b => new Date(b.fecha_fin) <= today);
+  }
+
+  private splitExpenses(all: Gasto[]) {
+    this.acceptedExpenses = all.filter(g => g.estado === 'aceptado');
+    this.pendingExpenses  = all.filter(g => g.estado === 'pendiente');
+    this.deniedExpenses   = all.filter(g => g.estado === 'denegado');
+
+    this.totalPagesExpenses.accepted = Math.max(1, Math.ceil(this.acceptedExpenses.length / this.pageSizeExpenses));
+    this.totalPagesExpenses.pending  = Math.max(1, Math.ceil(this.pendingExpenses.length  / this.pageSizeExpenses));
+    this.totalPagesExpenses.denied   = Math.max(1, Math.ceil(this.deniedExpenses.length   / this.pageSizeExpenses));
+
+    // Ajusta índices fuera de rango:
+    (['accepted','pending','denied'] as const).forEach(section => {
+      if (this.pageIndex[section] >= this.totalPagesExpenses[section]) {
+        this.pageIndex[section] = this.totalPagesExpenses[section] - 1;
+      }
+    });
+  }
+
+  get acceptedPage() {
+    const start = this.pageIndex.accepted * this.pageSize;
+    return this.acceptedExpenses.slice(start, start + this.pageSize);
+  }
+  get pendingPage() {
+    const start = this.pageIndex.pending * this.pageSize;
+    return this.pendingExpenses.slice(start, start + this.pageSize);
+  }
+  get deniedPage() {
+    const start = this.pageIndex.denied * this.pageSize;
+    return this.deniedExpenses.slice(start, start + this.pageSize);
+  }
+
+  prevPageExpenses(section: 'accepted'|'pending'|'denied') {
+    if (this.pageIndex[section] > 0) this.pageIndex[section]--;
+  }
+  nextPageExpenses(section: 'accepted'|'pending'|'denied') {
+    if (this.pageIndex[section] + 1 < this.totalPagesExpenses[section]) this.pageIndex[section]++;
+  }
+
+  approve(g: Gasto) {
+    this.gastoSvc.update(g.id_gasto, { estado: 'aceptado' })
+      .pipe(
+        switchMap(() => this.gastoSvc.getByGroup(this.groupId))
+      )
+      .subscribe(all => this.splitExpenses(all));
+  }
+  deny(g: Gasto) {
+    this.gastoSvc.update(g.id_gasto, { estado: 'denegado' })
+      .pipe(
+        switchMap(() => this.gastoSvc.getByGroup(this.groupId))
+      )
+      .subscribe(all => this.splitExpenses(all));
   }
 
   setBudgetView(view: 'active' | 'expired') {
@@ -273,6 +367,7 @@ export class GroupDetailsComponent implements OnInit {
       take(1)
     ).subscribe(() => {
       this.cancelDeleteBudgets();
+      this.reloadGroup$.next();
     });
   }
   confirmDeleteExpenses() {
@@ -419,6 +514,7 @@ export class GroupDetailsComponent implements OnInit {
       this.splitBudgets(all);
       this.showReviewBudgetOverlay = false;
       this.editBudgetForm.reset();
+      this.reloadGroup$.next();
     });
   }
 
@@ -445,6 +541,47 @@ export class GroupDetailsComponent implements OnInit {
         fecha_fin: b.fecha_fin
       });
     }
+  }
+
+  /** Cancela sin guardar */
+  cancelAddExpense() {
+    this.showAddExpenseOverlay = false;
+  }
+
+  confirmAddExpense() {
+    const form = this.addExpenseOverlayForm.value;
+    const isAdmin = this.isAdmin; // ya lo tienes
+    const nuevo = {
+      nombre: form.nombre,
+      cantidad: form.cantidad,
+      descripcion: form.descripcion,
+      estado: isAdmin ? 'Aceptado' : 'Pendiente',
+      fecha_creacion: new Date(),
+      id_grupo: this.groupId,
+      id_presupuesto: form.id_presupuesto,
+      id_usuario: this.authSvc.getUserId()!
+    };
+
+    this.gastoSvc.create(nuevo).pipe(
+      // tras crear, recarga gastos
+      switchMap(() => this.gastoSvc.getByGroup(this.groupId)),
+      tap(g => this.gastos$ = this.gastoSvc.getByGroup(this.groupId)),
+      take(1)
+    ).subscribe(() => {
+      this.showAddExpenseOverlay = false;
+      this.reloadGroup$.next();
+    });
+  }
+
+  /** Abre el overlay */
+  toggleAddExpenseOverlay() {
+    this.showAddExpenseOverlay = true;
+    this.addExpenseOverlayForm.reset({
+      id_presupuesto: null,
+      nombre: '',
+      cantidad: 0,
+      descripcion: ''
+    });
   }
 
   toggleAddExpenseForm()   { this.showAddExpenseForm   = !this.showAddExpenseForm;   }
@@ -531,6 +668,18 @@ export class GroupDetailsComponent implements OnInit {
       this.toggleUpdateExpenseMode();
       this.gastos$ = this.gastoSvc.getByGroup(this.groupId);
     });
+  }
+
+  getBudgetNameById(id: number): string {
+    const b = this.budgetsSnapshot.find(x => x.id_presupuesto === id);
+    return b ? b.nombre : 'Presupuesto no encontrado';
+  }
+
+  // devuelve un Observable<string> y en el template lo consumirás con | async
+  getUserNameById(id: number): Observable<string> {
+    return this.authSvc.getUserById(id).pipe(
+      map(u => u ? `${u.nombre} ${u.apellidos}` : 'Usuario no encontrado')
+    );
   }
 
   private loadGroup() {

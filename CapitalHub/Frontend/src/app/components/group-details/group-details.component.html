@@ -185,40 +185,131 @@
     <!-- Gastos -->
     <section class="expenses">
       <h2>💸 Gastos</h2>
-      <mat-list *ngIf="(gastos$ | async) as gastos; else noExpenses">
-        <mat-list-item *ngFor="let g of gastos">
-          <!-- Checkbox de borrar gasto -->
-          <mat-checkbox
-            *ngIf="deleteExpenseMode"
-            (change)="toggleSelectExpense(g, $event.checked)"
-            aria-label="Marcar gasto">
-          </mat-checkbox>
-          <!-- Botón de editar gasto -->
-          <button
-            mat-icon-button
-            *ngIf="updateExpenseMode"
-            (click)="toggleUpdateExpenseMode(g)"
-            aria-label="Editar gasto"
-          >
-            <mat-icon>edit</mat-icon>
+    <!-- ====================== ACEPTADOS ====================== -->
+      <div class="expense-block">
+        <h3>Aceptados ({{ acceptedExpenses.length }})</h3>
+        <div class="pager">
+          <button mat-icon-button (click)="prevPageExpenses('accepted')" [disabled]="pageIndex.accepted===0">
+            <mat-icon>chevron_left</mat-icon>
           </button>
-
-          <!-- Datos del gasto -->
-          <div matLine>{{ g.descripcion }} – {{ g.cantidad | currency }}</div>
-          <div matLine class="expense-date">{{ g.fecha_creacion | date:'shortDate' }}</div>
-        </mat-list-item>
-      </mat-list>
-
-      <div *ngIf="deleteExpenseMode && selectedExpenses.length">
-        <button mat-button color="warn" (click)="openConfirmDeleteExpenses()">
-          Eliminar {{ selectedExpenses.length }} gasto(s)
-        </button>
-        <button mat-button (click)="cancelDeleteExpenses()">Cancelar</button>
+          <span>{{ pageIndex.accepted+1 }} / {{ totalPagesExpenses.accepted }}</span>
+          <button mat-icon-button (click)="nextPageExpenses('accepted')" [disabled]="pageIndex.accepted+1>=totalPagesExpenses.accepted">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+        <mat-list>
+          <mat-list-item *ngFor="let g of acceptedPage">
+            <div matLine>
+              {{ g.descripcion }} – {{ g.cantidad | currency }} – {{ getBudgetNameById(g.id_presupuesto) }}
+            </div>
+            <div matLine class="expense-date">{{ g.fecha_creacion | date:'shortDate' }}</div>
+          </mat-list-item>
+          <mat-list-item *ngIf="acceptedExpenses.length===0">No hay gastos aceptados</mat-list-item>
+        </mat-list>
       </div>
 
-      <ng-template #noExpenses>
-        <p class="no-expenses">No hay gastos registrados</p>
-      </ng-template>
+      <!-- ====================== PENDIENTES ====================== -->
+      <div class="expense-block">
+        <h3>Pendientes ({{ pendingExpenses.length }})</h3>
+        <ng-container *ngIf="isAdmin; else notAdminPending">
+          <div class="pager">
+            <button mat-icon-button (click)="prevPageExpenses('pending')" [disabled]="pageIndex.pending===0">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            <span>{{ pageIndex.pending+1 }} / {{ totalPagesExpenses.pending }}</span>
+            <button mat-icon-button (click)="nextPageExpenses('pending')" [disabled]="pageIndex.pending+1>=totalPagesExpenses.pending">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+          <mat-list>
+            <mat-list-item *ngFor="let g of pendingPage">
+              <div matLine>
+                {{ g.descripcion }} – {{ g.cantidad | currency }} – {{ getBudgetNameById(g.id_presupuesto) }}
+              </div>
+              <div matLine class="expense-date">{{ g.fecha_creacion | date:'shortDate' }}</div>
+              <button mat-mini-button color="primary" (click)="approve(g)">Aceptar</button>
+              <button mat-mini-button color="warn"    (click)="deny(g)">Denegar</button>
+            </mat-list-item>
+            <mat-list-item *ngIf="pendingExpenses.length===0">No hay gastos pendientes</mat-list-item>
+          </mat-list>
+        </ng-container>
+        <ng-template #notAdminPending>
+          <p class="not-admin-msg">Necesitas ser administrador para ver los pendientes</p>
+        </ng-template>
+      </div>
+
+      <!-- ====================== DENEGADOS ====================== -->
+      <div class="expense-block">
+        <h3>Denegados ({{ deniedExpenses.length }})</h3>
+        <div class="pager">
+          <button mat-icon-button (click)="prevPageExpenses('denied')" [disabled]="pageIndex.denied===0">
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+          <span>{{ pageIndex.denied+1 }} / {{ totalPagesExpenses.denied }}</span>
+          <button mat-icon-button (click)="nextPageExpenses('denied')" [disabled]="pageIndex.denied+1>=totalPagesExpenses.denied">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+        <mat-list>
+          <mat-list-item *ngFor="let g of deniedPage">
+            <div matLine>
+              {{ g.descripcion }} – {{ g.cantidad | currency }} – {{ getBudgetNameById(g.id_presupuesto) }}
+            </div>
+            <div matLine class="expense-date">{{ g.fecha_creacion | date:'shortDate' }}</div>
+          </mat-list-item>
+          <mat-list-item *ngIf="deniedExpenses.length===0">No hay gastos denegados</mat-list-item>
+        </mat-list>
+      </div>
+
+      <div class="overlay" *ngIf="showAddExpenseOverlay">
+        <mat-card class="add-expense-card">
+          <mat-card-header class="headerAddExpense">
+            <mat-card-title>Nuevo gasto</mat-card-title>
+            <button mat-icon-button (click)="cancelAddExpense()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-card-header>
+
+          <mat-card-content [formGroup]="addExpenseOverlayForm">
+            <!-- 1) Selección de presupuesto activo -->
+            <mat-form-field appearance="fill" class="full-width">
+              <mat-label>Presupuesto</mat-label>
+              <mat-select formControlName="id_presupuesto" required>
+                <mat-option *ngFor="let b of activeBudgets" [value]="b.id_presupuesto">
+                  {{ b.nombre }} ({{ b.cantidad | currency }})
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <!-- 2) Nombre -->
+            <mat-form-field appearance="fill" class="full-width">
+              <mat-label>Nombre</mat-label>
+              <input matInput formControlName="nombre" required />
+            </mat-form-field>
+
+            <!-- 3) Cantidad -->
+            <mat-form-field appearance="fill" class="full-width">
+              <mat-label>Cantidad</mat-label>
+              <input matInput type="number" formControlName="cantidad" required />
+            </mat-form-field>
+
+            <!-- 4) Descripción -->
+            <mat-form-field appearance="fill" class="full-width">
+              <mat-label>Descripción</mat-label>
+              <textarea matInput formControlName="descripcion"></textarea>
+            </mat-form-field>
+          </mat-card-content>
+
+          <mat-card-actions align="end">
+            <button mat-button (click)="cancelAddExpense()">Cancelar</button>
+            <button mat-raised-button color="primary"
+                    [disabled]="addExpenseOverlayForm.invalid"
+                    (click)="confirmAddExpense()">
+              Guardar
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
 
       <!-- Formulario Añadir Gasto -->
       <form
@@ -330,7 +421,7 @@
     <mat-list-item>
       <mat-icon matListIcon>shopping_cart</mat-icon>
       <h4 matLine>Gastos</h4>
-      <button mat-mini-fab color="primary" (click)="toggleAddExpenseForm()">
+      <button mat-mini-fab color="primary" (click)="toggleAddExpenseOverlay()">
         <mat-icon>add</mat-icon>
       </button>
       <button mat-mini-fab color="warn" (click)="toggleDeleteExpenseMode()">

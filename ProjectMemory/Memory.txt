@@ -32,6 +32,7 @@
 - Domingo 8 de junio: Arreglo en la revocación de los tokens de un usuario al resetear la contraseña. Arreglo en un endpoint del backend y ajustes pertinentes en el frontend. (5h)
 - Lunes 9 de junio: Cambiada la lógica de la web para hacer uso de router-outlet de Angular. Hecha la página de detalles de un grupo (7h)
 - Martes 10 de junio: Añadidas opciones de gestión en los detalles del grupo para miembros, presupuestos y gastos. Desarrollo de las primeras opciones (5h)
+- Jueves 12 de junio: Completadas todas las opciones de miembros. Completadas todas las opciones de presupuestos. Avance en opciones de grupo (9h)
+- Viernes 13 de junio: Mejoras de funcionamiento en la gestión de gastos, completado añadir gastos. Ahora desde la página principal se puede ver el intervalo de presupuestos gastado, con diferenciación de colores. Corrección de errores en otras opciones de gestión de grupos. (5h)
 
-
-TOTAL HASTA AHORA: 128-132h (130h)
+TOTAL HASTA AHORA: 145h

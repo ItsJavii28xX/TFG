@@ -10,11 +10,35 @@ exports.obtenerGastosDeGrupo = async (req, res) => {
 };
 
 exports.crearGasto = async (req, res) => {
+  const { idGrupo } = req.params;
+  const {
+    nombre,
+    descripcion,
+    cantidad,
+    estado,
+    id_presupuesto,
+    id_usuario
+  } = req.body;
+
   try {
-    const gasto = await Gasto.create({ id_grupo: req.params.idGrupo, ...req.body });
-    res.status(201).json(gasto);
+    const nuevoGasto = {
+      nombre,
+      descripcion,
+      cantidad,
+      estado,
+      id_grupo: parseInt(idGrupo, 10),
+      id_presupuesto: parseInt(id_presupuesto, 10),
+      id_usuario: parseInt(id_usuario, 10)
+    };
+
+    const gasto = await Gasto.create(nuevoGasto);
+    return res.status(201).json(gasto);
   } catch (error) {
-    res.status(500).json({ error: 'Error al crear gasto' });
+    console.error('Error al crear gasto:', error);
+    return res.status(500).json({
+      error: 'Error al crear gasto',
+      details: error.message
+    });
   }
 };
 

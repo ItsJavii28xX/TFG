@@ -299,3 +299,17 @@ mat-list-item .after {
   align-items: center;
   justify-content: center;
 } */
+
+.add-expense-card {
+  width: 400px;
+  max-width: 90%;
+  position: relative;
+  z-index: 10001;
+}
+
+.headerAddExpense {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}

@@ -6,6 +6,8 @@ import { environment } from '../../environments/environment';
 export interface Gasto {
   id_gasto       : number;
   id_grupo       : number;
+  id_presupuesto : number;
+  id_usuario     : number;
   nombre         : string;
   descripcion?   : string;
   estado         : string;

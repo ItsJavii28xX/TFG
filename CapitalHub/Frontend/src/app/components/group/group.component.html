@@ -15,32 +15,39 @@
   <p class="date">Creado: {{ group.fecha_creacion | date:'shortDate' }}</p>
 
   <div class="group-body">
-    <!-- Presupuesto -->
-    <div class="budget-container" *ngIf="activeBudget">
-      <span class="budget-name">{{ activeBudget.nombre }}</span>
-      <mat-progress-bar
-        mode="determinate"
-        [value]="activeBudget.porcentaje"
-        class="budget-bar">
-      </mat-progress-bar>
+    <!-- Presupuestos activos -->
+        <div class="budgets-container" *ngIf="activeBudgets.length; else noActive">
+      <ng-container *ngFor="let b of activeBudgets">
+        <div class="budget-line">
+          <span class="budget-name">{{ b.nombre }}</span>
+          <div class="multi-progress-bar">
+            <div class="approved-segment" [style.width.%]="b.approvedPct"></div>
+            <div class="pending-segment"  [style.width.%]="b.pendingPct"></div>
+          </div>
+        </div>
+      </ng-container>
     </div>
 
+    <ng-template #noActive>
+      <p class="no-active">No hay presupuestos activos</p>
+    </ng-template>
+
     <!-- Miembros -->
-   <div class="members-container" *ngIf="members?.length">
+    <div class="members-container" *ngIf="members?.length">
       <ng-container *ngFor="let m of membersToShow">
         <a [routerLink]="['/perfil', m.id_usuario]" class="member-link">
           <img
             [src]="m.imagen_perfil || 'avatar-placeholder.png'"
             matTooltip="{{m.nombre}}"
             class="avatar">
-          <span class="member-name"> {{ m.nombre }} {{ m.apellidos }}</span>
+          <span class="member-name">{{ m.nombre }} {{ m.apellidos }}</span>
         </a>
       </ng-container>
       <span *ngIf="extraCount>0" class="more">+{{ extraCount }}</span>
     </div>
   </div>
 
-   <div class="actions">
+  <div class="actions">
     <button
       mat-stroked-button
       color="accent"
@@ -51,5 +58,4 @@
       Detalles
     </button>
   </div>
-
 </mat-card>
