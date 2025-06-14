@@ -34,5 +34,6 @@
 - Martes 10 de junio: Añadidas opciones de gestión en los detalles del grupo para miembros, presupuestos y gastos. Desarrollo de las primeras opciones (5h)
 - Jueves 12 de junio: Completadas todas las opciones de miembros. Completadas todas las opciones de presupuestos. Avance en opciones de grupo (9h)
 - Viernes 13 de junio: Mejoras de funcionamiento en la gestión de gastos, completado añadir gastos. Ahora desde la página principal se puede ver el intervalo de presupuestos gastado, con diferenciación de colores. Corrección de errores en otras opciones de gestión de grupos. (5h)
+- Sábado 14 de junio: Todas las opciones de gestión en los detalles del grupo totalmente funcionales. Mejoras en las ya creadas anteriormente. Creado el entorno donde se hará la guía del usuario. Corrección de errores en la pantalla principal (7h)
 
-TOTAL HASTA AHORA: 145h
+TOTAL HASTA AHORA: 152h

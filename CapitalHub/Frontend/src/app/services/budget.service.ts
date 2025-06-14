@@ -4,12 +4,13 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface Budget {
-  id_presupuesto: number;
-  nombre:         string;
-  cantidad:       number;
-  descripcion:    string;
-  fecha_inicio:   string;
-  fecha_fin:      string;
+  id_presupuesto : number;
+  nombre         : string;
+  cantidad       : number;
+  descripcion    : string;
+  fecha_inicio   : string;
+  fecha_fin      : string;
+  id_grupo       : number;
 }
 
 export interface BudgetDto {
@@ -25,6 +26,12 @@ export class BudgetService {
   private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
+
+  getBudgetInfoByID(id: number): Observable<Budget> {
+    return this.http.get<Budget>(
+      `${this.apiUrl}/presupuestos/${id}`
+    );
+  }
 
   /** Crea un presupuesto dentro de un grupo */
   create(grupoId: number, data: BudgetDto): Observable<Budget> {

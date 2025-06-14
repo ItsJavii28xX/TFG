@@ -43,7 +43,7 @@
       <ng-container *ngIf="(groupResults$ | async) as groups">
         <div class="dropdown-section" *ngIf="groups.length > 0">
           <div class="section-title">Grupos</div>
-          <div *ngFor="let g of groups" class="dropdown-item" (click)="goToGroupDetail(g)">
+          <div *ngFor="let g of groups" class="dropdown-item" [routerLink]="['/app-group-details', g.id_grupo]">">
             <mat-icon class="item-icon">group</mat-icon>
             <span class="item-text">{{ g.nombre }}</span>
           </div>

@@ -1,7 +1,6 @@
 <div class="details-layout">
-  <!-- ==== PANELO PRINCIPAL ==== -->
+  <!-- ==== PANEL PRINCIPAL ==== -->
   <mat-card class="details-card">
-    <!-- Cabecera igual -->
     <div class="header">
       <h1>{{ (group$ | async)?.nombre }}</h1>
     </div>
@@ -199,12 +198,27 @@
         </div>
         <mat-list>
           <mat-list-item *ngFor="let g of acceptedPage">
+            <!-- checkbox de borrar -->
+            <mat-checkbox
+              *ngIf="deleteExpenseMode"
+              (change)="toggleSelectExpense(g, $event.checked)">
+            </mat-checkbox>
+
+            <!-- botón editar inline -->
+            <button mat-icon-button *ngIf="updateExpenseMode" (click)="openEditExpenseOverlay(g)">
+              <mat-icon>edit</mat-icon>
+            </button>
+
             <div matLine>
-              {{ g.descripcion }} – {{ g.cantidad | currency }} – {{ getBudgetNameById(g.id_presupuesto) }}
+              {{ g.nombre }} – {{ g.cantidad | currency }} – {{ getBudgetNameById(g.id_presupuesto) }}
             </div>
-            <div matLine class="expense-date">{{ g.fecha_creacion | date:'shortDate' }}</div>
+            <div matLine class="expense-date">
+              {{ g.fecha_creacion | date:'shortDate' }}
+            </div>
           </mat-list-item>
-          <mat-list-item *ngIf="acceptedExpenses.length===0">No hay gastos aceptados</mat-list-item>
+          <mat-list-item *ngIf="acceptedExpenses.length === 0">
+            No hay gastos aceptados
+          </mat-list-item>
         </mat-list>
       </div>
 
@@ -224,7 +238,7 @@
           <mat-list>
             <mat-list-item *ngFor="let g of pendingPage">
               <div matLine>
-                {{ g.descripcion }} – {{ g.cantidad | currency }} – {{ getBudgetNameById(g.id_presupuesto) }}
+                {{ g.nombre }} – {{ g.cantidad | currency }} – {{ getBudgetNameById(g.id_presupuesto) }}
               </div>
               <div matLine class="expense-date">{{ g.fecha_creacion | date:'shortDate' }}</div>
               <button mat-mini-button color="primary" (click)="approve(g)">Aceptar</button>
@@ -252,12 +266,27 @@
         </div>
         <mat-list>
           <mat-list-item *ngFor="let g of deniedPage">
+            <!-- checkbox de borrar -->
+            <mat-checkbox
+              *ngIf="deleteExpenseMode"
+              (change)="toggleSelectExpense(g, $event.checked)">
+            </mat-checkbox>
+
+            <!-- botón editar inline -->
+            <button mat-icon-button *ngIf="updateExpenseMode" (click)="openEditExpense(g)">
+              <mat-icon>edit</mat-icon>
+            </button>
+
             <div matLine>
-              {{ g.descripcion }} – {{ g.cantidad | currency }} – {{ getBudgetNameById(g.id_presupuesto) }}
+              {{ g.nombre }} – {{ g.cantidad | currency }} – {{ getBudgetNameById(g.id_presupuesto) }}
             </div>
-            <div matLine class="expense-date">{{ g.fecha_creacion | date:'shortDate' }}</div>
+            <div matLine class="expense-date">
+              {{ g.fecha_creacion | date:'shortDate' }}
+            </div>
           </mat-list-item>
-          <mat-list-item *ngIf="deniedExpenses.length===0">No hay gastos denegados</mat-list-item>
+          <mat-list-item *ngIf="deniedExpenses.length === 0">
+            No hay gastos denegados
+          </mat-list-item>
         </mat-list>
       </div>
 
@@ -271,7 +300,7 @@
           </mat-card-header>
 
           <mat-card-content [formGroup]="addExpenseOverlayForm">
-            <!-- 1) Selección de presupuesto activo -->
+            <!-- Selección de presupuesto activo -->
             <mat-form-field appearance="fill" class="full-width">
               <mat-label>Presupuesto</mat-label>
               <mat-select formControlName="id_presupuesto" required>
@@ -281,19 +310,19 @@
               </mat-select>
             </mat-form-field>
 
-            <!-- 2) Nombre -->
+            <!-- Nombre -->
             <mat-form-field appearance="fill" class="full-width">
               <mat-label>Nombre</mat-label>
               <input matInput formControlName="nombre" required />
             </mat-form-field>
 
-            <!-- 3) Cantidad -->
+            <!-- Cantidad -->
             <mat-form-field appearance="fill" class="full-width">
               <mat-label>Cantidad</mat-label>
               <input matInput type="number" formControlName="cantidad" required />
             </mat-form-field>
 
-            <!-- 4) Descripción -->
+            <!-- Descripción -->
             <mat-form-field appearance="fill" class="full-width">
               <mat-label>Descripción</mat-label>
               <textarea matInput formControlName="descripcion"></textarea>
@@ -311,57 +340,114 @@
         </mat-card>
       </div>
 
-      <!-- Formulario Añadir Gasto -->
-      <form
-        *ngIf="showAddExpenseForm"
-        [formGroup]="addExpenseForm"
-        class="inline-form"
-        (ngSubmit)="submitAddExpense()"
-      >
-        <mat-form-field appearance="fill">
-          <mat-label>Descripción</mat-label>
-          <input matInput formControlName="descripcion" required />
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Cantidad</mat-label>
-          <input matInput type="number" formControlName="cantidad" required />
-        </mat-form-field>
-        <div class="form-buttons">
-          <button mat-raised-button color="primary" type="submit" [disabled]="addExpenseForm.invalid">
-            Añadir
-          </button>
-          <button mat-button type="button" (click)="toggleAddExpenseForm()">Cancelar</button>
-        </div>
-      </form>
+      <!-- Overlay de edición de gasto -->
+      <div class="overlay" *ngIf="showEditExpenseOverlay">
+        <mat-card class="edit-expense-card">
+          <mat-card-header class="headerAddExpense">
+            <mat-card-title>Editar gasto</mat-card-title>
+            <button mat-icon-button (click)="cancelEditExpenseOverlay()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-card-header>
 
-      <!-- Formulario Editar Gasto -->
-      <form
-        *ngIf="updateExpenseMode"
-        [formGroup]="updateExpenseForm"
-        class="inline-form"
-        (ngSubmit)="submitUpdateExpense()"
-      >
-        <mat-form-field appearance="fill">
-          <mat-label>Descripción</mat-label>
-          <input matInput formControlName="descripcion" required />
-        </mat-form-field>
-        <mat-form-field appearance="fill">
-          <mat-label>Cantidad</mat-label>
-          <input matInput type="number" formControlName="cantidad" required />
-        </mat-form-field>
-        <div class="form-buttons">
-          <button mat-raised-button color="accent" type="submit" [disabled]="updateExpenseForm.invalid">
-            Guardar
-          </button>
-          <button mat-button type="button" (click)="toggleUpdateExpenseMode()">Cancelar</button>
-        </div>
-      </form>
+          <form [formGroup]="editExpenseForm" (ngSubmit)="goToReviewExpense()">
+            <mat-card-content>
+              <!-- Seleccionar gasto -->
+              <mat-form-field appearance="fill" class="full-width">
+                <mat-label>Gasto</mat-label>
+                <mat-select formControlName="id_gasto"
+                            (selectionChange)="onExpenseSelected($event.value)"
+                            required>
+                  <mat-option *ngFor="let g of editableExpenses" [value]="g.id_gasto">
+                    {{ g.descripcion }} – {{ g.cantidad | currency }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <!-- Nombre / Descripción corta -->
+              <mat-form-field appearance="fill" class="full-width">
+                <mat-label>Descripción</mat-label>
+                <input matInput formControlName="descripcion" required>
+              </mat-form-field>
+
+              <!-- Cantidad -->
+              <mat-form-field appearance="fill" class="full-width">
+                <mat-label>Cantidad</mat-label>
+                <input matInput type="number" formControlName="cantidad" required>
+              </mat-form-field>
+
+            </mat-card-content>
+
+            <mat-card-actions align="end">
+              <button mat-button type="button" (click)="cancelEditExpenseOverlay()">Cancelar</button>
+              <button mat-raised-button color="primary" type="submit"
+                      [disabled]="editExpenseForm.invalid">
+                Siguiente
+              </button>
+            </mat-card-actions>
+          </form>
+        </mat-card>
+      </div>
+
+      <!-- Overlay de revisión de edición de gasto -->
+      <div class="overlay" *ngIf="showReviewExpenseOverlay">
+        <mat-card class="confirm-card">
+          <mat-card-header>
+            <mat-card-title>Revisar cambios</mat-card-title>
+          </mat-card-header>
+
+          <mat-card-content>
+            <p>Vas a cambiar:</p>
+            <mat-list dense>
+              <mat-list-item *ngFor="let c of reviewExpenseChanges">
+                <strong>{{ c.field }}:</strong>
+                <span class="before">{{ c.before }}</span> →
+                <span class="after">{{ c.after }}</span>
+              </mat-list-item>
+            </mat-list>
+          </mat-card-content>
+
+          <mat-card-actions align="end">
+            <button mat-button (click)="backToEditExpense()">Volver</button>
+            <button mat-raised-button color="warn" (click)="confirmReviewExpense()">
+              Confirmar
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+
+      <div *ngIf="deleteExpenseMode && selectedExpenses.length" class="bulk-delete">
+        <button mat-button color="warn" (click)="openConfirmDeleteExpenses()">
+          Eliminar {{selectedExpenses.length}} gasto(s)
+        </button>
+        <button mat-button (click)="cancelDeleteExpenses()">Cancelar</button>
+      </div>
     </section>
 
     <button mat-stroked-button color="warn" class="back-btn" (click)="goBack()">
       <mat-icon>arrow_back</mat-icon> Volver
     </button>
   </mat-card>
+
+  <!-- Overlay de error de presupuesto -->
+  <div class="overlay" *ngIf="showBudgetErrorOverlay">
+    <mat-card class="error-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon color="warn">error_outline</mat-icon>
+          Límite de presupuesto excedido
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>{{ budgetErrorMessage }}</p>
+      </mat-card-content>
+      <mat-card-actions align="end">
+        <button mat-button (click)="closeBudgetErrorOverlay()">
+          Cerrar
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
 
   <!-- ==== PANEL DE GESTIÓN ==== -->
   <mat-nav-list class="management-panel">
@@ -427,14 +513,14 @@
       <button mat-mini-fab color="warn" (click)="toggleDeleteExpenseMode()">
         <mat-icon>delete</mat-icon>
       </button>
-      <button mat-mini-fab color="accent" (click)="toggleUpdateExpenseMode()">
+      <button mat-mini-fab color="accent" (click)="openEditExpenseOverlay(acceptedExpenses[0])">
         <mat-icon>edit</mat-icon>
       </button>
     </mat-list-item>
   </mat-nav-list>
 </div>
 
-<!-- ① Overlay de Edición UNO-A-UNO -->
+<!-- Overlay de Edición UNO-A-UNO -->
 <div class="overlay-2" *ngIf="showEditBudgetOverlay">
   <mat-card class="overlay-card-2">
     <mat-card-header>
@@ -485,7 +571,7 @@
   </mat-card>
 </div>
 
-<!-- ② Overlay de Revisión -->
+<!-- Overlay de Revisión -->
 <div class="overlay" *ngIf="showReviewBudgetOverlay">
   <mat-card class="overlay-card">
     <mat-card-header>

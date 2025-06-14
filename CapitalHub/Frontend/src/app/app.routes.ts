@@ -26,7 +26,7 @@ export const routes: Routes = [
       { path: '',               redirectTo: 'home',            pathMatch: 'full' },
       { path: 'home',           component: HomeComponent, data: { animation: 'HomePage' }       },
       { path: 'perfil/:id',     component: UserProfileComponent },
-      { path: 'app-group-details/:id_grupo', component: GroupDetailsComponent, data: { animation: 'DetailsPage' } }
+      { path: 'app-group-details/:id_grupo', component: GroupDetailsComponent, data: { animation: 'DetailsPage' } },
     ]
   },
   { path: '**', redirectTo: '' }
