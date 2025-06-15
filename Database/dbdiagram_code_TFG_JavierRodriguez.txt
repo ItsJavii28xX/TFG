@@ -1,77 +1,91 @@
 Table Usuarios {
-  id_usuario int [pk, increment]
-  nombre varchar
-  apellidos varchar
-  email varchar [unique]
-  contraseña varchar
-  telefono varchar
-  imagen_perfil varchar
-  oauth_provider varchar
-  oauth_id varchar
+  id_usuario      int [pk, increment]
+  nombre          varchar(100)
+  apellidos       varchar(150)
+  email           varchar(150) [unique]
+  contraseña      varchar(255)
+  telefono        varchar(20)
+  imagen_perfil   text
+  oauth_provider  varchar(50)
+  oauth_id        varchar(255)
 }
 
 Table Grupos {
-  id_grupo int [pk, increment]
-  nombre varchar
-  fecha_creacion datetime
+  id_grupo        int [pk, increment]
+  nombre          varchar(150)
+  fecha_creacion  datetime [default: `CURRENT_TIMESTAMP`]
 }
 
 Table Usuarios_Grupos {
   id_usuario_grupo int [pk, increment]
-  id_grupo int [ref: > Grupos.id_grupo]
-  id_usuario int [ref: > Usuarios.id_usuario]
-  es_administrador boolean
-  fecha_union datetime
+  id_usuario       int [ref: > Usuarios.id_usuario]
+  id_grupo         int [ref: > Grupos.id_grupo]
+  es_administrador boolean [default: false]
+  fecha_union      datetime [default: `CURRENT_TIMESTAMP`]
 }
 
 Table Presupuestos {
-  id_presupuesto int [pk, increment]
-  id_grupo int [ref: > Grupos.id_grupo]
-  nombre varchar
-  cantidad decimal
-  descripcion text
-  fecha_inicio datetime
-  fecha_fin datetime
+  id_presupuesto   int [pk, increment]
+  id_grupo         int [ref: > Grupos.id_grupo]
+  nombre           varchar(150)
+  cantidad         decimal(10,2)
+  descripcion      text
+  fecha_inicio     datetime
+  fecha_fin        datetime
 }
 
 Table Gastos {
-  id_gasto int [pk, increment]
-  id_presupuesto int [ref: > Presupuestos.id_presupuesto]
-  id_usuario int [ref: > Usuarios.id_usuario]
-  id_grupo int [ref: > Grupos.id_grupo]
-  nombre varchar
-  cantidad decimal
-  descripcion text
-  estado varchar
-  fecha_creacion datetime
+  id_gasto         int [pk, increment]
+  id_presupuesto   int [ref: > Presupuestos.id_presupuesto]
+  id_usuario       int [ref: > Usuarios.id_usuario]
+  id_grupo         int [ref: > Grupos.id_grupo]
+  nombre           varchar(150)
+  cantidad         decimal(10,2)
+  descripcion      text
+  estado           enum('pendiente', 'aceptado', 'denegado') [default: 'pendiente']
+  fecha_creacion   datetime [default: `CURRENT_TIMESTAMP`]
 }
 
 Table Categorias {
-  id_categoria int [pk, increment]
-  id_grupo int [ref: > Grupos.id_grupo]
-  nombre varchar
-  descripcion text
+  id_categoria     int [pk, increment]
+  id_grupo         int [ref: > Grupos.id_grupo]
+  nombre           varchar(100)
+  descripcion      text
 }
 
 Table Contactos {
-  id_contacto int [pk, increment]
-  id_usuario int [ref: > Usuarios.id_usuario]
-  nombre varchar
-  email varchar
-  telefono varchar
+  id_contacto             int [pk, increment]
+  id_usuario_propietario  int [ref: > Usuarios.id_usuario]
+  id_usuario_contacto     int [ref: > Usuarios.id_usuario]
+  nombre                  varchar(150)
+  email                   varchar(150)
+  telefono                varchar(20)
 }
 
 Table Alertas_Limites {
-  id_alerta int [pk, increment]
-  id_usuario int [ref: > Usuarios.id_usuario]
-  limite decimal
-  email_notificacion varchar
+  id_alerta         int [pk, increment]
+  id_usuario        int [ref: > Usuarios.id_usuario]
+  limite            decimal(10,2)
+  email_notificacion varchar(150)
 }
 
 Table Historico {
-  id_historico int [pk, increment]
-  id_grupo int [ref: > Grupos.id_grupo]
-  accion varchar
-  id_usuario int [ref: > Usuarios.id_usuario]
-  fecha datetime
+  id_historico      int [pk, increment]
+  id_grupo          int [ref: > Grupos.id_grupo]
+  id_usuario        int [ref: > Usuarios.id_usuario]
+  id_gasto          int [ref: > Gastos.id_gasto]
+  accion            varchar(255)
+  fecha             datetime [default: `CURRENT_TIMESTAMP`]
+}
+
+Table Tokens {
+  id_token     int [pk, increment]
+  token        text
+  created_at   datetime [default: `CURRENT_TIMESTAMP`]
+}
+
+Table UsuarioTokens {
+  id           int [pk, increment]
+  id_token     int [ref: > Tokens.id_token]
+  id_usuario   int [ref: > Usuarios.id_usuario]
 }

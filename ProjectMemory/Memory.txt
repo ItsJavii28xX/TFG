@@ -35,5 +35,6 @@
 - Jueves 12 de junio: Completadas todas las opciones de miembros. Completadas todas las opciones de presupuestos. Avance en opciones de grupo (9h)
 - Viernes 13 de junio: Mejoras de funcionamiento en la gestión de gastos, completado añadir gastos. Ahora desde la página principal se puede ver el intervalo de presupuestos gastado, con diferenciación de colores. Corrección de errores en otras opciones de gestión de grupos. (5h)
 - Sábado 14 de junio: Todas las opciones de gestión en los detalles del grupo totalmente funcionales. Mejoras en las ya creadas anteriormente. Creado el entorno donde se hará la guía del usuario. Corrección de errores en la pantalla principal (7h)
+- Domingo 15 de junio: Final del desarrollo del proyecto. Realización de la presentación del proyecto. Actualizaciones en los modelos de la base de datos para que concuerde con el de la aplicación (4h)
 
-TOTAL HASTA AHORA: 152h
+TOTAL: 156h
