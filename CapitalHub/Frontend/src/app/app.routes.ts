@@ -10,6 +10,8 @@ import { HomeComponent } from './components/home/home.component';
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
 import { PersonalComponent } from './components/personal/personal.component';
 import { GroupDetailsComponent } from './components/group-details/group-details.component';
+import { PrivacyPolicyComponent } from './components/privacy-policy/privacy-policy.component';
+import { TermsAndConditionsComponent } from './components/terms-and-conditions/terms-and-conditions.component';
 
 export const routes: Routes = [
 
@@ -17,6 +19,8 @@ export const routes: Routes = [
   { path: 'register',       component: RegisterComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'personal',   component: PersonalComponent },
+  { path: 'politica-privacidad', component: PrivacyPolicyComponent },
+  { path: 'terminos-condiciones', component: TermsAndConditionsComponent },
 
   {
     path: '',

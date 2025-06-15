@@ -102,6 +102,12 @@
         <span>Cerrar Sesión</span>
       </button>
     </mat-menu>
+
+    <button mat-button class="help-btn" (click)="openHelp()">
+      <mat-icon>help_outline</mat-icon>
+      Ayuda
+    </button>
+
   </nav>
 
   <!-- =======================
@@ -119,6 +125,33 @@
       <button mat-button (click)="showLogoutOverlay = false">
         Cancelar
       </button>
+    </div>
+  </div>
+
+  <div class="help-overlay" *ngIf="showHelp">
+    <div class="help-modal">
+      <img class="help-img" [src]="helpPages[currentPage].img" 
+          alt="Guía: {{helpPages[currentPage].title}}" />
+      <h2>{{ helpPages[currentPage].title }}</h2>
+      <p>{{ helpPages[currentPage].text }}</p>
+
+      <div class="help-nav">
+        <button mat-button
+                (click)="prevPage()"
+                [disabled]="currentPage === 0">
+          ← Anterior: {{ helpPages[currentPage - 1]?.title }}
+        </button>
+
+        <button mat-button color="warn" (click)="closeHelp()">
+          Cerrar
+        </button>
+
+        <button mat-button
+                (click)="nextPage()"
+                [disabled]="currentPage === helpPages.length - 1">
+          Siguiente: {{ helpPages[currentPage + 1]?.title }} →
+        </button>
+      </div>
     </div>
   </div>
 </header>

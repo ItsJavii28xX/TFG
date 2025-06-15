@@ -323,3 +323,49 @@
   }
 }
 
+/* Botón de Ayuda en el header */
+.help-btn {
+  margin-left: auto;
+  color: #fff;
+}
+
+/* Overlay de fondo semitransparente */
+.help-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Modal centrado */
+.help-modal {
+  background: #1e1e1e;
+  color: #fff;
+  padding: 24px;
+  border-radius: 8px;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 0 20px rgba(255,255,255,0.1);
+  text-align: center;
+}
+
+/* Imagen descriptiva */
+.help-img {
+  width: 600px;
+  height: 400px;
+  object-fit: contain; /* o “cover” si prefieres recortar para llenar todo el espacio */
+  margin-bottom: 16px;
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+/* Navegación de páginas */
+.help-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+}
